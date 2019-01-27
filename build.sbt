@@ -1,6 +1,6 @@
-name := "automation-tesing-tool"
+name := "cartagena-tool"
 
-organization := "org.automation.testing"
+organization := "org.cartagena.tool"
 
 version := "1.0.0-SNAPSHOT"
 
