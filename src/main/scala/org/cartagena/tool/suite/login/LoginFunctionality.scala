@@ -1,31 +1,40 @@
 package org.cartagena.tool.suite.login
 
-import org.cartagena.tool.core._
 import org.cartagena.tool.core.Process._
+import org.cartagena.tool.core._
 
 object LoginFunctionalityAndLocalHostProfile extends App {
 
-  val suite = LoginTestCase(onlyLocalHostProfile)
+  val testCase = LoginTestCase(onlyLocalHostProfile)
 
-  val props = suite.profile.getAllProperties
+  val props = testCase.profile.getAllProperties
   print(props)
 
-  val steps = suite.getSteps.map(_.name).mkString("\n")
+  val steps = testCase.testSteps.map(_.name).mkString("\n")
   println("\n" + steps)
 
   val f: Step => Step = step => {
-    println("-------------------------")
-    println(step.name)
+    println(s"Step to execute: ${step.name}")
     step.execute()
-    println("-------------------------")
 
     step
   }
 
   println("------------------------------------------------------------------------------------------------------")
   println("Lift example:")
-  val l = lift(f)(suite.getSteps).toList.map(_.get.name)
-  println(l mkString "; ")
+  val stepsProcess: Process[Step, Step] = lift[Step, Step](f)
+  println(stepsProcess(testCase.testSteps) mkString "")
+  println("\t\t\t ===> Should be: ('LoginStep1', 'LoginStep2')")
+  println("------------------------------------------------------------------------------------------------------")
+
+  println("------------------------------------------------------------------------------------------------------")
+  println("Lift example 2:")
+  val ints0: Process[Int, Int] = lift[Int, Int] { x =>
+    println("Number: " + x)
+    x + 3
+  }
+  println(ints0(Stream(1, 2, 3, 4, 5, 6)) mkString "")
+  println("\t\t\t ===> Should be: (4, 5, 6, 7, 8, 9)")
   println("------------------------------------------------------------------------------------------------------")
 
   println("------------------------------------------------------------------------------------------------------")
@@ -165,9 +174,52 @@ object LoginFunctionalityAndLocalHostProfile extends App {
     case 3 => throw Kill
     case x => x
   }.flatMap(n => Emit(n))
-  print(ints16(Stream(1, 2, 3, 4, 5, 6)) mkString ";")
+  print(ints17(Stream(1, 2, 3, 4, 5, 6)) mkString ";")
   println("\t\t\t ===> Should be: (S(1), S(2))")
   println("------------------------------------------------------------------------------------------------------")
 
+  println("------------------------------------------------------------------------------------------------------")
+  println("Append + Halt(err) on 1st process example:")
+  val ints18: Process[String, Int] = lift[String, Int](_.toInt) |> lift(_ + 3)
+  print(ints18(Stream("1", "2", "A", "4", "5", "6")) mkString ";")
+  println("\t\t\t ===> Should be: (S(4), S(5), F(err))")
+  println("------------------------------------------------------------------------------------------------------")
+
+  println("------------------------------------------------------------------------------------------------------")
+  println("Append + Halt(err) on 2nd process example:")
+  val ints19: Process[String, Int] = lift[String, Int](_.toInt) |> lift {
+    case 4 => throw new Exception
+    case x => x + 3
+  }
+  print(ints19(Stream("1", "2", "3", "4", "5", "6")) mkString ";")
+  println("\t\t\t ===> Should be: (S(4), S(5), S(6), F(err))")
+  println("------------------------------------------------------------------------------------------------------")
+
+  println("------------------------------------------------------------------------------------------------------")
+  println("Append + Halt(Kill) on 1st process example:")
+  val ints20: Process[String, Int] = lift[String, Int] {
+    case "3" => throw Kill
+    case x => x.toInt
+  } |> lift(_ + 3)
+  print(ints20(Stream("1", "2", "3", "4", "5", "6")) mkString ";")
+  println("\t\t\t ===> Should be: (S(4), S(5))")
+  println("------------------------------------------------------------------------------------------------------")
+
+  println("------------------------------------------------------------------------------------------------------")
+  println("Append + Halt(Kill) on 2nd process example:")
+  val ints21: Process[String, Int] = lift[String, Int](_.toInt) |> lift {
+    case 3 => throw Kill
+    case x => x + 3
+  }
+  print(ints21(Stream("1", "2", "3", "4", "5", "6")) mkString ";")
+  println("\t\t\t ===> Should be: (S(4), S(5))")
+  println("------------------------------------------------------------------------------------------------------")
+
+  println("------------------------------------------------------------------------------------------------------")
+  println("Drain example:")
+  val ints22: Process[Int, Int] = lift[Int, Int](identity).drain
+  print(ints22(Stream(1, 2, 3, 4, 5, 6)) mkString ";")
+  println("\t\t\t ===> Should be: empty Stream")
+  println("------------------------------------------------------------------------------------------------------")
 
 }

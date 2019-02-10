@@ -1,6 +1,6 @@
 package org.cartagena.tool.core
 
-trait Context[T] {
+sealed trait Context[T] {
 
   def get: T
 
@@ -29,7 +29,7 @@ case object EmptyContext extends Context[Nothing] {
 
 }
 
-trait Step {
+sealed trait Step {
   type C
 
   val name: String

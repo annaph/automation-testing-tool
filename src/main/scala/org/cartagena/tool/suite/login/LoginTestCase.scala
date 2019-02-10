@@ -8,10 +8,6 @@ case class LoginTestCase(profile: Profile) extends TestCase {
 
   override val name: String = "Login Functionality Test Case"
 
-  override def setupStep: SetupStep = new NoopSetupStep(profile)
-
-  override def testStep: TestStep = new LoginStep(profile)
-
-  override def cleanupStep: CleanupStep = new NoopCleanupSteps(profile)
+  override def firstStep: TestStep = new LoginStep(profile)
 
 }
