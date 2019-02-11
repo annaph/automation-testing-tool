@@ -1,8 +1,7 @@
 package org.cartagena.tool.suite.login
 
-import org.cartagena.tool.core._
-import Steps._
-import org.cartagena.tool.suite.login
+import org.cartagena.tool.core.model.{Profile, TestCase, TestStep}
+import org.cartagena.tool.suite.login.Steps._
 
 case class LoginTestCase(profile: Profile) extends TestCase {
 

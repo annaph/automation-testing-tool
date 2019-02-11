@@ -1,4 +1,4 @@
-package org.cartagena.tool.core
+package org.cartagena.tool.core.model
 
 trait TestCase {
 
@@ -6,7 +6,7 @@ trait TestCase {
 
   def profile: Profile
 
-  def firstStep: TestStep
+  def firstStep: TestStep = NilStep
 
   def testSteps: Stream[TestStep] =
     TestCase getTestSteps this
@@ -16,6 +16,6 @@ trait TestCase {
 object TestCase {
 
   private def getTestSteps(testCase: TestCase): Stream[TestStep] =
-    getStepsFrom(testCase.firstStep)
+    getStepsFrom(testCase.firstStep)(_.nextTestStep)
 
 }

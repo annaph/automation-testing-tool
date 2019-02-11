@@ -1,4 +1,4 @@
-package org.cartagena.tool.core
+package org.cartagena.tool.core.model
 
 trait Suite {
 
@@ -8,9 +8,9 @@ trait Suite {
 
   def testCases: List[TestCase]
 
-  def setupStep: SetupStep
+  def setupStep: SetupStep = NilStep
 
-  def cleanupStep: CleanupStep
+  def cleanupStep: CleanupStep = NilStep
 
   def setupSteps: Stream[SetupStep] =
     Suite.getSetupSteps(this)
@@ -23,9 +23,9 @@ trait Suite {
 object Suite {
 
   private def getSetupSteps(suite: Suite): Stream[SetupStep] =
-    getStepsFrom(suite.setupStep)
+    getStepsFrom(suite.setupStep)(_.nextSetupStep)
 
   private def getCleanupSteps(suite: Suite): Stream[CleanupStep] =
-    getStepsFrom(suite.cleanupStep)
+    getStepsFrom(suite.cleanupStep)(_.nextCleanupStep)
 
 }

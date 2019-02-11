@@ -1,4 +1,4 @@
-package org.cartagena.tool.core
+package org.cartagena.tool.core.model
 
 import java.util.Properties
 

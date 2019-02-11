@@ -1,7 +1,7 @@
 package org.cartagena.tool.suite.login
 
-import org.cartagena.tool.core.Process._
-import org.cartagena.tool.core._
+import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model._
 
 object LoginFunctionalityAndLocalHostProfile extends App {
 

@@ -1,4 +1,4 @@
-package org.cartagena.tool.core
+package org.cartagena.tool.core.model
 
 import scala.util.{Failure, Success, Try}
 
@@ -54,10 +54,8 @@ object Process {
   def apply[I, O](p: Process[I, O], s: Stream[I]): Stream[Try[O]] = p match {
     case Await(recv) => s match {
       case h #:: t =>
-        //`try`(Some(h))(recv)(t)
         `try`(recv(Some(h)))(t)
       case xs =>
-        //`try`(None)(recv)(xs)
         `try`(recv(None))(xs)
     }
     case Emit(h, t) =>
@@ -100,11 +98,13 @@ object Process {
       halt
   }.repeat
 
-  def take[I](n: Int): Process[I, I] = await[I, I] {
-    case Some(i) if n > 1 =>
-      emit(i, take(n - 1))
-    case Some(i) if n == 1 =>
-      emit(i, take(0))
+  def take[I](n: Int): Process[I, I] = n match {
+    case _ if n > 0 => await[I, I] {
+      case Some(i) =>
+        emit(i, take(n - 1))
+      case _ =>
+        halt
+    }
     case _ =>
       halt
   }
@@ -238,8 +238,12 @@ object Process {
         case Halt(err) =>
           halt(err)
       }
-      case Halt(err) =>
-        halt(err)
+      case Halt(err) => pr2 match {
+        case Emit(h2, t2) =>
+          emit(h2)
+        case _ =>
+          halt(err)
+      }
     }
 
     go(p1, p2)

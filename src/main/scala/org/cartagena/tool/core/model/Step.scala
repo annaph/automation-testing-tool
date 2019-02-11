@@ -1,4 +1,4 @@
-package org.cartagena.tool.core
+package org.cartagena.tool.core.model
 
 sealed trait Context[T] {
 
@@ -32,7 +32,7 @@ case object EmptyContext extends Context[Nothing] {
 sealed trait Step {
   type C
 
-  val name: String
+  def name: String
 
   def profile: Profile
 
@@ -40,19 +40,34 @@ sealed trait Step {
 
   def execute(): Unit
 
-  def nextStep: Option[Step]
 }
 
-trait SetupStep extends Step {
-  override def nextStep: Option[SetupStep]
+sealed trait SetupStep extends Step {
+  def nextSetupStep: SetupStep = NilStep
 }
 
-trait CleanupStep extends Step {
-  override def nextStep: Option[CleanupStep]
+sealed trait TestStep extends Step {
+  def nextTestStep: TestStep = NilStep
 }
 
-trait TestStep extends Step {
-  override def nextStep: Option[TestStep]
+sealed trait CleanupStep extends Step {
+  def nextCleanupStep: CleanupStep = NilStep
+}
+
+case object NilStep extends SetupStep with TestStep with CleanupStep {
+  override type C = Nothing
+
+  override val name: String = "Nill step"
+
+  override def profile: Profile =
+    throw new UnsupportedOperationException
+
+  override def context: Context[C] =
+    throw new UnsupportedOperationException
+
+  override def execute(): Unit =
+    throw new UnsupportedOperationException
+
 }
 
 abstract class AbstractStep[T](val profile: Profile, val context: Context[T]) extends Step {

@@ -1,6 +1,6 @@
 package org.cartagena.tool.suite.login
 
-import org.cartagena.tool.core._
+import org.cartagena.tool.core.model.{Profile, ProfileLocation}
 
 object Profiles {
 

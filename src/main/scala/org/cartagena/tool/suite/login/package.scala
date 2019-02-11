@@ -1,6 +1,6 @@
 package org.cartagena.tool.suite
 
-import org.cartagena.tool.core._
+import org.cartagena.tool.core.model.{Context, DefaultProfile, Profile, TestContext}
 import org.cartagena.tool.suite.login.Profiles.{LocalHostProfile, VagrantProfile}
 
 package object login {
