@@ -49,20 +49,6 @@ object LoginFunctionalityAndLocalHostProfile extends App {
   println("------------------------------------------------------------------------------------------------------")
 
   println("------------------------------------------------------------------------------------------------------")
-  println("Zip With Index example:")
-  val ints9: Process[String, (String, Int)] = zipWithIndex
-  print(ints9(Stream("A", "B", "C")).map(_.get) mkString ";")
-  println("\t\t\t ===> Should be: (A0, B1, C2)")
-  println("------------------------------------------------------------------------------------------------------")
-
-  println("------------------------------------------------------------------------------------------------------")
-  println("Exists example:")
-  val ints10: Process[Int, Boolean] = exists(_ % 2 == 0)
-  print(ints10(Stream(1, 3, 5, 6, 7)).map(_.get) mkString ";")
-  println("\t\t\t ===> Should be: (F, F, F, T)")
-  println("------------------------------------------------------------------------------------------------------")
-
-  println("------------------------------------------------------------------------------------------------------")
   println("Exists example 2:")
   val ints11: Process[Int, Boolean] = count |> exists(_ > 2)
   print(ints11(Stream(1, 3, 5, 6, 7)).map(_.get) mkString ";")
@@ -161,13 +147,6 @@ object LoginFunctionalityAndLocalHostProfile extends App {
   }
   print(ints21(Stream("1", "2", "3", "4", "5", "6")) mkString ";")
   println("\t\t\t ===> Should be: (S(4), S(5))")
-  println("------------------------------------------------------------------------------------------------------")
-
-  println("------------------------------------------------------------------------------------------------------")
-  println("Drain example:")
-  val ints22: Process[Int, Int] = lift[Int, Int](identity).drain
-  print(ints22(Stream(1, 2, 3, 4, 5, 6)) mkString ";")
-  println("\t\t\t ===> Should be: empty Stream")
   println("------------------------------------------------------------------------------------------------------")
 
 }

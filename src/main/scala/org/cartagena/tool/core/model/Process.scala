@@ -16,9 +16,6 @@ sealed trait Process[I, O] {
   def flatMap[O2](f: O => Process[I, O2]): Process[I, O2] =
     Process.flatMap(this)(f)
 
-  def repeat: Process[I, O] =
-    Process.repeat(this)
-
   def drain: Process[I, O] =
     Process drain this
 
@@ -89,14 +86,15 @@ object Process {
   }
 
   def lift[I, O](f: I => O): Process[I, O] =
-    liftOne(f).repeat
+    repeat(liftOne(f))
 
-  def filter[I](p: I => Boolean): Process[I, I] = await[I, I] {
-    case Some(i) if p(i) =>
-      emit(i)
-    case _ =>
-      halt
-  }.repeat
+  def filter[I](p: I => Boolean): Process[I, I] = repeat(
+    await[I, I] {
+      case Some(i) if p(i) =>
+        emit(i)
+      case _ =>
+        halt
+    })
 
   def take[I](n: Int): Process[I, I] = n match {
     case _ if n > 0 => await[I, I] {
@@ -179,25 +177,6 @@ object Process {
       halt(err)
   }
 
-  private def repeat[I, O](p: Process[I, O]): Process[I, O] = {
-    def go(pr: Process[I, O]): Process[I, O] = pr match {
-      case Await(recv) => await {
-        case None =>
-          recv(None)
-        case i =>
-          go(recv(i))
-      }
-      case Emit(h, t) =>
-        emit(h, go(t))
-      case Halt(End) =>
-        go(p)
-      case Halt(err) =>
-        halt(err)
-    }
-
-    go(p)
-  }
-
   private def drain[I, O](p: Process[I, O]): Process[I, O] = p match {
     case Await(recv) =>
       await(recv andThen (_.drain))
@@ -256,6 +235,25 @@ object Process {
       case err =>
         halt(err)
     }
+
+  private def repeat[I, O](p: Process[I, O]): Process[I, O] = {
+    def go(pr: Process[I, O]): Process[I, O] = pr match {
+      case Await(recv) => await {
+        case None =>
+          recv(None)
+        case i =>
+          go(recv(i))
+      }
+      case Emit(h, t) =>
+        emit(h, go(t))
+      case Halt(End) =>
+        go(p)
+      case Halt(err) =>
+        halt(err)
+    }
+
+    go(p)
+  }
 
   private def `try`[I, O](p: => Process[I, O]): Process[I, O] =
     Try(p) match {
