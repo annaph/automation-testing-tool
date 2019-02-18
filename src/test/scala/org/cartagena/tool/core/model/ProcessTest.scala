@@ -108,7 +108,7 @@ class ProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "count" should "create process to count number of processed characters" in {
+  "count" should "create process to count the number of processed characters" in {
     // given
     val process = count[Char]
     val expected = Stream(1, 2, 3)

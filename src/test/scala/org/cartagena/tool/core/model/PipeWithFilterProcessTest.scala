@@ -1,7 +1,6 @@
 package org.cartagena.tool.core.model
 
 import org.cartagena.tool.core.model.Process._
-
 import org.scalatest.{FlatSpec, Matchers}
 
 class PipeWithFilterProcessTest extends FlatSpec with Matchers {
@@ -92,7 +91,8 @@ class PipeWithFilterProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "count |> filter" should "create process to count number of processed characters and then filter odd counters" in {
+  "count |> filter" should "create process to count the number of processed characters and then filter odd " +
+    "counters" in {
     // given
     val process = count[Char] |> filter(_ % 2 != 0)
     val expected = Stream(1, 3)
@@ -115,9 +115,9 @@ class PipeWithFilterProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "exists |> filter" should "create process to find even integer and filter true outputs" in {
+  "exists |> filter" should "create process to find even integer and then filter only true output" in {
     // given
-    val process = exists[Int](_ % 2 == 0) // |> filter(_)
+    val process = exists[Int](_ % 2 == 0) |> filter(o => o)
     val expected = Stream(true)
 
     // when

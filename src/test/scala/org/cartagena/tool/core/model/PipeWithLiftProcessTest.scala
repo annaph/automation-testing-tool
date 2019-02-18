@@ -91,7 +91,7 @@ class PipeWithLiftProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "count |> lift" should "create process to count number of processed characters and then convert counters to " +
+  "count |> lift" should "create process to count the number of processed characters and then convert counters to " +
     "characters" in {
     // given
     val process = count[Char] |> lift(_.toString)

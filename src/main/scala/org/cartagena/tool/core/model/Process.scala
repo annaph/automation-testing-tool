@@ -40,6 +40,8 @@ case class Await[I, O](recv: Option[I] => Process[I, O]) extends Process[I, O]
 
 case class Emit[I, O](head: O, tail: Process[I, O] = Halt[I, O](End)) extends Process[I, O]
 
+case class Reclaim[I, O](i: I, tail: Process[I, O] = Halt[I, O](End)) extends Process[I, O]
+
 case class Halt[I, O](err: Throwable) extends Process[I, O]
 
 case object End extends Exception
@@ -57,6 +59,12 @@ object Process {
     }
     case Emit(h, t) =>
       Success(h) #:: t(s)
+    case Reclaim(i, t) => s match {
+      case x #:: xs =>
+        t(i #:: x #:: xs)
+      case _ =>
+        t(i #:: Stream.empty[I])
+    }
     case Halt(End | Kill) =>
       Stream.empty
     case Halt(err) =>
@@ -68,6 +76,9 @@ object Process {
 
   def emit[I, O](head: O, tail: Process[I, O] = Halt[I, O](End)): Process[I, O] =
     Emit(head, tail)
+
+  def reclaim[I, O](input: I, tail: Process[I, O] = Halt[I, O](End)): Process[I, O] =
+    Reclaim(input, tail)
 
   def halt[I, O]: Process[I, O] =
     Halt(End)
@@ -96,19 +107,17 @@ object Process {
         halt
     })
 
-  def take[I](n: Int): Process[I, I] = n match {
-    case _ if n > 0 => await[I, I] {
-      case Some(i) =>
-        emit(i, take(n - 1))
-      case _ =>
-        halt
-    }
+  def take[I](n: Int): Process[I, I] = await[I, I] {
+    case Some(i) if n > 0 =>
+      emit(i, take(n - 1))
+    case Some(i) if n == 0 =>
+      reclaim(i)
     case _ =>
       halt
   }
 
   def drop[I](n: Int): Process[I, I] = await[I, I] {
-    case Some(i) if n > 0 =>
+    case Some(_) if n > 0 =>
       drop(n - 1)
     case Some(i) if n == 0 =>
       emit(i, drop(0))
@@ -118,7 +127,9 @@ object Process {
 
   def takeWhile[I](f: I => Boolean): Process[I, I] = await[I, I] {
     case Some(i) if f(i) =>
-      Emit(i, takeWhile(f))
+      emit(i, takeWhile(f))
+    case Some(i) =>
+      reclaim(i)
     case _ =>
       halt
   }
@@ -173,6 +184,8 @@ object Process {
       await(recv andThen (_ flatMap f))
     case Emit(h, t) =>
       f(h) ++ t.flatMap(f)
+    case Reclaim(i, t) =>
+      reclaim(i, t.flatMap(f))
     case Halt(err) =>
       halt(err)
   }
@@ -180,8 +193,10 @@ object Process {
   private def drain[I, O](p: Process[I, O]): Process[I, O] = p match {
     case Await(recv) =>
       await(recv andThen (_.drain))
-    case Emit(h, t) =>
+    case Emit(_, t) =>
       t.drain
+    case Reclaim(i, t) =>
+      reclaim(i, t.drain)
     case Halt(err) =>
       halt(err)
   }
@@ -191,6 +206,8 @@ object Process {
       await(recv andThen (_ onHalt f))
     case Emit(h, t) =>
       emit(h, t onHalt f)
+    case Reclaim(i, t) =>
+      reclaim(i, t onHalt f)
     case Halt(e) =>
       f(e)
   }
@@ -206,19 +223,28 @@ object Process {
         }
         case Emit(h2, t2) =>
           emit(h2, go(pr1, t2))
+        case Reclaim(_, _) =>
+          halt(Kill)
         case Halt(err) =>
           halt(err)
       }
+
       case Emit(h1, t1) => pr2 match {
         case Await(recv2) =>
           go(t1, recv2(Some(h1)))
         case Emit(h2, t2) =>
           emit(h2, go(t1, t2))
+        case Reclaim(_, _) =>
+          halt(Kill)
         case Halt(err) =>
           halt(err)
       }
+
+      case Reclaim(i, t1) =>
+        reclaim(i, go(t1, pr2))
+
       case Halt(err) => pr2 match {
-        case Emit(h2, t2) =>
+        case Emit(h2, _) =>
           emit(h2)
         case _ =>
           halt(err)
@@ -246,6 +272,8 @@ object Process {
       }
       case Emit(h, t) =>
         emit(h, go(t))
+      case Reclaim(i, t) =>
+        reclaim(i, go(t))
       case Halt(End) =>
         go(p)
       case Halt(err) =>
