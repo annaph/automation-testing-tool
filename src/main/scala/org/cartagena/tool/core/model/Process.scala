@@ -119,7 +119,7 @@ object Process {
   def drop[I](n: Int): Process[I, I] = await[I, I] {
     case Some(_) if n > 0 =>
       drop(n - 1)
-    case Some(i) if n == 0 =>
+    case Some(i) if n <= 0 =>
       emit(i, drop(0))
     case _ =>
       halt
@@ -138,7 +138,7 @@ object Process {
     case Some(i) if f(i) =>
       dropWhile(f)
     case Some(i) =>
-      emit(i, dropWhile(f))
+      emit(i, dropWhile[I](_ => false))
     case _ =>
       halt
   }
