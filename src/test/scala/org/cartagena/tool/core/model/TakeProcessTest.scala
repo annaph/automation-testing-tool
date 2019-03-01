@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.take
 import org.scalatest.{FlatSpec, Matchers}
 
 class TakeProcessTest extends FlatSpec with Matchers {
@@ -17,7 +17,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "take" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = take[Int](3)
 
@@ -28,7 +28,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     actual should be(Stream.empty[Int])
   }
 
-  "take" should "create process to take zero integers and result to an empty output stream" in {
+  it should "create process to take zero integers and result to an empty output stream" in {
     // given
     val process = take[Int](0)
 
@@ -50,7 +50,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     actual should be(Stream.empty[Int])
   }
 
-  "take" should "create process to take all integers" in {
+  it should "create process to take all integers" in {
     // given
     val process = take[Int](6)
     val expected = Stream(1, 2, 3, 4, 5, 6)
@@ -62,7 +62,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "take" should "create process to take more integers than possible" in {
+  it should "create process to take more integers than possible" in {
     // given
     val process = take[Int](12)
     val expected = Stream(1, 2, 3, 4, 5, 6)

@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.count
 import org.scalatest.{FlatSpec, Matchers}
 
 class CountProcessTest extends FlatSpec with Matchers {
@@ -16,7 +16,7 @@ class CountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "count" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = count[Int]
 

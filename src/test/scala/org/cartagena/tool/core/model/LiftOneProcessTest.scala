@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.liftOne
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.Failure
@@ -19,7 +19,7 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "liftOne" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = liftOne[Int, Int](_ + 3)
 
@@ -30,7 +30,7 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "liftOne" should "create process to handle 'Err' signal" in {
+  it should "create process to handle 'Err' signal" in {
     // given
     val process = liftOne[String, Int](_.toInt)
 
@@ -47,7 +47,7 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "liftOne" should "create process to handle 'Kill' signal" in {
+  it should "create process to handle 'Kill' signal" in {
     // given
     val process = liftOne[String, String] {
       case "a" => throw Kill

@@ -18,7 +18,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "lift ++ count" should "create process to increase each integer by 3 and then append to do nothing" in {
+  it should "create process to increase each integer by 3 and then append to do nothing" in {
     // given
     val process = lift[Int, Int](_ + 3) ++ count
     val expected = Stream(4, 5, 6)
@@ -30,7 +30,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "filter ++ count" should "create process to filter even integers and then append to do nothing" in {
+  it should "create process to filter even integers and then append to do nothing" in {
     // given
     val process = filter[Int](_ % 2 == 0) ++ count
     val expected = Stream(2, 4, 6)
@@ -42,8 +42,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "take ++ count" should "create process to take first three integers and then append to count the number of " +
-    "processed integers" in {
+  it should "create process to take first three integers and then append to count the number of processed integers" in {
     // given
     val process = take[Int](3) ++ count
     val expected = Stream(1, 2, 3, 1, 2, 3)
@@ -55,7 +54,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "drop ++ count" should "create process to drop first three integers and then append to do nothing" in {
+  it should "create process to drop first three integers and then append to do nothing" in {
     // given
     val process = drop[Int](3) ++ count
     val expected = Stream(4, 5, 6)
@@ -67,8 +66,8 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "takeWhile ++ count" should "create process to take integers while integer is smaller than 4 and then append to " +
-    "count the number processed integers" in {
+  it should "create process to take integers while integer is smaller than 4 and then append to count the number " +
+    "processed integers" in {
     // given
     val process = takeWhile[Int](_ < 4) ++ count
     val expected = Stream(1, 2, 3, 1, 2, 3)
@@ -80,8 +79,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "dropWhile ++ count" should "create process to drop integers while integer is smaller than 4 and then append to do " +
-    "nothing" in {
+  it should "create process to drop integers while integer is smaller than 4 and then append to do nothing" in {
     // given
     val process = dropWhile[Int](_ < 4) ++ count
     val expected = Stream(4, 5, 6)
@@ -93,7 +91,7 @@ class AppendWithCountProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "count ++ count" should "create process to count the number of processed integers and then append to do nothing" in {
+  it should "create process to count the number of processed integers and then append to do nothing" in {
     // given
     val process = count[Int] ++ count
     val expected = Stream(1, 2, 3)

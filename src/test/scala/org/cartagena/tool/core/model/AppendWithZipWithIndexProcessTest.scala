@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.{lift, liftOne, zipWithIndex}
 import org.scalatest.{FlatSpec, Matchers}
 
 class AppendWithZipWithIndexProcessTest extends FlatSpec with Matchers {

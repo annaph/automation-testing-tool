@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.zipWithIndex
 import org.scalatest.{FlatSpec, Matchers}
 
 class ZipWithIndexProcessTest extends FlatSpec with Matchers {
@@ -17,7 +17,7 @@ class ZipWithIndexProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "zipWithIndex" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = zipWithIndex[Int]
 

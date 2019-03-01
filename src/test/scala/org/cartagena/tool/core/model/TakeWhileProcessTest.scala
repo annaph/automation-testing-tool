@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.takeWhile
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.{Failure, Success}
@@ -21,7 +21,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "takeWhile" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = takeWhile[Int](_ < 3)
 
@@ -32,7 +32,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "takeWhile" should "create process to take none integer and result to an empty output stream" in {
+  it should "create process to take none integer and result to an empty output stream" in {
     // given
     val process = takeWhile[Int](_ < 4)
 
@@ -43,7 +43,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "takeWhile" should "create process to take all integers" in {
+  it should "create process to take all integers" in {
     // given
     val process = takeWhile[Int](_ < 10)
     val expected = Stream(1, 2, 3, 4, 1, 6)
@@ -55,7 +55,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "takeWhile" should "create process to handle 'Err' signal" in {
+  it should "create process to handle 'Err' signal" in {
     // given
     val process = takeWhile[Int] {
       case 2 => throw MyTakeWhileException
@@ -81,7 +81,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "takeWhile" should "create process to handle 'Kill' signal" in {
+  it should "create process to handle 'Kill' signal" in {
     // given
     val process = takeWhile[Int] {
       case 2 => throw Kill

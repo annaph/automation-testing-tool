@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.filter
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.{Failure, Success}
@@ -21,7 +21,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "filter" should "create process to filter all integers" in {
+  it should "create process to filter all integers" in {
     // given
     val process = filter[Int](_ => true)
     val expected = Stream(1, 2, 3, 4, 5, 6)
@@ -33,7 +33,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "filter" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = filter[Int](_ % 2 == 0)
 
@@ -44,7 +44,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "filter" should "create process to filter even integers and result to an empty output stream" in {
+  it should "create process to filter even integers and result to an empty output stream" in {
     // given
     val process = filter[Int](_ % 2 == 0)
 
@@ -55,7 +55,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "filter" should "create process to handle 'Err' signal" in {
+  it should "create process to handle 'Err' signal" in {
     // given
     val process = filter[Int] {
       case 3 => throw MyFilterException
@@ -82,7 +82,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "filter" should "create process to handle 'Kill' signal" in {
+  it should "create process to handle 'Kill' signal" in {
     // given
     val process = filter[Int] {
       case 5 => throw Kill

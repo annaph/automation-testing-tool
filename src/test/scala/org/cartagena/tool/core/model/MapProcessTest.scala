@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.{filter, lift}
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.{Failure, Success}
@@ -21,7 +21,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "map" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = lift[Int, Int](_ + 3) map (_.toString)
 
@@ -32,7 +32,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[String])
   }
 
-  "map" should "create process to result to an empty output stream" in {
+  it should "create process to result to an empty output stream" in {
     // given
     val process = filter[Int](_ % 2 == 0) map (_.toString)
 
@@ -43,7 +43,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[String])
   }
 
-  "map" should "create process to handle 'Err' signal happened in original process" in {
+  it should "create process to handle 'Err' signal happened in original process" in {
     // given
     val process = lift[Int, Int] {
       case 2 => throw MyMapException
@@ -69,7 +69,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "map" should "create process to handle 'Err' signal happened in mapper function" in {
+  it should "create process to handle 'Err' signal happened in mapper function" in {
     // given
     val process = lift[Int, Int](_ + 3) map {
       case 5 => throw MyMapException
@@ -95,8 +95,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "map" should "create process to handle 'Kill' signal happened in original process" in {
-    // given
+  it should "create process to handle 'Kill' signal happened in original process" in {
     // given
     val process = lift[Int, Int] {
       case 2 => throw Kill
@@ -111,8 +110,7 @@ class MapProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "map" should "create process to handle 'Kill' signal happened in mapper function" in {
-    // given
+  it should "create process to handle 'Kill' signal happened in mapper function" in {
     // given
     val process = lift[Int, Int](_ + 3) map {
       case 5 => throw Kill

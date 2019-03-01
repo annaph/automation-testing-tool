@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.dropWhile
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.Failure
@@ -21,7 +21,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "dropWhile" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = dropWhile[Int](_ < 4)
 
@@ -32,7 +32,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "dropWhile" should "create process to drop none integer" in {
+  it should "create process to drop none integer" in {
     // given
     val process = dropWhile[Int](_ < 0)
     val expected = Stream(1, 2, 3, 4, 1, 6)
@@ -44,7 +44,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "dropWhile" should "create process to drop all integers and result to an empty output stream" in {
+  it should "create process to drop all integers and result to an empty output stream" in {
     // given
     val process = dropWhile[Int](_ < 4)
 
@@ -55,7 +55,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "dropWhile" should "create process to handle 'Err' signal" in {
+  it should "create process to handle 'Err' signal" in {
     // given
     val process = dropWhile[Int] {
       case 2 => throw MyDropWhileException
@@ -75,7 +75,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "dropWhile" should "create process to handle 'Kill' signal" in {
+  it should "create process to handle 'Kill' signal" in {
     // given
     val process = dropWhile[Int] {
       case 2 => throw Kill

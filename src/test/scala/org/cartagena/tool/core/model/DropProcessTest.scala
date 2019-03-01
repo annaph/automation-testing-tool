@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.drop
 import org.scalatest.{FlatSpec, Matchers}
 
 class DropProcessTest extends FlatSpec with Matchers {
@@ -17,7 +17,7 @@ class DropProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "drop" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = drop[Int](3)
 
@@ -28,7 +28,7 @@ class DropProcessTest extends FlatSpec with Matchers {
     actual should be(Stream.empty[Int])
   }
 
-  "drop" should "create process to drop zero integers" in {
+  it should "create process to drop zero integers" in {
     // given
     val process = drop[Int](0)
     val expected = Stream(1, 2, 3, 4, 5, 6)
@@ -40,7 +40,7 @@ class DropProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "drop" should "create process to drop none integer" in {
+  it should "create process to drop none integer" in {
     // given
     val process = drop[Int](-1)
     val expected = Stream(1, 2, 3, 4, 5, 6)
@@ -52,7 +52,7 @@ class DropProcessTest extends FlatSpec with Matchers {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "drop" should "create process to drop all integers and result to an empty output stream" in {
+  it should "create process to drop all integers and result to an empty output stream" in {
     // given
     val process = drop[Int](6)
 
@@ -63,7 +63,7 @@ class DropProcessTest extends FlatSpec with Matchers {
     actual should be(Stream.empty[Int])
   }
 
-  "drop" should "create process to drop more than possible integers and result to an empty output stream" in {
+  it should "create process to drop more than possible integers and result to an empty output stream" in {
     // given
     val process = drop[Int](12)
 

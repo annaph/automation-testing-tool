@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process._
+import org.cartagena.tool.core.model.Process.exists
 import org.scalatest.{FlatSpec, Inside, Matchers}
 
 import scala.util.{Failure, Success}
@@ -21,7 +21,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "exists" should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output stream when input stream is empty" in {
     // given
     val process = exists[Int](_ % 2 == 0)
 
@@ -32,7 +32,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     actual should be(Stream.empty[Int])
   }
 
-  "exists" should "create process to try to find even integer when it does not exist" in {
+  it should "create process to try to find even integer when it does not exist" in {
     // given
     val process = exists[Int](_ % 2 == 0)
     val expected = Stream(false, false, false)
@@ -44,7 +44,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     actual should contain theSameElementsInOrderAs expected
   }
 
-  "exists" should "create process to handle 'Err' signal" in {
+  it should "create process to handle 'Err' signal" in {
     // given
     val process = exists[Int] {
       case 3 => throw MyExistsException
@@ -70,7 +70,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     }
   }
 
-  "exists" should "create process to handle 'Kill' signal" in {
+  it should "create process to handle 'Kill' signal" in {
     // given
     val process = exists[Int] {
       case 3 => throw Kill
