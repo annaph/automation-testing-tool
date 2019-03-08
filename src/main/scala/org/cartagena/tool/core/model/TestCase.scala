@@ -4,8 +4,6 @@ trait TestCase {
 
   def name: String
 
-  def profile: Profile
-
   def firstStep: TestStep = NilStep
 
   def testSteps: Stream[TestStep] =

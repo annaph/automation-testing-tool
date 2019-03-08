@@ -2,7 +2,7 @@ package org.cartagena.tool.suite.login
 
 import org.cartagena.tool.core.model.{Profile, ProfileLocation}
 
-object Profiles {
+object LoginProfiles {
 
   trait LoginProfileLocation extends ProfileLocation {
     override def path: String = "/org/cartagena/tool/suite/login/"

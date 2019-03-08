@@ -23,7 +23,7 @@ trait Profile {
   def getAllProperties: Map[String, String] = _properties
 
   def readPropertyFile(fileName: String): Map[String, String] =
-    Profile.readPropertyFile(location + fileName)
+    Profile readPropertyFile (location + fileName)
 
   def location: String = self.path
 

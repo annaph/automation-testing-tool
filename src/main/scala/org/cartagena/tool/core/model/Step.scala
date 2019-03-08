@@ -38,7 +38,7 @@ sealed trait Step {
 
   def context: Context[C]
 
-  def execute(): Unit
+  def run(): Unit
 
 }
 
@@ -57,7 +57,7 @@ sealed trait CleanupStep extends Step {
 case object NilStep extends SetupStep with TestStep with CleanupStep {
   override type C = Nothing
 
-  override val name: String = "Nill step"
+  override val name: String = "Nil step"
 
   override def profile: Profile =
     throw new UnsupportedOperationException
@@ -65,7 +65,7 @@ case object NilStep extends SetupStep with TestStep with CleanupStep {
   override def context: Context[C] =
     throw new UnsupportedOperationException
 
-  override def execute(): Unit =
+  override def run(): Unit =
     throw new UnsupportedOperationException
 
 }
