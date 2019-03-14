@@ -32,14 +32,35 @@ object Suite {
     getStepsFrom(suite.cleanupStep)(_.nextCleanupStep)
 
   private def run(suite: Suite): Unit = {
-    val process = lift[TestStep, Unit](step => {
+    val setupStepPocess = lift[SetupStep, String](step => {
       println(s"\nExecuting: ${step.name}\n")
       step.run()
+
+      step.name
     })
 
-    suite.testCases.foreach(testCase => {
-      process(testCase.testSteps).toList
+    val testStepPocess = lift[TestStep, String](step => {
+      println(s"\nExecuting: ${step.name}\n")
+      step.run()
+
+      step.name
     })
+
+    val cleanupStepPocess = lift[CleanupStep, String](step => {
+      println(s"\nExecuting: ${step.name}\n")
+      step.run()
+
+      step.name
+    })
+
+    setupStepPocess(getSetupSteps(suite)).toList
+
+    suite.testCases.foreach(testCase => {
+      val executedSteps = testStepPocess(testCase.testSteps).toList
+      println(s"Test case execution report: $executedSteps")
+    })
+
+    cleanupStepPocess(getCleanupSteps(suite)).toList
   }
 
 }

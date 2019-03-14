@@ -7,7 +7,7 @@ import org.apache.http.HttpEntity
 import org.apache.http.entity.StringEntity
 import org.cartagena.tool.core.http.{EmptyBody, JsonString, Text}
 
-sealed trait ApacheBodyConverter[T] {
+sealed trait ApacheHttpBodyConverter[T] {
 
   def fromHttpEntity(entity: HttpEntity): T
 
@@ -15,9 +15,9 @@ sealed trait ApacheBodyConverter[T] {
 
 }
 
-object ApacheBodyConverter {
+object ApacheHttpBodyConverter {
 
-  implicit object TextApacheBodyConverter extends ApacheBodyConverter[Text] {
+  implicit object TextApacheHttpBodyConverter extends ApacheHttpBodyConverter[Text] {
 
     override def fromHttpEntity(entity: HttpEntity): Text =
       convertFromStringLikeHttpEntity(entity)(Text)
@@ -26,7 +26,7 @@ object ApacheBodyConverter {
       convertToStringLikeHttpEntity(body)(_.str)
   }
 
-  implicit object JsonStringApacheBodyConverter extends ApacheBodyConverter[JsonString] {
+  implicit object JsonStringApacheHttpBodyConverter extends ApacheHttpBodyConverter[JsonString] {
 
     override def fromHttpEntity(entity: HttpEntity): JsonString =
       convertFromStringLikeHttpEntity(entity)(JsonString)
@@ -36,7 +36,7 @@ object ApacheBodyConverter {
 
   }
 
-  implicit object EmptyBodyApacheBodyConverter extends ApacheBodyConverter[EmptyBody.type] {
+  implicit object EmptyBodyApacheHttpBodyConverter extends ApacheHttpBodyConverter[EmptyBody.type] {
 
     override def fromHttpEntity(entity: HttpEntity): EmptyBody.type =
       EmptyBody
