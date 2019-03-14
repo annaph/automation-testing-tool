@@ -31,16 +31,16 @@ object LoginSteps {
     override def run(): Unit = {
       println("There is work to be done here...\n")
 
-      val request = HttpRequest[EmptyBody.type](
+      val request = HttpRequest(
         url = s"http://$host:$port/j_spring_security_check",
         method = HttpPost,
-        headers = List[HeaderElement](
-          HeaderElement("Accept", headerAccept),
-          HeaderElement("Content-Type", headerContentType)),
+        headers = List(
+          "Accept" -> headerAccept,
+          "Content-Type" -> headerContentType),
         params = List(
-          QueryParam("username", username),
-          QueryParam("password", password))
-      )
+          "username" -> username,
+          "password" -> password),
+        body = Some(EmptyBody))
 
       println(request)
 

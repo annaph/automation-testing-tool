@@ -44,8 +44,24 @@ case object UnsupportedHttpStatus extends HttpStatus
 
 trait HttpMessage
 
-case class HttpRequest[T <: HttpBody](url: URL,
-                                      method: HttpMethod,
-                                      headers: List[HeaderElement] = List.empty,
-                                      params: List[QueryParam] = List.empty,
-                                      body: Option[T] = None) extends HttpMessage
+class HttpRequest[T <: HttpBody](val url: URL,
+                                 val method: HttpMethod,
+                                 val headers: List[HeaderElement] = List.empty,
+                                 val params: List[QueryParam] = List.empty,
+                                 val body: Option[T] = None) extends HttpMessage
+
+object HttpRequest {
+
+  def apply[T <: HttpBody](url: URL,
+            method: HttpMethod,
+            headers: List[(String, String)] = List.empty,
+            params: List[(String, String)] = List.empty,
+            body: Option[T]): HttpRequest[T] =
+    new HttpRequest(
+      url,
+      method,
+      headers.map(header => HeaderElement(header._1, header._2)),
+      params.map(param => QueryParam(param._1, param._2)),
+      body)
+
+}
