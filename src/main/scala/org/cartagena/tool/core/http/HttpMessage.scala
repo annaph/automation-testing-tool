@@ -48,15 +48,15 @@ class HttpRequest[T <: HttpBody](val url: URL,
                                  val method: HttpMethod,
                                  val headers: List[HeaderElement] = List.empty,
                                  val params: List[QueryParam] = List.empty,
-                                 val body: Option[T] = None) extends HttpMessage
+                                 val body: T) extends HttpMessage
 
 object HttpRequest {
 
   def apply[T <: HttpBody](url: URL,
-            method: HttpMethod,
-            headers: List[(String, String)] = List.empty,
-            params: List[(String, String)] = List.empty,
-            body: Option[T]): HttpRequest[T] =
+                           method: HttpMethod,
+                           headers: List[(String, String)] = List.empty,
+                           params: List[(String, String)] = List.empty,
+                           body: T): HttpRequest[T] =
     new HttpRequest(
       url,
       method,
@@ -65,3 +65,8 @@ object HttpRequest {
       body)
 
 }
+
+case class HttpResponse[T <: HttpBody](status: HttpStatus,
+                                       reason: String,
+                                       body: Option[T] = None,
+                                       cookies: List[Cookie] = List.empty)

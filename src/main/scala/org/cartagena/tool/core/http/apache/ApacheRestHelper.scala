@@ -9,17 +9,23 @@ import org.cartagena.tool.core.http._
 
 trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpOperations {
 
-  implicit private val restClient: HttpClient = this.httpClient
+  implicit private val restClient: HttpClient =
+    this.httpClient
 
-  implicit private val restContext: HttpContext = this.httpContext
+  implicit private val restContext: HttpContext =
+    this.httpContext
 
-  override def startRestClient(): Unit = startHttpClient()
+  override def startRestClient(): Unit =
+    startHttpClient()
 
-  override def restartRestClient(): Unit = resetHttpClient()
+  override def restartRestClient(): Unit =
+    resetHttpClient()
 
-  override def shutdownRestClient(): Unit = closeHttpClient()
+  override def shutdownRestClient(): Unit =
+    closeHttpClient()
 
-  override def isRestClientRunning: Boolean = isHttpClientUp
+  override def isRestClientRunning: Boolean =
+    isHttpClientUp
 
   override def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
                                                     (implicit mf: Manifest[U]): HttpResponse[U] = {
@@ -27,7 +33,8 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
     if (f.isDefinedAt(request)) f(request) else throw new Exception("Unsupported HTTP method request!")
   }
 
-  override def storeCookie(cookie: Cookie): Unit = ???
+  override def storeCookie(cookie: Cookie): Unit =
+    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
   private def executeFunc[T <: HttpBody, U <: HttpBody](implicit mf: Manifest[U]) =
     new PartialFunction[HttpRequest[T], HttpResponse[U]] {
@@ -49,18 +56,20 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
                                                            (implicit mf: Manifest[U]): HttpResponse[U] = {
     val postResponse = executePost(
       request.url,
-      request.body.map(toEntity(_)),
+      toEntity(request.body),
       request.params)
 
-    val cookieHeaderElements = Option(postResponse.getFirstHeader("Set-Cookie")).map(_.getElements.map { header =>
-      Cookie(header.getName, header.getValue, request.url.getHost, request.url.getPath)
-    }).getOrElse(Array.empty[Cookie])
+    val cookieHeaderElements = Option {
+      postResponse.getFirstHeader("Set-Cookie")
+    }.map(_.getElements.map { header =>
+      Cookie(header.getName, header.getValue, request.url.getHost, "/")
+    })
 
     HttpResponse(
       status = postResponse.getStatusLine.getStatusCode,
       reason = postResponse.getStatusLine.getReasonPhrase,
       body = Option(postResponse.getEntity).map(fromEntity(_)),
-      cookies = cookieHeaderElements.toList)
+      cookies = cookieHeaderElements.map(_.toList).getOrElse(List.empty))
   }
 
   private def fromEntity[T <: HttpBody](entity: HttpEntity)(implicit mf: Manifest[T]): T = mf.runtimeClass match {

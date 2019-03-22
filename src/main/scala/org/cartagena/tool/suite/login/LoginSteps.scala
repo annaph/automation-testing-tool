@@ -1,11 +1,10 @@
 package org.cartagena.tool.suite.login
 
-import java.net.URL
-
-import org.cartagena.tool.core.http.apache.ApacheRestHelper
-import org.cartagena.tool.core.http._
-import org.cartagena.tool.core.model.{AbstractCleanupStep, AbstractSetupStep, AbstractTestStep, TestStep}
 import org.cartagena.tool.core.CartagenaConverters._
+import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.http.apache.ApacheRestHelper
+import org.cartagena.tool.core.http.json4s.Json4sHelper
+import org.cartagena.tool.core.model.{AbstractCleanupStep, AbstractSetupStep, AbstractTestStep, TestStep}
 
 object LoginSteps {
 
@@ -17,20 +16,21 @@ object LoginSteps {
 
   }
 
-  case object ExecuteHttpPutRequest extends AbstractTestStep(profile, context) with ApacheRestHelper {
+  case object ExecuteHttpPutRequest extends AbstractTestStep(profile, context)
+    with ApacheRestHelper
+    with Json4sHelper {
 
     override val name: String = "Execute HTTP PUT request"
 
-    private val host = profile.getProperty("host").getOrElse("")
-    private val port = profile.getProperty("port").getOrElse("")
-    private val username = profile.getProperty("username").getOrElse("")
-    private val password = profile.getProperty("password").getOrElse("")
-    private val headerAccept = profile.getProperty("header.accept").getOrElse("")
-    private val headerContentType = profile.getProperty("header.accept").getOrElse("")
+    private val host = profile getProperty("host", "")
+    private val port = profile getProperty("port", "")
+    private val username = profile getProperty("username", "")
+    private val password = profile getProperty("password", "")
+
+    private val headerAccept = context </[String] HEADER_ACCEPT
+    private val headerContentType = context </[String] HEADER_CONTENT_TYPE
 
     override def run(): Unit = {
-      println("There is work to be done here...\n")
-
       val request = HttpRequest(
         url = s"http://$host:$port/j_spring_security_check",
         method = HttpPost,
@@ -40,24 +40,49 @@ object LoginSteps {
         params = List(
           "username" -> username,
           "password" -> password),
-        body = Some(EmptyBody))
-
-      println(request)
+        body = EmptyBody)
 
       val response: HttpResponse[JsonString] = execute(request)
+
+      response.cookies.find(_.name == "JSESSIONID").foreach {
+        context ~=> SESSION_COOKIE />[Cookie] _
+      }
+
+      response.body.map(parse[LoginDTO]).foreach {
+        context ~=> LOGIN_DTO />[LoginDTO] _
+      }
+
       println("Response: " + response)
     }
+
+    override def nextTestStep: TestStep = StoreSessionCookie
+
+  }
+
+  case object StoreSessionCookie extends AbstractTestStep(profile, context) with ApacheRestHelper {
+
+    override val name: String = "Store session cookie"
+
+    override def run(): Unit =
+      storeCookie(context </[Cookie] SESSION_COOKIE)
 
     override def nextTestStep: TestStep = AssertJsonResponse
 
   }
 
-  case object AssertJsonResponse extends AbstractTestStep(profile, context) {
+  case object AssertJsonResponse extends AbstractTestStep(profile, context) with Json4sHelper {
 
     override val name: String = "Assert JSON response"
+    private val expectedResult = "login.json"
 
-    override def run(): Unit =
-      println("There is work to be done here...\n")
+    override def run(): Unit = {
+      val expected = parse[LoginDTO](getClass.getResourceAsStream(expectedResult))
+      val actual = context </[LoginDTO] LOGIN_DTO
+
+      assert(
+        actual.copy(timestamp = 1) == expected,
+        "Login DTO not correct!")
+    }
 
   }
 

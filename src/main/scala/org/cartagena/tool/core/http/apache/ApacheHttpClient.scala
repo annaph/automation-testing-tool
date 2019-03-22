@@ -15,8 +15,6 @@ trait ApacheHttpClient extends HttpClient {
 
   private[http] def startHttpClient(): Unit = ApacheHttpClient.startHttpClient()
 
-  private def create(): Unit = ApacheHttpClient.startHttpClient()
-
   private[http] def closeHttpClient(): Unit = ApacheHttpClient.closeHttpClient()
 
   private[http] def isHttpClientUp: Boolean = ApacheHttpClient.isHttpClientUp

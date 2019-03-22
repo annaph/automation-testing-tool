@@ -1,0 +1,7 @@
+{
+  "timestamp": 1,
+  "status": 200,
+  "error": "OK",
+  "message": "No message available",
+  "path": "/j_spring_security_check"
+}

@@ -7,6 +7,8 @@ version := "1.0.0-SNAPSHOT"
 scalaVersion := "2.12.8"
 
 scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
   "-language:implicitConversions")
 
 libraryDependencies ++= Seq(

@@ -20,6 +20,9 @@ trait Profile {
   def getProperty(key: String): Option[String] =
     _properties get key
 
+  def getProperty(key: String, default: => String): String =
+    getProperty(key) getOrElse default
+
   def getAllProperties: Map[String, String] = _properties
 
   def readPropertyFile(fileName: String): Map[String, String] =

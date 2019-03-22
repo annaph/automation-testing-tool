@@ -9,12 +9,23 @@ import org.cartagena.tool.core.http.Cookie
 import org.cartagena.tool.core.model.HttpOperations
 import java.net.{URI, URL}
 
+import org.apache.http.client.protocol.HttpClientContext.COOKIE_STORE
+import org.apache.http.impl.client.BasicCookieStore
+import org.apache.http.impl.cookie.BasicClientCookie
+
 trait ApacheHttpOperations extends HttpOperations {
 
   private[http] def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
-                                    (implicit client: HttpClient, context: HttpContext): Unit = ???
+                                    (implicit client: HttpClient, context: HttpContext): Unit = {
+    val cookie = new BasicClientCookie(elementName, elementValue)
+    cookie setDomain domain
+    cookie setPath path
 
-  private[http] def executePost(url: URL, entity: Option[HttpEntity], params: Map[String, String] = Map.empty)
+    val cookieStore = (context getAttribute COOKIE_STORE).asInstanceOf[BasicCookieStore]
+    cookieStore addCookie cookie
+  }
+
+  private[http] def executePost(url: URL, entity: HttpEntity, params: Map[String, String] = Map.empty)
                                (implicit client: HttpClient, context: HttpContext): HttpResponse = {
     val uriBuilder = new URIBuilder(url.toURI)
 
@@ -24,12 +35,7 @@ trait ApacheHttpOperations extends HttpOperations {
     }
 
     val request = new HttpPost(uriBuilder.build())
-
-    entity match {
-      case Some(ent) =>
-        request setEntity ent
-      case None =>
-    }
+    request setEntity entity
 
     client execute(request, context)
   }
