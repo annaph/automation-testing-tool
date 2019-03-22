@@ -42,6 +42,8 @@ object LoginSteps {
           "password" -> password),
         body = EmptyBody)
 
+      println(request)
+
       val response: HttpResponse[JsonString] = execute(request)
 
       response.cookies.find(_.name == "JSESSIONID").foreach {

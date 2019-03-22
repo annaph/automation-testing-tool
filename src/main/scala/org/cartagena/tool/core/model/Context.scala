@@ -6,9 +6,9 @@ sealed trait Context {
 
   def get[T: Manifest](key: String): T
 
-  def create[T](key: String, value: T): Unit
+  def create[T: Manifest](key: String, value: T): Unit
 
-  def update[T](key: String, value: T): Unit
+  def update[T: Manifest](key: String, value: T): Unit
 
   def remove[T: Manifest](key: String): Unit
 
@@ -19,10 +19,10 @@ case object EmptyContext extends Context {
   override def get[T: Manifest](key: String): T =
     throw new UnsupportedOperationException
 
-  override def create[T](key: String, value: T): Unit =
+  override def create[T: Manifest](key: String, value: T): Unit =
     throw new UnsupportedOperationException
 
-  override def update[T](key: String, value: T): Unit =
+  override def update[T: Manifest](key: String, value: T): Unit =
     throw new UnsupportedOperationException
 
   override def remove[T: Manifest](key: String): Unit =
@@ -39,10 +39,10 @@ class SuiteContext extends Context {
   override def get[T: Manifest](key: String): T =
     SuiteContext.get(this)(key)
 
-  override def create[T](key: String, value: T): Unit =
+  override def create[T: Manifest](key: String, value: T): Unit =
     SuiteContext.create(this)(key, value)
 
-  override def update[T](key: String, value: T): Unit =
+  override def update[T: Manifest](key: String, value: T): Unit =
     SuiteContext.update(this)(key, value)
 
   override def remove[T: Manifest](key: String): Unit =
@@ -77,7 +77,7 @@ object SuiteContext {
         throw e
     }
 
-  private def create[T](context: SuiteContext)(key: String, value: T): Unit =
+  private def create[T: Manifest](context: SuiteContext)(key: String, value: T): Unit =
     getEntry(context)(key) match {
       case Failure(x: KeyNotPresentException) =>
         context._entries put(key, value)
@@ -86,10 +86,6 @@ object SuiteContext {
       case _ =>
         throw new EntryExistsException(s"Entry with '$key' key and '${value.getClass}' type already exists!")
     }
-
-  private def update[T](context: SuiteContext)(key: String, value: T): Unit =
-    getEntry(context)(key)
-      .map(_ => context._entries put(key, value))
 
   private def getEntry[T: Manifest](context: SuiteContext)(key: String): Try[(String, T)] =
     Try(context._entries get key)
@@ -112,6 +108,10 @@ object SuiteContext {
       case _ =>
         Failure(new TypeNotMatchingException(s"No entry with '$key' key and '${value.getClass}' type!!"))
     }
+
+  private def update[T: Manifest](context: SuiteContext)(key: String, value: T): Unit =
+    getEntry(context)(key)
+      .map(_ => context._entries put(key, value))
 
   private def remove[T: Manifest](context: SuiteContext)(key: String): Unit =
     getEntry(context)(key)

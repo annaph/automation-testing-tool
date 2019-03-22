@@ -20,37 +20,37 @@ object CartagenaConverters {
     def ~=>(key: String): ContextOperations =
       createKey(key)
 
-    def ~==>(key: String): ContextOperations =
-      updateKey(key)
-
-    def <=~[T: Manifest](key: String): Unit =
-      context remove[T] key
-
     def createKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = true)
       this
     }
+
+    def ~==>(key: String): ContextOperations =
+      updateKey(key)
 
     def updateKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = false)
       this
     }
 
-    def />[T](value: T): Unit =
-      withValue(value)
-
-    def withValue[T](value: T): Unit = _key match {
-      case Some(key) if _isCreateNew =>
-        context create(key, value)
-      case Some(key) if !_isCreateNew =>
-        context update(key, value)
-      case None =>
-        throw KeyNotSpecifiedException
-    }
-
     private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
       _key = Some(key)
       _isCreateNew = isCreateNew
+    }
+
+    def <=~[T: Manifest](key: String): Unit =
+      context remove[T] key
+
+    def />[T: Manifest](value: T): Unit =
+      withValue[T](value)
+
+    def withValue[T: Manifest](value: T): Unit = _key match {
+      case Some(key) if _isCreateNew =>
+        context create[T](key, value)
+      case Some(key) if !_isCreateNew =>
+        context update[T](key, value)
+      case None =>
+        throw KeyNotSpecifiedException
     }
 
     object KeyNotSpecifiedException extends Exception("No key specified!")

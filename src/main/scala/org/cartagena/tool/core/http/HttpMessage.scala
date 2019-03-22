@@ -48,7 +48,12 @@ class HttpRequest[T <: HttpBody](val url: URL,
                                  val method: HttpMethod,
                                  val headers: List[HeaderElement] = List.empty,
                                  val params: List[QueryParam] = List.empty,
-                                 val body: T) extends HttpMessage
+                                 val body: T) extends HttpMessage {
+
+  override def toString: String =
+    HttpRequest.prettyString(this)
+
+}
 
 object HttpRequest {
 
@@ -63,6 +68,20 @@ object HttpRequest {
       headers.map(header => HeaderElement(header._1, header._2)),
       params.map(param => QueryParam(param._1, param._2)),
       body)
+
+  def prettyString[T <: HttpBody](request: HttpRequest[T]): String = {
+    val builder = StringBuilder.newBuilder
+
+    val newLine = System getProperty "line.separator"
+
+    builder ++= newLine
+    builder ++= s"HTTP request info:"
+
+    builder ++= newLine
+    builder ++= s"\tURL: \t\t\t${request.url.toString}"
+
+    builder.toString()
+  }
 
 }
 
