@@ -4,9 +4,19 @@ import java.net.URL
 
 sealed trait HttpMethod
 
-case object HttpGet extends HttpMethod
+case object HttpGet extends HttpMethod {
 
-case object HttpPost extends HttpMethod
+  override def toString: String =
+    "GET"
+
+}
+
+case object HttpPost extends HttpMethod {
+
+  override def toString: String =
+    "POST"
+
+}
 
 case object UnsupportedHttpMethod extends HttpMethod
 
@@ -26,19 +36,49 @@ case class Cookie(name: String, value: String, host: String, path: String) exten
 
 sealed trait HttpBody extends Any
 
-case class Text(str: String) extends AnyVal with HttpBody
+case class Text(str: String) extends AnyVal with HttpBody {
 
-case class JsonString(str: String) extends AnyVal with HttpBody
+  override def toString: String =
+    str
 
-case object EmptyBody extends HttpBody
+}
+
+case class JsonString(str: String) extends AnyVal with HttpBody {
+
+  override def toString: String =
+    prettyString(this)
+
+}
+
+case object EmptyBody extends HttpBody {
+
+  override def toString: String =
+    "<empty>"
+
+}
 
 sealed trait HttpStatus
 
-case object HttpStatusOK extends HttpStatus
+case object HttpStatusOK extends HttpStatus {
 
-case object HttpStatusCreated extends HttpStatus
+  override def toString: String =
+    "OK"
 
-case object HttpStatusServerError extends HttpStatus
+}
+
+case object HttpStatusCreated extends HttpStatus {
+
+  override def toString: String =
+    "Created"
+
+}
+
+case object HttpStatusServerError extends HttpStatus {
+
+  override def toString: String =
+    "Server error"
+
+}
 
 case object UnsupportedHttpStatus extends HttpStatus
 
@@ -51,7 +91,7 @@ class HttpRequest[T <: HttpBody](val url: URL,
                                  val body: T) extends HttpMessage {
 
   override def toString: String =
-    HttpRequest.prettyString(this)
+    prettyString(this)
 
 }
 
@@ -69,23 +109,14 @@ object HttpRequest {
       params.map(param => QueryParam(param._1, param._2)),
       body)
 
-  def prettyString[T <: HttpBody](request: HttpRequest[T]): String = {
-    val builder = StringBuilder.newBuilder
-
-    val newLine = System getProperty "line.separator"
-
-    builder ++= newLine
-    builder ++= s"HTTP request info:"
-
-    builder ++= newLine
-    builder ++= s"\tURL: \t\t\t${request.url.toString}"
-
-    builder.toString()
-  }
-
 }
 
 case class HttpResponse[T <: HttpBody](status: HttpStatus,
                                        reason: String,
                                        body: Option[T] = None,
-                                       cookies: List[Cookie] = List.empty)
+                                       cookies: List[Cookie] = List.empty) {
+
+  override def toString: String =
+    prettyString(this)
+
+}

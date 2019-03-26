@@ -25,42 +25,59 @@ trait Suite {
 
 object Suite {
 
+  private def run(suite: Suite): Unit = {
+    def printStepSeparator(): Unit =
+      println(StringBuilder.newBuilder.append("-") * 71)
+
+    val setupStepProcess = lift[SetupStep, String](step => {
+      printStepSeparator()
+      println(s"\nExecuting '${step.name}' setup step...\n")
+
+      step.run()
+      printStepSeparator()
+
+      step.name
+    })
+
+    val testStepProcess = lift[TestStep, String](step => {
+      printStepSeparator()
+      println(s"\nExecuting '${step.name}' test step...\n")
+
+      step.run()
+      printStepSeparator()
+
+      step.name
+    })
+
+    val cleanupStepProcess = lift[CleanupStep, String](step => {
+      printStepSeparator()
+      println(s"\nExecuting '${step.name}' cleanup step...\n")
+
+      step.run()
+      printStepSeparator()
+
+      step.name
+    })
+
+    setupStepProcess(getSetupSteps(suite)).toList
+
+    suite.testCases.foreach(testCase => {
+      val executedSteps = testStepProcess(testCase.testSteps).toList
+      printStepSeparator()
+
+      println(s"Execution report for test case '${testCase.name}'")
+      println(s"\t${executedSteps mkString "\n\t"}")
+
+      printStepSeparator()
+    })
+
+    cleanupStepProcess(getCleanupSteps(suite)).toList
+  }
+
   private def getSetupSteps(suite: Suite): Stream[SetupStep] =
     getStepsFrom(suite.setupStep)(_.nextSetupStep)
 
   private def getCleanupSteps(suite: Suite): Stream[CleanupStep] =
     getStepsFrom(suite.cleanupStep)(_.nextCleanupStep)
-
-  private def run(suite: Suite): Unit = {
-    val setupStepPocess = lift[SetupStep, String](step => {
-      println(s"\nExecuting: ${step.name}\n")
-      step.run()
-
-      step.name
-    })
-
-    val testStepPocess = lift[TestStep, String](step => {
-      println(s"\nExecuting: ${step.name}\n")
-      step.run()
-
-      step.name
-    })
-
-    val cleanupStepPocess = lift[CleanupStep, String](step => {
-      println(s"\nExecuting: ${step.name}\n")
-      step.run()
-
-      step.name
-    })
-
-    setupStepPocess(getSetupSteps(suite)).toList
-
-    suite.testCases.foreach(testCase => {
-      val executedSteps = testStepPocess(testCase.testSteps).toList
-      println(s"Test case execution report: $executedSteps")
-    })
-
-    cleanupStepPocess(getCleanupSteps(suite)).toList
-  }
 
 }

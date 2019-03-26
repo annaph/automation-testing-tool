@@ -87,6 +87,10 @@ object SuiteContext {
         throw new EntryExistsException(s"Entry with '$key' key and '${value.getClass}' type already exists!")
     }
 
+  private def update[T: Manifest](context: SuiteContext)(key: String, value: T): Unit =
+    getEntry(context)(key)
+      .map(_ => context._entries put(key, value))
+
   private def getEntry[T: Manifest](context: SuiteContext)(key: String): Try[(String, T)] =
     Try(context._entries get key)
       .flatMap(extractEntryValue(key, _))
@@ -108,10 +112,6 @@ object SuiteContext {
       case _ =>
         Failure(new TypeNotMatchingException(s"No entry with '$key' key and '${value.getClass}' type!!"))
     }
-
-  private def update[T: Manifest](context: SuiteContext)(key: String, value: T): Unit =
-    getEntry(context)(key)
-      .map(_ => context._entries put(key, value))
 
   private def remove[T: Manifest](context: SuiteContext)(key: String): Unit =
     getEntry(context)(key)

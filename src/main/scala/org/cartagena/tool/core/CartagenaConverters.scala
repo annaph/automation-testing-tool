@@ -33,11 +33,6 @@ object CartagenaConverters {
       this
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
-    }
-
     def <=~[T: Manifest](key: String): Unit =
       context remove[T] key
 
@@ -51,6 +46,11 @@ object CartagenaConverters {
         context update[T](key, value)
       case None =>
         throw KeyNotSpecifiedException
+    }
+
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
     }
 
     object KeyNotSpecifiedException extends Exception("No key specified!")

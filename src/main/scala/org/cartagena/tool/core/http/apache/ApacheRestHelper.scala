@@ -1,8 +1,6 @@
 package org.cartagena.tool.core.http.apache
 
-import java.net.URI
-
-import org.apache.http.{HeaderElement, HttpEntity}
+import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
@@ -32,9 +30,6 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
     val f = executeFunc[T, U]
     if (f.isDefinedAt(request)) f(request) else throw new Exception("Unsupported HTTP method request!")
   }
-
-  override def storeCookie(cookie: Cookie): Unit =
-    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
   private def executeFunc[T <: HttpBody, U <: HttpBody](implicit mf: Manifest[U]) =
     new PartialFunction[HttpRequest[T], HttpResponse[U]] {
@@ -95,5 +90,8 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
 
   private def toHttpEntity[T: ApacheHttpBodyConverter](body: T): HttpEntity =
     implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)
+
+  override def storeCookie(cookie: Cookie): Unit =
+    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
 }

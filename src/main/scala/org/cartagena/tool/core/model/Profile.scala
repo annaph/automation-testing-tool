@@ -17,11 +17,11 @@ trait Profile {
 
   def name: String
 
-  def getProperty(key: String): Option[String] =
-    _properties get key
-
   def getProperty(key: String, default: => String): String =
     getProperty(key) getOrElse default
+
+  def getProperty(key: String): Option[String] =
+    _properties get key
 
   def getAllProperties: Map[String, String] = _properties
 

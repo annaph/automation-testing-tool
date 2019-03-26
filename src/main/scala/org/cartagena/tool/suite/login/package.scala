@@ -7,20 +7,19 @@ package object login {
 
   val HEADER_ACCEPT = "headerAccept"
   val HEADER_CONTENT_TYPE = "headerContentType"
-  val SESSION_COOKIE = "session_cookie"
-  val LOGIN_DTO = "loginDTO"
-
-  case class LoginSuiteContext(headerAccept: String, headerContentType: String)
+  val LOGIN_RESPONSE = "loginResponse"
 
   implicit val context: Context = SuiteContext(
     LoginSuiteContext(
       headerAccept = "application/json",
       headerContentType = "application/json"))
 
-  implicit var profile: Profile = _
-
   val onlyVagrantProfile: Profile = new DefaultProfile with VagrantProfile
 
   val onlyLocalHostProfile: Profile = new DefaultProfile with LocalHostProfile
+
+  implicit var profile: Profile = _
+
+  case class LoginSuiteContext(headerAccept: String, headerContentType: String)
 
 }

@@ -12,10 +12,10 @@ trait Json4sHelper extends JsonHelper {
 
   private lazy val _formats = DefaultFormats
 
-  def formats: Formats = _formats
-
   override def parse[T: Manifest](json: JsonString): T =
     parseJson(json.str).extract[T](formats, implicitly[Manifest[T]])
+
+  def formats: Formats = _formats
 
   override def parse[T: Manifest](json: InputStream): T =
     parseJson(StreamInput(json)).extract[T](formats, implicitly[Manifest[T]])

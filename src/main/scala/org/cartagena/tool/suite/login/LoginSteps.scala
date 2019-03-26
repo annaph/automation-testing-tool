@@ -44,17 +44,18 @@ object LoginSteps {
 
       println(request)
 
-      val response: HttpResponse[JsonString] = execute(request)
+      val response = execute[EmptyBody.type, JsonString](request)
+      println(response)
 
-      response.cookies.find(_.name == "JSESSIONID").foreach {
-        context ~=> SESSION_COOKIE />[Cookie] _
-      }
+      assert(
+        response.status == HttpStatusOK,
+        "Http status code must be 200!")
 
-      response.body.map(parse[LoginDTO]).foreach {
-        context ~=> LOGIN_DTO />[LoginDTO] _
-      }
+      assert(
+        response.reason == "OK",
+        "Http reason must be OK!")
 
-      println("Response: " + response)
+      context ~=> LOGIN_RESPONSE />[HttpResponse[JsonString]] response
     }
 
     override def nextTestStep: TestStep = StoreSessionCookie
@@ -65,8 +66,16 @@ object LoginSteps {
 
     override val name: String = "Store session cookie"
 
-    override def run(): Unit =
-      storeCookie(context </[Cookie] SESSION_COOKIE)
+    override def run(): Unit = {
+      val response: HttpResponse[JsonString] = context </[HttpResponse[JsonString]] LOGIN_RESPONSE
+
+      response.cookies.find(_.name == "JSESSIONID") match {
+        case Some(cookie) =>
+          storeCookie(cookie)
+        case None =>
+          throw new Exception("No session cookie to store!")
+      }
+    }
 
     override def nextTestStep: TestStep = AssertJsonResponse
 
@@ -78,12 +87,19 @@ object LoginSteps {
     private val expectedResult = "login.json"
 
     override def run(): Unit = {
-      val expected = parse[LoginDTO](getClass.getResourceAsStream(expectedResult))
-      val actual = context </[LoginDTO] LOGIN_DTO
+      val response: HttpResponse[JsonString] = context </[HttpResponse[JsonString]] LOGIN_RESPONSE
 
-      assert(
-        actual.copy(timestamp = 1) == expected,
-        "Login DTO not correct!")
+      response.body match {
+        case Some(b) =>
+          val expected = parse[LoginDTO](getClass.getResourceAsStream(expectedResult))
+          val actual = parse[LoginDTO](b)
+
+          assert(
+            actual.copy(timestamp = 1) == expected,
+            "Login DTO not correct!")
+        case None =>
+          throw new Exception("No response body to assert!")
+      }
     }
 
   }
