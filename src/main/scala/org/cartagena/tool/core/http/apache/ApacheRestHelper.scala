@@ -52,6 +52,7 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
     val postResponse = executePost(
       request.url,
       toEntity(request.body),
+      request.headers,
       request.params)
 
     val cookieHeaderElements = Option {

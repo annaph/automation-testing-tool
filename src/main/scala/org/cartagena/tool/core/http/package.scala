@@ -8,11 +8,11 @@ package object http {
 
   val mapper: ObjectMapper = new ObjectMapper()
 
+  implicit def headersToMap(headers: List[HeaderElement]): Map[String, String] =
+    nameValuePairsToMap(headers)
+
   implicit def queryParamsToMap(queryParams: List[QueryParam]): Map[String, String] =
-    queryParams.map {
-      case QueryParam(name, value) =>
-        name -> value
-    }.toMap
+    nameValuePairsToMap(queryParams)
 
   implicit def intToHttpStatus(statusCode: Int): HttpStatus = statusCode match {
     case 200 =>
@@ -113,5 +113,10 @@ package object http {
     val json = mapper readValue(jsonString.str, classOf[Object])
     mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json)
   }
+
+  private def nameValuePairsToMap[T <: NameValuePair](pairs: List[T]): Map[String, String] =
+    pairs.map { pair =>
+      pair.name -> pair.value
+    }.toMap
 
 }
