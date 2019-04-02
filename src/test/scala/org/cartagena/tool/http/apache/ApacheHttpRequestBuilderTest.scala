@@ -17,10 +17,10 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
   "buildHttpGet" should "create HTTP GET request" in {
     // when
     val request = ApacheHttpRequestBuilder[CannotHaveEntity]()
-      .setId(REQUEST_ID)
-      .setURL(new URL(URL_STRING))
-      .setHeaders(Map(HEADER))
-      .setParams(Map(PARAM))
+      .withId(REQUEST_ID)
+      .withURL(new URL(URL_STRING))
+      .withHeaders(Map(HEADER))
+      .withParams(Map(PARAM))
       .buildHttpGet()
 
     // then
@@ -33,12 +33,12 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
   "buildHttpPost" should "create HTTP POST request" in {
     // when
     val request = ApacheHttpRequestBuilder[CanHaveEntity]()
-        .setId(REQUEST_ID)
-        .setURL(new URL(URL_STRING))
-        .setHeaders(Map(HEADER))
-        .setParams(Map(PARAM))
-        .setEntity(new StringEntity(BODY_CONTENT))
-        .buildHttpPost()
+      .withId(REQUEST_ID)
+      .withURL(new URL(URL_STRING))
+      .withHeaders(Map(HEADER))
+      .withParams(Map(PARAM))
+      .withEntity(new StringEntity(BODY_CONTENT))
+      .buildHttpPost()
 
     // then
     request should haveId(REQUEST_ID)
@@ -50,11 +50,11 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
 
   it should "create HTTP POST request without entity" in {
     // when
-    val request = ApacheHttpRequestBuilder[CannotHaveEntity]()
-      .setId(REQUEST_ID)
-      .setURL(new URL(URL_STRING))
-      .setHeaders(Map(HEADER))
-      .setParams(Map(PARAM))
+    val request = ApacheHttpRequestBuilder[CanHaveEntity]()
+      .withId(REQUEST_ID)
+      .withURL(new URL(URL_STRING))
+      .withHeaders(Map(HEADER))
+      .withParams(Map(PARAM))
       .buildHttpPost()
 
     // then

@@ -65,6 +65,7 @@ object ApacheHttpRequestMatchers {
         s"Request headers '$actualHeaders' did not contain '$expectedHeaders'",
         s"Request headers '$actualHeaders' did contain '$expectedHeaders'")
     }
+
   }
 
   class RequestContainsParams(expectedParams: Map[String, String]) extends Matcher[ApacheHttpRequest] {
@@ -79,6 +80,7 @@ object ApacheHttpRequestMatchers {
         s"Request query parameters '$actualParams' did not contain '$expectedParams'",
         s"Request query parameters '$actualParams' did contain '$expectedParams'")
     }
+
   }
 
   class RequestHasBodyMatcher(expectedBody: String) extends Matcher[ApacheHttpRequest] {
@@ -95,7 +97,6 @@ object ApacheHttpRequestMatchers {
 
   }
 
-
   class RequestHasNoBodyMatcher extends Matcher[ApacheHttpRequest] {
 
     override def apply(left: ApacheHttpRequest): MatchResult = {
@@ -106,6 +107,7 @@ object ApacheHttpRequestMatchers {
         s"Request body is not empty",
         s"Request body is empty")
     }
+
   }
 
 }
