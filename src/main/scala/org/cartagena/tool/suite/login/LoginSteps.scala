@@ -1,9 +1,9 @@
 package org.cartagena.tool.suite.login
 
 import org.cartagena.tool.core.CartagenaConverters._
+import org.cartagena.tool.core.agent.JsonAgent
 import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.http.apache.ApacheRestHelper
-import org.cartagena.tool.core.http.json4s.Json4sHelper
 import org.cartagena.tool.core.model.{AbstractCleanupStep, AbstractSetupStep, AbstractTestStep, TestStep}
 
 object LoginSteps {
@@ -16,9 +16,7 @@ object LoginSteps {
 
   }
 
-  case object ExecuteHttpPutRequest extends AbstractTestStep(profile, context)
-    with ApacheRestHelper
-    with Json4sHelper {
+  case object ExecuteHttpPutRequest extends AbstractTestStep(profile, context) with ApacheRestHelper {
 
     override val name: String = "Execute HTTP PUT request"
 
@@ -81,7 +79,7 @@ object LoginSteps {
 
   }
 
-  case object AssertJsonResponse extends AbstractTestStep(profile, context) with Json4sHelper {
+  case object AssertJsonResponse extends AbstractTestStep(profile, context) with JsonAgent {
 
     override val name: String = "Assert JSON response"
     private val expectedResult = "login.json"
@@ -91,8 +89,8 @@ object LoginSteps {
 
       response.body match {
         case Some(b) =>
-          val expected = parse[LoginDTO](getClass.getResourceAsStream(expectedResult))
-          val actual = parse[LoginDTO](b)
+          val expected = jsonHelper parse[LoginDTO] getClass.getResourceAsStream(expectedResult)
+          val actual: LoginDTO = jsonHelper parse[LoginDTO] b
 
           assert(
             actual.copy(timestamp = 1) == expected,

@@ -1,10 +1,8 @@
 package org.cartagena.tool.core.http.apache
 
-import java.nio.charset.StandardCharsets
-
-import org.apache.commons.io.IOUtils
 import org.apache.http.HttpEntity
 import org.apache.http.entity.StringEntity
+import org.cartagena.tool.core.http.json4s.inputStreamToString
 import org.cartagena.tool.core.http.{EmptyBody, JsonString, Text}
 
 sealed trait ApacheHttpBodyConverter[T] {
@@ -49,7 +47,7 @@ object ApacheHttpBodyConverter {
   private def convertFromStringLikeHttpEntity[T](entity: HttpEntity)(f: String => T): T =
     Some(entity)
       .map(_.getContent)
-      .map(IOUtils toString(_, StandardCharsets.UTF_8.name()))
+      .map(inputStreamToString)
       .map(f)
       .get
 

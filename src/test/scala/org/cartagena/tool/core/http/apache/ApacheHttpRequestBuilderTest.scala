@@ -1,8 +1,7 @@
 package org.cartagena.tool.core.http.apache
 
-import java.net.URL
-
 import org.apache.http.entity.StringEntity
+import org.cartagena.tool.core.CartagenaConverters._
 import org.cartagena.tool.core.http.apache.ApacheHttpRequestMatchers._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -18,7 +17,7 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
     // when
     val request = ApacheHttpRequestBuilder[CannotHaveEntity]()
       .withId(REQUEST_ID)
-      .withURL(new URL(URL_STRING))
+      .withURL(URL_STRING)
       .withHeaders(Map(HEADER))
       .withParams(Map(PARAM))
       .buildHttpGet()
@@ -32,9 +31,9 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
 
   "buildHttpPost" should "create HTTP POST request" in {
     // when
-    val request = ApacheHttpRequestBuilder[CanHaveEntity]()
+    val request = ApacheHttpRequestBuilder[MustHaveEntity]()
       .withId(REQUEST_ID)
-      .withURL(new URL(URL_STRING))
+      .withURL(URL_STRING)
       .withHeaders(Map(HEADER))
       .withParams(Map(PARAM))
       .withEntity(new StringEntity(BODY_CONTENT))
@@ -46,23 +45,6 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
     request should containHeaders(Map(HEADER))
     request should containParams(Map(PARAM))
     request should haveBody(BODY_CONTENT)
-  }
-
-  it should "create HTTP POST request without entity" in {
-    // when
-    val request = ApacheHttpRequestBuilder[CanHaveEntity]()
-      .withId(REQUEST_ID)
-      .withURL(new URL(URL_STRING))
-      .withHeaders(Map(HEADER))
-      .withParams(Map(PARAM))
-      .buildHttpPost()
-
-    // then
-    request should haveId(REQUEST_ID)
-    request should haveURL(URL_STRING)
-    request should containHeaders(Map(HEADER))
-    request should containParams(Map(PARAM))
-    request should haveNoBody
   }
 
 }

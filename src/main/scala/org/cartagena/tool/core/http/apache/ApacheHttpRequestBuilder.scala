@@ -15,9 +15,11 @@ sealed trait HasHeaders extends BuildStep
 
 sealed trait HasParams extends BuildStep
 
+sealed trait HasEntity extends BuildStep
+
 sealed trait EntityMark
 
-sealed trait CanHaveEntity extends EntityMark
+sealed trait MustHaveEntity extends EntityMark
 
 sealed trait CannotHaveEntity extends EntityMark
 
@@ -26,42 +28,47 @@ class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: 
                                                                         var headers: Map[String, String],
                                                                         var params: Map[String, String],
                                                                         var entity: Option[HttpEntity] = None) {
+
+  protected def this() =
+    this(0, null, Map.empty, Map.empty)
+
+  protected def this(builder: ApacheHttpRequestBuilder[_, _]) =
+    this(builder.id, builder.url, builder.headers, builder.params, builder.entity)
+
   def withId(id: Long): ApacheHttpRequestBuilder[HasID, E] = {
     this.id = id
     new ApacheHttpRequestBuilder[HasID, E](this)
   }
 
-  protected def this(builder: ApacheHttpRequestBuilder[_, _]) =
-    this(builder.id, builder.url, builder.headers, builder.params, builder.entity)
-
-  def withURL(url: URL)(implicit ev: S =:= HasID): ApacheHttpRequestBuilder[HasURL, E] = {
+  def withURL(url: URL)
+             (implicit ev: S =:= HasID): ApacheHttpRequestBuilder[HasURL, E] = {
     this.url = url
     new ApacheHttpRequestBuilder[HasURL, E](this)
   }
 
-  def withHeaders(headers: Map[String, String])(implicit ev: S =:= HasURL): ApacheHttpRequestBuilder[HasHeaders, E] = {
+  def withHeaders(headers: Map[String, String])
+                 (implicit ev: S =:= HasURL): ApacheHttpRequestBuilder[HasHeaders, E] = {
     this.headers = headers
     new ApacheHttpRequestBuilder[HasHeaders, E](this)
   }
 
-  def withParams(params: Map[String, String])(implicit ev: S =:= HasHeaders): ApacheHttpRequestBuilder[HasParams, E] = {
+  def withParams(params: Map[String, String])
+                (implicit ev: S =:= HasHeaders): ApacheHttpRequestBuilder[HasParams, E] = {
     this.params = params
     new ApacheHttpRequestBuilder[HasParams, E](this)
   }
 
-  def withEntity(entity: HttpEntity)(implicit ev: E =:= CanHaveEntity): ApacheHttpRequestBuilder[S, E] = {
+  def withEntity(entity: HttpEntity)
+                (implicit ev: E =:= MustHaveEntity): ApacheHttpRequestBuilder[HasEntity, MustHaveEntity] = {
     this.entity = Some(entity)
-    new ApacheHttpRequestBuilder[S, E](this)
+    new ApacheHttpRequestBuilder[HasEntity, MustHaveEntity](this)
   }
 
-  def buildHttpGet()(implicit ev1: S =:= HasParams, ev2: E =:= CannotHaveEntity): ApacheHttpGetRequest =
-    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpGetRequest(_, _))
+  def buildHttpGet()(implicit ev1: S =:= HasParams, ev2: E =:= CannotHaveEntity): ApacheHttpGet =
+    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpGet(_, _))
 
-  def buildHttpPost()(implicit ev1: S =:= HasParams, ev2: E =:= CanHaveEntity): ApacheHttpPostRequest =
-    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPostRequest(_, _))
-
-  protected def this() =
-    this(0, null, Map.empty, Map.empty)
+  def buildHttpPost()(implicit ev1: S =:= HasEntity, ev2: E =:= MustHaveEntity): ApacheHttpPost =
+    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPost(_, _))
 
 }
 

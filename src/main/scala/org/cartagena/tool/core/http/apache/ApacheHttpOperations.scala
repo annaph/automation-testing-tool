@@ -1,82 +1,73 @@
 package org.cartagena.tool.core.http.apache
 
 import java.net.URL
+import java.util.concurrent.atomic.AtomicLong
 
-import org.apache.http.Header
-
+import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut}
 import org.apache.http.client.protocol.HttpClientContext.COOKIE_STORE
-import org.apache.http.client.utils.URIBuilder
 import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.protocol.HttpContext
-import org.apache.http.{HttpEntity, HttpResponse}
 import org.cartagena.tool.core.model.HttpOperations
-import java.net.URI
-
-sealed trait ApacheHttpRequest {
-
-  def id: Long
-
-  def getURI: URI
-
-  def getAllHeaders: Array[Header]
-
-  def getEntity: HttpEntity
-
-  def addHeader(name: String, value: String): Unit
-
-  def setEntity(entity: HttpEntity): Unit
-
-}
-
-class ApacheHttpGetRequest(val id: Long, val uri: URI) extends HttpGet(uri) with ApacheHttpRequest {
-
-  override def getEntity: HttpEntity =
-    throw new UnsupportedOperationException("HTTP GET request has no entity!")
-
-  override def setEntity(entity: HttpEntity): Unit =
-    throw new UnsupportedOperationException("Cannot set entity to HTTP GET request!")
-
-}
-
-class ApacheHttpPostRequest(val id: Long, val uri: URI) extends HttpPost with ApacheHttpRequest {
-
-  override def getURI: URI =
-    uri
-
-}
-
-class ApacheHttpPutRequest(val id: Long, val uri: URI) extends HttpPut with ApacheHttpRequest
-
-case class ApacheHttpResponse(id: Long, response: HttpResponse)
 
 trait ApacheHttpOperations extends HttpOperations {
 
-  private[apache] def executePost(url: URL, entity: HttpEntity, headers: Map[String, String], params: Map[String, String])
-                                 (implicit client: HttpClient, context: HttpContext): HttpResponse = {
-    val uriBuilder = new URIBuilder(url.toURI)
+  import ApacheHttpOperations._
 
-    params.foreach {
-      case (name, value) =>
-        uriBuilder setParameter(name, value)
-    }
+  private[apache] def executeGet(url: URL, headers: NameValuePairs, params: NameValuePairs)
+                                (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    ApacheHttpOperations.executeGet(url, headers, params)
 
-    val request = new HttpPost(uriBuilder.build())
-
-    headers.foreach {
-      case (name, value) =>
-        request addHeader(name, value)
-    }
-
-    request setEntity entity
-
-    client execute(request, context)
-  }
+  private[apache] def executePost(url: URL, entity: HttpEntity, headers: NameValuePairs, params: NameValuePairs)
+                                 (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    ApacheHttpOperations.executePost(url, entity, headers, params)
 
   private[apache] def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
-                                      (implicit client: HttpClient, context: HttpContext): Unit = {
+                                      (implicit client: HttpClient, context: HttpContext): Unit =
+    ApacheHttpOperations.addToCookieStore(elementName, elementValue, domain, path)
+
+}
+
+object ApacheHttpOperations {
+
+  type NameValuePairs = Map[String, String]
+
+  private val COUNTER_INIT_VALUE = 0
+
+  private val idCounter = new AtomicLong(COUNTER_INIT_VALUE)
+
+  private def executeGet(url: URL, headers: NameValuePairs, params: NameValuePairs)
+                        (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    execute { id =>
+      ApacheHttpRequestBuilder[CannotHaveEntity]()
+        .withId(id)
+        .withURL(url)
+        .withHeaders(headers)
+        .withParams(params)
+        .buildHttpGet()
+    }
+
+  private def executePost(url: URL, entity: HttpEntity, headers: NameValuePairs, params: NameValuePairs)
+                         (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    execute { id =>
+      ApacheHttpRequestBuilder[MustHaveEntity]()
+        .withId(id)
+        .withURL(url)
+        .withHeaders(headers)
+        .withParams(params)
+        .withEntity(entity)
+        .buildHttpPost()
+    }
+
+  private def execute[T <: ApacheHttpRequest](request: Long => T)
+                                             (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse = {
+    val id = ApacheHttpOperations.idCounter.incrementAndGet()
+    ApacheHttpResponse(id, client execute(request(id), context))
+  }
+
+  private def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
+                              (implicit client: HttpClient, context: HttpContext): Unit = {
     val cookie = new BasicClientCookie(elementName, elementValue)
     cookie setDomain domain
     cookie setPath path

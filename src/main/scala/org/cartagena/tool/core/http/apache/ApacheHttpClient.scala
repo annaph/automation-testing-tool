@@ -1,74 +1,174 @@
 package org.cartagena.tool.core.http.apache
 
-import org.apache.http.client.protocol.HttpClientContext.COOKIE_STORE
-import org.apache.http.impl.client.{BasicCookieStore, HttpClientBuilder}
-import org.apache.http.protocol.{BasicHttpContext, HttpContext}
-import org.cartagena.tool.core.model.HttpClient
+import org.apache.http.client.{HttpClient => Client}
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.protocol.{BasicHttpContext, HttpContext => Context}
+import org.cartagena.tool.core.model.HttpNativeClient
+import scalaz.Forall
+import scalaz.effect.ST.{returnST, runST}
+import scalaz.effect.{ST, STRef}
 
-trait ApacheHttpClient extends HttpClient {
+import scala.util.{Failure, Success, Try}
 
-  private[http] def httpClient: org.apache.http.client.HttpClient =
-    ApacheHttpClient.httpClient
+trait ApacheHttpClient extends HttpNativeClient {
 
-  private[http] def httpContext: HttpContext =
-    ApacheHttpClient.httpContext
+  private[apache] val clientRef: ApacheHttpClient.ClientRef =
+    ApacheHttpClientRefs.clientRef
 
-  private[http] def startHttpClient(): Unit =
-    ApacheHttpClient.startHttpClient()
+  private[apache] val contextRef: ApacheHttpClient.ContextRef =
+    ApacheHttpClientRefs.contextRef
 
-  private[http] def resetHttpClient(): Unit =
-    ApacheHttpClient.resetHttpClient()
+  private[apache] def httpContext: Context =
+    ApacheHttpClient.httpContext(contextRef)
 
-  private[http] def closeHttpClient(): Unit =
-    ApacheHttpClient.closeHttpClient()
+  private[apache] def isHttpClientUp: Boolean =
+    Try(httpClient).isSuccess
 
-  private[http] def isHttpClientUp: Boolean =
-    ApacheHttpClient.isHttpClientUp
+  private[apache] def httpClient: Client =
+    ApacheHttpClient.httpClient(clientRef)
+
+  private[apache] def startHttpClient(): Unit =
+    ApacheHttpClient.startHttpClient(clientRef, contextRef)
+
+  private[apache] def closeHttpClient(): Unit =
+    ApacheHttpClient.closeHttpClient(clientRef, contextRef)
+
+  private[apache] def resetHttpClient(): Unit =
+    ApacheHttpClient.resetHttpClient(clientRef, contextRef)
 
 }
 
 object ApacheHttpClient {
 
-  private var _isUp = false
+  type ForallST[T] = Forall[({type λ[S] = ST[S, T]})#λ]
 
-  private var _client: org.apache.http.client.HttpClient = _
+  type Ref[T] = STRef[Nothing, Option[T]]
 
-  private var _context: HttpContext = _
+  type ClientRef = Ref[Client]
 
-  private def httpClient: org.apache.http.client.HttpClient =
-    _client
+  type ContextRef = Ref[Context]
 
-  private def httpContext: HttpContext =
-    _context
+  type ReadRefAction[T] = Ref[T] => ST[Nothing, Try[T]]
 
-  private def resetHttpClient(): Unit = {
-    closeHttpClient()
-    startHttpClient()
-  }
+  type UpdateRefsAction = (ClientRef, ContextRef) => ST[Nothing, Try[Unit]]
 
-  private def startHttpClient(): Unit =
-    if (!_isUp) create() else throw new Exception("Apache Http client already up!")
+  private def httpClient(clientRef: ClientRef): Client =
+    readRef(clientRef)
 
-  private def create(): Unit = {
-    _client = HttpClientBuilder.create().build()
+  private def httpContext(contextRef: ContextRef): Context =
+    readRef(contextRef)
 
-    _context = new BasicHttpContext()
-    _context setAttribute(COOKIE_STORE, new BasicCookieStore())
+  private def startHttpClient(clientRef: ClientRef, contextRef: ContextRef): Unit =
+    updateRefs(clientRef, contextRef)(startClientAndContextAction)
 
-    _isUp = true
-  }
+  private def closeHttpClient(clientRef: ClientRef, contextRef: ContextRef): Unit =
+    updateRefs(clientRef, contextRef)(closeClientAndContextAction)
 
-  private def closeHttpClient(): Unit =
-    if (_isUp) destroy() else throw new Exception("Apache Http client is not up!")
+  private def resetHttpClient(clientRef: ClientRef, contextRef: ContextRef): Unit =
+    updateRefs(clientRef, contextRef)(resetClientAndContextAction)
 
-  private def destroy(): Unit = {
-    _client = null
-    _context = null
+  private def readRef[T](ref: Ref[T]): T =
+    runReadRefAction(ref)(readRefAction) match {
+      case Success(obj) =>
+        obj
+      case Failure(e) =>
+        throw e
+    }
 
-    _isUp = false
-  }
+  private def updateRefs(clientRef: ClientRef, contextRef: ContextRef)(action: UpdateRefsAction): Unit =
+    runUpdateRefsAction(clientRef, contextRef)(action) match {
+      case Success(_) =>
+      case Failure(e) =>
+        throw e
+    }
 
-  private def isHttpClientUp: Boolean =
-    _isUp
+  private def runReadRefAction[T](ref: Ref[T])(action: ReadRefAction[T]): Try[T] =
+    runST(new ForallST[Try[T]] {
+      override def apply[S]: ST[S, Try[T]] =
+        action(ref).asInstanceOf[ST[S, Try[T]]]
+    })
+
+  private def runUpdateRefsAction(clientRef: ClientRef, contextRef: ContextRef)(action: UpdateRefsAction): Try[Unit] =
+    runST(new ForallST[Try[Unit]] {
+      override def apply[S]: ST[S, Try[Unit]] =
+        action(clientRef, contextRef).asInstanceOf[ST[S, Try[Unit]]]
+    })
+
+  private def readRefAction[T]: ReadRefAction[T] =
+    ref => {
+      for {
+        refAsOption <- ref.read
+        refAsTry <- returnST(toTry(refAsOption))
+      } yield refAsTry
+    }
+
+  private def startClientAndContextAction: UpdateRefsAction =
+    (clientRef, contextRef) => {
+      for {
+        client <- readRefAction(clientRef)
+        createdClientAndContext <-
+          if (client.isSuccess) returnST(Failure(HttpClientIsUp)) else createRefsAction(clientRef, contextRef)
+      } yield createdClientAndContext
+    }
+
+  private def closeClientAndContextAction: UpdateRefsAction =
+    (clientRef, contextRef) => {
+      for {
+        client <- readRefAction(clientRef)
+        closedClientAndContext <-
+          if (client.isFailure) returnST(Failure(HttpClientIsNotUp)) else destroyRefsAction(clientRef, contextRef)
+      } yield closedClientAndContext
+    }
+
+  private def resetClientAndContextAction: UpdateRefsAction =
+    (clientRef, contextRef) => {
+      for {
+        closedClientAndContext <- closeClientAndContextAction(clientRef, contextRef)
+        restartedClientAndContext <-
+          if (closedClientAndContext.isFailure) {
+            returnST(Failure(HttpClientIsNotUp))
+          } else {
+            startClientAndContextAction(clientRef, contextRef)
+          }
+      } yield restartedClientAndContext
+    }
+
+  private def createRefsAction: UpdateRefsAction =
+    (clientRef, context) => {
+      for {
+        _ <- clientRef write Some(HttpClientBuilder.create().build())
+        _ <- context write Some(new BasicHttpContext())
+      } yield Success(())
+    }
+
+  private def destroyRefsAction: UpdateRefsAction =
+    (clientRef, context) => {
+      for {
+        _ <- clientRef write None
+        _ <- context write None
+      } yield Success(())
+    }
+
+  private def toTry[T](obj: Option[T]): Try[T] =
+    obj match {
+      case Some(o) =>
+        Success(o)
+      case None =>
+        Failure(HttpClientIsNotUp)
+    }
+
+  case object HttpClientIsUp extends Exception("Apache Http client is up!")
+
+  case object HttpClientIsNotUp extends Exception("Apache Http client is NOT up!")
+
+}
+
+object ApacheHttpClientRefs {
+
+  private[apache] val clientRef =
+    STRef[Nothing](Option.empty[Client])
+
+  private[apache] val contextRef =
+    STRef[Nothing](Option.empty[Context])
 
 }

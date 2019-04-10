@@ -1,10 +1,9 @@
 package org.cartagena.tool.core.http.apache
 
 import java.net.URL
-import java.nio.charset.StandardCharsets
 
-import org.apache.commons.io.IOUtils
 import org.apache.http.client.utils.URIBuilder
+import org.cartagena.tool.core.http.json4s.inputStreamToString
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 import scala.collection.JavaConverters._
@@ -25,9 +24,6 @@ object ApacheHttpRequestMatchers {
 
   def haveBody(expectedBody: String) =
     new RequestHasBodyMatcher(expectedBody)
-
-  def haveNoBody =
-    new RequestHasNoBodyMatcher
 
   class RequestHasIdMatcher(expectedId: Long) extends Matcher[ApacheHttpRequest] {
 
@@ -87,25 +83,12 @@ object ApacheHttpRequestMatchers {
 
     override def apply(left: ApacheHttpRequest): MatchResult = {
       val content = left.getEntity.getContent
-      val actualBody = IOUtils toString(content, StandardCharsets.UTF_8.name())
+      val actualBody = inputStreamToString(content)
 
       MatchResult(
         actualBody == expectedBody,
         s"Request body '$actualBody' did not equal to '$expectedBody'",
         s"Request body '$actualBody' did equal to '$expectedBody'")
-    }
-
-  }
-
-  class RequestHasNoBodyMatcher extends Matcher[ApacheHttpRequest] {
-
-    override def apply(left: ApacheHttpRequest): MatchResult = {
-      val content = Option(left.getEntity)
-
-      MatchResult(
-        content.isEmpty,
-        s"Request body is not empty",
-        s"Request body is empty")
     }
 
   }

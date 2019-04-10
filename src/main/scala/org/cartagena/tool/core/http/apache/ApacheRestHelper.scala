@@ -1,17 +1,9 @@
 package org.cartagena.tool.core.http.apache
 
 import org.apache.http.HttpEntity
-import org.apache.http.client.HttpClient
-import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
 
 trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpOperations {
-
-  implicit private val restClient: HttpClient =
-    this.httpClient
-
-  implicit private val restContext: HttpContext =
-    this.httpContext
 
   override def startRestClient(): Unit =
     startHttpClient()
@@ -31,12 +23,15 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
     if (f.isDefinedAt(request)) f(request) else throw new Exception("Unsupported HTTP method request!")
   }
 
+  override def storeCookie(cookie: Cookie): Unit =
+    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)(httpClient, httpContext)
+
   private def executeFunc[T <: HttpBody, U <: HttpBody](implicit mf: Manifest[U]) =
     new PartialFunction[HttpRequest[T], HttpResponse[U]] {
 
       override def apply(request: HttpRequest[T]): HttpResponse[U] = (request.method: @unchecked) match {
         case HttpGet =>
-          ???
+          executeHttpGet(request)
         case HttpPost =>
           executeHttpPost(request)
       }
@@ -47,24 +42,31 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
       }
     }
 
-  private def executeHttpPost[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                           (implicit mf: Manifest[U]): HttpResponse[U] = {
-    val postResponse = executePost(
-      request.url,
-      toEntity(request.body),
-      request.headers,
-      request.params)
+  private def executeHttpGet[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
+                                                          (implicit mf: Manifest[U]): HttpResponse[U] =
+    createHttpResponse(
+      request,
+      executeGet(request.url, request.headers, request.params)(httpClient, httpContext))
 
+  private def executeHttpPost[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
+                                                           (implicit mf: Manifest[U]): HttpResponse[U] =
+    createHttpResponse(
+      request,
+      executePost(request.url, toEntity(request.body), request.headers, request.params)(httpClient, httpContext))
+
+  private def createHttpResponse[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                               apacheResponse: ApacheHttpResponse)
+                                                              (implicit mf: Manifest[U]): HttpResponse[U] = {
     val cookieHeaderElements = Option {
-      postResponse.getFirstHeader("Set-Cookie")
+      apacheResponse.get.getFirstHeader("Set-Cookie")
     }.map(_.getElements.map { header =>
       Cookie(header.getName, header.getValue, request.url.getHost, "/")
     })
 
     HttpResponse(
-      status = postResponse.getStatusLine.getStatusCode,
-      reason = postResponse.getStatusLine.getReasonPhrase,
-      body = Option(postResponse.getEntity).map(fromEntity(_)),
+      status = apacheResponse.get.getStatusLine.getStatusCode,
+      reason = apacheResponse.get.getStatusLine.getReasonPhrase,
+      body = Option(apacheResponse.get.getEntity).map(fromEntity(_)),
       cookies = cookieHeaderElements.map(_.toList).getOrElse(List.empty))
   }
 
@@ -91,8 +93,5 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
 
   private def toHttpEntity[T: ApacheHttpBodyConverter](body: T): HttpEntity =
     implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)
-
-  override def storeCookie(cookie: Cookie): Unit =
-    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
 }

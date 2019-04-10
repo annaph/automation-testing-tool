@@ -1,12 +1,12 @@
 package org.cartagena.tool.core.model
 
-sealed trait Client
+sealed trait NativeClient
 
-trait HttpClient extends Client
+trait HttpNativeClient extends NativeClient
 
-trait JdbcClient extends Client
+trait JdbcNativeClient extends NativeClient
 
-trait NoClient extends Client
+trait NoNativeClient extends NativeClient
 
 sealed trait Operations
 
@@ -17,9 +17,9 @@ trait JdbcOperations extends Operations
 trait NoOperations extends Operations
 
 trait Helper {
-  self: Client with Operations =>
+  self: NativeClient with Operations =>
 }
 
 trait JdbcHelper extends {
-  self: JdbcClient with JdbcOperations =>
+  self: JdbcNativeClient with JdbcOperations =>
 }
