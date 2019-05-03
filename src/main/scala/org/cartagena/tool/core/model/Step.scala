@@ -44,7 +44,6 @@ abstract class AbstractStep(val profile: Profile, val context: Context) extends 
 abstract class AbstractSetupStep(profile: Profile, context: Context)
   extends AbstractStep(profile, context) with SetupStep
 
-
 abstract class AbstractCleanupStep(profile: Profile, context: Context)
   extends AbstractStep(profile, context) with CleanupStep
 

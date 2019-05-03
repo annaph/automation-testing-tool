@@ -100,7 +100,7 @@ class ApacheHttpClientTest extends FlatSpec with Matchers {
 
 object ApacheHttpClientTest {
 
-  import ApacheHttpClient.{ClientRef, ContextRef}
+  import ApacheHttpClientRefs.{ClientRef, ContextRef}
 
   trait StartedApacheHttpClient extends ApacheHttpClient {
 

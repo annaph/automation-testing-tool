@@ -2,9 +2,12 @@ package org.cartagena.tool.core
 
 import java.net.URL
 
+import org.cartagena.tool.core.http.json4s.Json4sFormats.{addSerializers, setFormats}
+import org.cartagena.tool.core.http.json4s.Json4sFormatsRef.formatsRef
 import org.cartagena.tool.core.model.Context
+import org.json4s.{Formats, Serializer}
 
-object CartagenaConverters {
+object CartagenaUtils {
 
   implicit def stringToUrl(str: String): URL =
     new URL(str)
@@ -33,6 +36,11 @@ object CartagenaConverters {
       this
     }
 
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
+    }
+
     def <=~[T: Manifest](key: String): Unit =
       context remove[T] key
 
@@ -48,13 +56,17 @@ object CartagenaConverters {
         throw KeyNotSpecifiedException
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
-    }
-
     object KeyNotSpecifiedException extends Exception("No key specified!")
 
   }
+
+  def useJsonSerializer(serializer: Serializer[_]): Unit =
+    addSerializers(formatsRef, List(serializer))
+
+  def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit =
+    addSerializers(formatsRef, serializers)
+
+  def useJsonFormats(formats: Formats): Unit =
+    setFormats(formatsRef, formats)
 
 }

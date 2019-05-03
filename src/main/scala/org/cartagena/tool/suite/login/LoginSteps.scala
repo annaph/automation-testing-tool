@@ -1,6 +1,6 @@
 package org.cartagena.tool.suite.login
 
-import org.cartagena.tool.core.CartagenaConverters._
+import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.agent.JsonAgent
 import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.http.apache.ApacheRestHelper
