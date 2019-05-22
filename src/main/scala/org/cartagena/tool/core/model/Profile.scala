@@ -5,17 +5,14 @@ import java.util.Properties
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
-trait ProfileLocation {
-  def path: String
-}
-
 trait Profile {
-  self: ProfileLocation =>
 
   private lazy val _properties: Map[String, String] =
     readProperties
 
   def name: String
+
+  def path: String
 
   def getProperty(key: String, default: => String): String =
     getProperty(key) getOrElse default
@@ -26,26 +23,35 @@ trait Profile {
   def getAllProperties: Map[String, String] = _properties
 
   def readPropertyFile(fileName: String): Map[String, String] =
-    Profile readPropertyFile (location + fileName)
-
-  def location: String = self.path
+    Profile readPropertyFile (path + fileName)
 
   protected def readProperties: Map[String, String]
 
 }
 
 abstract class DefaultProfile extends Profile {
-  self: ProfileLocation =>
 
   override def name: String = "default-profile"
 
   override def readProperties: Map[String, String] =
-    Option(getClass.getResource(location + "default.properties")) match {
+    Option(getClass.getResource(path + "default.properties")) match {
       case Some(_) =>
         readPropertyFile("default")
       case None =>
         Map.empty
     }
+}
+
+case object EmptyProfile extends Profile {
+
+  override val name: String = "empty-profile"
+
+  override val path: String =
+    ""
+
+  override protected def readProperties: Map[String, String] =
+    Map.empty
+
 }
 
 object Profile {

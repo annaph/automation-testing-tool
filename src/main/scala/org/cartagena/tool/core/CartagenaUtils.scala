@@ -4,7 +4,7 @@ import java.net.URL
 
 import org.cartagena.tool.core.http.json4s.Json4sFormats.{addSerializers, setFormats}
 import org.cartagena.tool.core.http.json4s.Json4sFormatsRef.formatsRef
-import org.cartagena.tool.core.model.{Context, EndStep, SerialTestStepX, TestStepX}
+import org.cartagena.tool.core.model._
 import org.json4s.{Formats, Serializer}
 
 object CartagenaUtils {
@@ -12,8 +12,8 @@ object CartagenaUtils {
   implicit def stringToUrl(str: String): URL =
     new URL(str)
 
-  implicit def testStepToSerialTestStep(step: TestStepX): SerialTestStepX =
-    SerialTestStepX(step, () => EndStep)
+  implicit def testStepToSerialTestStep(step: ShapedTestStep): SerialTestStep =
+    SerialTestStep(step, () => EmptyStep)
 
   implicit class ContextOperations(context: Context) {
 
