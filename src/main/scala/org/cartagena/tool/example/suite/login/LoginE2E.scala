@@ -1,15 +1,15 @@
-package org.cartagena.tool.suite.login
+package org.cartagena.tool.example.suite.login
 
 object LoginE2ELocalhost extends App {
 
-  profile = onlyLocalHostProfile
+  loginProfile = onlyLocalHostProfile
   LoginSuite.run()
 
 }
 
 object LoginE2EVagrant extends App {
 
-  profile = onlyVagrantProfile
+  loginProfile = onlyVagrantProfile
   LoginSuite.run()
 
 }

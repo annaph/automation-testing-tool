@@ -1,41 +1,41 @@
 package org.cartagena.tool.core.model
 
+import org.cartagena.tool.core.model.Step.{executeRouterStep, executeSerialStep, executeShapelessStep, ignoreStep}
 import org.cartagena.tool.core.model.StepExtensions.InfoMessages
-import org.cartagena.tool.core.model.StepX.{executeRouterStep, executeSerialStep, executeShapelessStep, ignoreStep}
 
 object StepDimensions {
 
   trait StepType {
-    self: StepX =>
+    self: Step =>
   }
 
   trait Setup extends StepType {
-    self: StepX =>
+    self: Step =>
   }
 
   trait Test extends StepType {
-    self: StepX =>
+    self: Step =>
   }
 
   trait Cleanup extends StepType {
-    self: StepX =>
+    self: Step =>
   }
 
   trait StepShape {
-    self: StepX =>
+    self: Step =>
 
     private[model] def execute(): StepExecution
 
     private[model] def ignore: StepExecution =
       ignoreStep(this)
 
-    private[model] def toStream: Stream[StepX with StepShape] =
-      this #:: Stream.empty[StepX with StepShape]
+    private[model] def toStream: Stream[Step with StepShape] =
+      this #:: Stream.empty[Step with StepShape]
 
   }
 
   trait Shapeless extends StepShape {
-    self: StepX with InfoMessages =>
+    self: Step with InfoMessages =>
 
     override private[model] def execute(): StepExecution =
       executeShapelessStep(this)
@@ -43,9 +43,9 @@ object StepDimensions {
   }
 
   trait Router extends StepShape {
-    self: StepX =>
+    self: Step =>
 
-    def route(): StepX with StepShape
+    def route(): Step with StepShape
 
     override private[model] def execute(): StepExecution =
       executeRouterStep(this)
@@ -53,16 +53,16 @@ object StepDimensions {
   }
 
   trait Serial extends StepShape {
-    self: StepX =>
+    self: Step =>
 
-    def left: StepX with StepShape
+    def left: Step with StepShape
 
-    def right: () => StepX with StepShape
+    def right: () => Step with StepShape
 
     override private[model] def execute(): StepExecution =
       executeSerialStep(this)
 
-    override private[model] def toStream: Stream[StepX with StepShape] =
+    override private[model] def toStream: Stream[Step with StepShape] =
       left.toStream ++: right.apply().toStream
 
   }

@@ -1,4 +1,4 @@
-package org.cartagena.tool.suite.login
+package org.cartagena.tool.example.suite.login
 
 import org.cartagena.tool.core.model.Profile
 
@@ -6,7 +6,7 @@ object LoginProfiles {
 
   trait LoginProfileLocation {
 
-    def path: String = "/org/cartagena/tool/suite/login/"
+    def path: String = "/org/cartagena/tool/example/suite/login/"
 
   }
 

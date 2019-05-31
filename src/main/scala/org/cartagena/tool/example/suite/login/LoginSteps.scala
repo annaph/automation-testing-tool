@@ -1,22 +1,28 @@
-package org.cartagena.tool.suite.login
+package org.cartagena.tool.example.suite.login
 
 import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.agent.JsonAgent
 import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.http.apache.ApacheRestHelper
-import org.cartagena.tool.core.model.{AbstractCleanupStep, AbstractSetupStep, AbstractTestStep, TestStep}
+import org.cartagena.tool.core.model.{ShapelessCleanupStep => CleanupStep, ShapelessSetupStep => SetupStep, ShapelessTestStep => TestStep}
+import org.cartagena.tool.example.suite.login.model.LoginDTO
 
 object LoginSteps {
 
-  case object StartRestClient extends AbstractSetupStep(profile, context) with ApacheRestHelper {
+  case object StartRestClient extends SetupStep
+    with LoginProfileAndContext
+    with ApacheRestHelper {
 
     override val name: String = "Start REST client"
 
-    override def run(): Unit = startRestClient()
+    override def run(): Unit =
+      startRestClient()
 
   }
 
-  case object ExecuteHttpPutRequest extends AbstractTestStep(profile, context) with ApacheRestHelper {
+  case object ExecuteHttpPutRequest extends TestStep
+    with LoginProfileAndContext
+    with ApacheRestHelper {
 
     override val name: String = "Execute HTTP PUT request"
 
@@ -31,7 +37,7 @@ object LoginSteps {
     override def run(): Unit = {
       val request = HttpRequest(
         url = s"http://$host:$port/j_spring_security_check",
-        method = HttpPost,
+        method = Post,
         headers = List(
           "Accept" -> headerAccept,
           "Content-Type" -> headerContentType),
@@ -40,13 +46,13 @@ object LoginSteps {
           "password" -> password),
         body = EmptyBody)
 
-      println(request)
+      print(request)
 
       val response = execute[EmptyBody.type, JsonString](request)
-      println(response)
+      print(response)
 
       assert(
-        response.status == HttpStatusOK,
+        response.status == OK,
         "Http status code must be 200!")
 
       assert(
@@ -56,11 +62,11 @@ object LoginSteps {
       context ~=> LOGIN_RESPONSE />[HttpResponse[JsonString]] response
     }
 
-    override def nextTestStep: TestStep = StoreSessionCookie
-
   }
 
-  case object StoreSessionCookie extends AbstractTestStep(profile, context) with ApacheRestHelper {
+  case object StoreSessionCookie extends TestStep
+    with LoginProfileAndContext
+    with ApacheRestHelper {
 
     override val name: String = "Store session cookie"
 
@@ -75,11 +81,11 @@ object LoginSteps {
       }
     }
 
-    override def nextTestStep: TestStep = AssertJsonResponse
-
   }
 
-  case object AssertJsonResponse extends AbstractTestStep(profile, context) with JsonAgent {
+  case object AssertJsonResponse extends TestStep
+    with LoginProfileAndContext
+    with JsonAgent {
 
     override val name: String = "Assert JSON response"
     private val expectedResult = "login.json"
@@ -102,11 +108,13 @@ object LoginSteps {
 
   }
 
-  case object ShutdownRestClient extends AbstractCleanupStep(profile, context) with ApacheRestHelper {
+  case object ShutdownRestClient extends CleanupStep
+    with ApacheRestHelper {
 
     override val name: String = "Shutdown REST client"
 
-    override def run(): Unit = shutdownRestClient()
+    override def run(): Unit =
+      shutdownRestClient()
 
   }
 

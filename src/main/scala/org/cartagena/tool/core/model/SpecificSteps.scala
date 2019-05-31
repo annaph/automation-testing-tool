@@ -30,7 +30,7 @@ trait RouterCleanupStep extends ShapedCleanupStep
   with Router
   with ProfileAndContext
 
-final case class SerialSetupStep(left: StepX with StepShape, right: () => StepX with StepShape)
+final case class SerialSetupStep(left: Step with StepShape, right: () => Step with StepShape)
   extends ShapedSetupStep
     with Serial
     with ProfileAndContext
@@ -40,7 +40,7 @@ final case class SerialSetupStep(left: StepX with StepShape, right: () => StepX 
 
 }
 
-final case class SerialTestStep(left: StepX with StepShape, right: () => StepX with StepShape)
+final case class SerialTestStep(left: Step with StepShape, right: () => Step with StepShape)
   extends ShapedTestStep
     with Serial
     with ProfileAndContext
@@ -50,13 +50,40 @@ final case class SerialTestStep(left: StepX with StepShape, right: () => StepX w
 
 }
 
-final case class SerialCleanupStep(left: StepX with StepShape, right: () => StepX with StepShape)
+final case class SerialCleanupStep(left: Step with StepShape, right: () => Step with StepShape)
   extends ShapedCleanupStep
     with Serial
     with ProfileAndContext
     with UnsupportedRunnable {
 
   override def name: String = "Serial cleanup step"
+
+}
+
+object SerialSetupStep {
+
+  private val _emptySerialSetupStep = SerialSetupStep(EmptyStep, () => EmptyStep)
+
+  def empty: SerialSetupStep =
+    _emptySerialSetupStep
+
+}
+
+object SerialTestStep {
+
+  private val _emptySerialTestStep = SerialTestStep(EmptyStep, () => EmptyStep)
+
+  def empty: SerialTestStep =
+    _emptySerialTestStep
+
+}
+
+object SerialCleanupStep {
+
+  private val _emptySerialCleanupStep = SerialCleanupStep(EmptyStep, () => EmptyStep)
+
+  def empty: SerialCleanupStep =
+    _emptySerialCleanupStep
 
 }
 

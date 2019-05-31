@@ -60,7 +60,7 @@ object StepTestStructures {
 
     override val name: String = "My Router Step"
 
-    override def route(): StepX with StepShape =
+    override def route(): Step with StepShape =
       MyShapelessStep
 
     override def run(): Unit = {}
@@ -71,7 +71,7 @@ object StepTestStructures {
 
     override val name: String = "My Router Step to fail"
 
-    override def route(): StepX with StepShape =
+    override def route(): Step with StepShape =
       MyShapelessStepToFail
 
     override def run(): Unit = {}

@@ -18,7 +18,7 @@ class SerialStepTest extends FlatSpec with Matchers {
     actual should be(PassedStepExecution(serialStep.name, expectedInnerStepExecutions))
   }
 
-  it should "execute 'S1 + S2 + S3' where S2 is a router step with success" in {
+  it should "execute 'S1 + S2 + S3' with success where S2 is a router step" in {
     // given
     val serialStep = S1 + S2 + S3
 
@@ -34,7 +34,7 @@ class SerialStepTest extends FlatSpec with Matchers {
     actual should be(PassedStepExecution(serialStep.name, expectedInnerStepExecutions))
   }
 
-  it should "execute 'S1ToFail + S2 + S3' where S2 is a router step with failure" in {
+  it should "execute 'S1ToFail + S2 + S3' with failure where S2 is a router step" in {
     // given
     val serialStep = S1ToFail + S2 + S3
 
@@ -50,7 +50,7 @@ class SerialStepTest extends FlatSpec with Matchers {
     actual should be(FailedStepExecution(serialStep.name, SerialStepFailed, expectedInnerStepExecutions))
   }
 
-  it should "execute 'S1 + S2ToFail + S3' where S2 is a router step with failure" in {
+  it should "execute 'S1 + S2ToFail + S3' with failure where S2 is a router step" in {
     // given
     val serialStep = S1 + S2ToFail + S3
 
@@ -66,7 +66,7 @@ class SerialStepTest extends FlatSpec with Matchers {
     actual should be(FailedStepExecution(serialStep.name, SerialStepFailed, expectedInnerStepExecutions))
   }
 
-  it should "execute 'S1 + S2 + S3ToFail' where S2 is a router step with failure" in {
+  it should "execute 'S1 + S2 + S3ToFail' with failure where S2 is a router step" in {
     // given
     val serialStep = S1 + S2 + S3ToFail
 

@@ -1,10 +1,10 @@
 package org.cartagena.tool.core.model
 
+import org.cartagena.tool.core.model.Step.{executeEndStep, ignoreStep}
 import org.cartagena.tool.core.model.StepDimensions._
 import org.cartagena.tool.core.model.StepExtensions.{InfoMessages, ProfileAndContext, UnsupportedRunnable}
-import org.cartagena.tool.core.model.StepX.{executeEndStep, ignoreStep}
 
-case object EmptyStep extends StepX
+case object EmptyStep extends Step
   with Setup
   with Test
   with Cleanup
@@ -17,13 +17,13 @@ case object EmptyStep extends StepX
 
   override val name: String = "Empty step"
 
-  override def route(): StepX with StepShape =
+  override def route(): Step with StepShape =
     throw new UnsupportedOperationException
 
-  override def left: StepX with StepShape =
+  override def left: Step with StepShape =
     throw new UnsupportedOperationException
 
-  override def right: () => StepX with StepShape =
+  override def right: () => Step with StepShape =
     throw new UnsupportedOperationException
 
   override private[model] def execute(): StepExecution =
@@ -32,7 +32,7 @@ case object EmptyStep extends StepX
   override private[model] def ignore: StepExecution =
     ignoreStep(this)
 
-  override private[model] def toStream: Stream[StepX with StepShape] =
+  override private[model] def toStream: Stream[Step with StepShape] =
     Stream.empty
 
 }

@@ -1,44 +1,25 @@
 package org.cartagena.tool.core.model
 
-sealed trait StepExecutionStatus
-
-case object Passed extends StepExecutionStatus
-
-case object Failed extends StepExecutionStatus
-
-case object Ignored extends StepExecutionStatus
-
 sealed trait StepExecution {
 
   def stepName: String
-
-  def status: StepExecutionStatus
-
-  def failure: Option[Throwable]
 
   def innerStepExecutions: List[StepExecution]
 
 }
 
 case class PassedStepExecution(stepName: String,
-                               innerStepExecutions: List[StepExecution] = List.empty)
-  extends StepExecution {
+                               innerStepExecutions: List[StepExecution] = List.empty) extends StepExecution
 
-  override val status: StepExecutionStatus =
-    Passed
+sealed trait NonPassedStepExecution extends StepExecution {
 
-  override val failure: Option[Throwable] =
-    None
+  def failure: Option[Throwable]
 
 }
 
 case class FailedStepExecution(stepName: String,
                                error: Throwable,
-                               innerStepExecutions: List[StepExecution] = List.empty)
-  extends StepExecution {
-
-  override val status: StepExecutionStatus =
-    Failed
+                               innerStepExecutions: List[StepExecution] = List.empty) extends NonPassedStepExecution {
 
   override val failure: Option[Throwable] =
     Some(error)
@@ -46,11 +27,7 @@ case class FailedStepExecution(stepName: String,
 }
 
 case class IgnoredStepExecution(stepName: String,
-                                innerStepExecutions: List[StepExecution] = List.empty)
-  extends StepExecution {
-
-  override val status: StepExecutionStatus =
-    Ignored
+                                innerStepExecutions: List[StepExecution] = List.empty) extends NonPassedStepExecution {
 
   override val failure: Option[Throwable] =
     None

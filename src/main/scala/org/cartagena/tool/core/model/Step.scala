@@ -1,6 +1,12 @@
 package org.cartagena.tool.core.model
 
-sealed trait Step {
+import org.cartagena.tool.core.model.Process.{emit, lift}
+import org.cartagena.tool.core.model.StepDimensions.{Router, Serial, Shapeless, StepShape}
+import org.cartagena.tool.core.model.StepExtensions.InfoMessages
+
+import scala.util.{Failure, Success, Try}
+
+trait Step {
 
   def name: String
 
@@ -12,40 +18,85 @@ sealed trait Step {
 
 }
 
-sealed trait SetupStep extends Step {
-  def nextSetupStep: SetupStep = NilStep
+object Step {
+
+  private[model] def add(left: ShapedSetupStep, right: => ShapedSetupStep): SerialSetupStep = {
+    lazy val r = right
+    SerialSetupStep(left, () => r)
+  }
+
+  private[model] def add(left: ShapedTestStep, right: => ShapedTestStep): SerialTestStep = {
+    lazy val r = right
+    SerialTestStep(left, () => r)
+  }
+
+  private[model] def add(left: ShapedCleanupStep, right: => ShapedCleanupStep): SerialCleanupStep = {
+    lazy val r = right
+    SerialCleanupStep(left, () => r)
+  }
+
+  private[model] def executeEndStep(step: EmptyStep.type): StepExecution = {
+    println(step.preRunMsg)
+    println(step.passedRunMsg)
+
+    PassedStepExecution(step.name)
+  }
+
+  private[model] def executeShapelessStep[T <: Step with Shapeless with InfoMessages](step: T): StepExecution = {
+    printStepSeparator()
+    println(step.preRunMsg)
+
+    Try {
+      step.run()
+    } match {
+      case Success(_) =>
+        println(step.passedRunMsg)
+        printStepSeparator()
+
+        PassedStepExecution(step.name)
+      case Failure(ex) =>
+        println(step.failedRunMsg)
+        printStepSeparator()
+
+        FailedStepExecution(step.name, ex)
+    }
+  }
+
+  private def printStepSeparator(): Unit =
+    println(StringBuilder.newBuilder.append("-") * 97)
+
+  private[model] def executeRouterStep[T <: Step with Router](step: T): StepExecution =
+    step.route().execute() match {
+      case stepExecution: PassedStepExecution =>
+        PassedStepExecution(step.name, stepExecution :: List.empty)
+      case stepExecution: NonPassedStepExecution =>
+        FailedStepExecution(step.name, RouterStepFailed, stepExecution :: List.empty)
+    }
+
+  private[model] def executeSerialStep[T <: Step with Serial](step: T): StepExecution = {
+    val executionProcess = lift[Step with StepShape, StepExecution](_.execute()).flatMap {
+      case stepExecution: PassedStepExecution =>
+        emit[Step with StepShape, StepExecution](stepExecution)
+      case stepExecution: NonPassedStepExecution =>
+        emit[Step with StepShape, StepExecution](stepExecution) ++ lift(_.ignore)
+    }
+
+    executionProcess(step.toStream).toList
+      .filter(_.isSuccess)
+      .map(_.get)
+      .foldLeft[StepExecution](PassedStepExecution(step.name)) {
+      case (acc, stepExecution) =>
+        stepExecution match {
+          case _: PassedStepExecution =>
+            PassedStepExecution(step.name, acc.innerStepExecutions :+ stepExecution)
+          case _: NonPassedStepExecution =>
+            FailedStepExecution(step.name, SerialStepFailed, acc.innerStepExecutions :+ stepExecution)
+        }
+    }
+  }
+
+  private[model] def ignoreStep(step: Step): StepExecution =
+    IgnoredStepExecution(step.name)
+
+
 }
-
-sealed trait TestStep extends Step {
-  def nextTestStep: TestStep = NilStep
-}
-
-sealed trait CleanupStep extends Step {
-  def nextCleanupStep: CleanupStep = NilStep
-}
-
-case object NilStep extends SetupStep with TestStep with CleanupStep {
-
-  override val name: String = "Nil step"
-
-  override def profile: Profile =
-    throw new UnsupportedOperationException
-
-  override def context: Context =
-    throw new UnsupportedOperationException
-
-  override def run(): Unit =
-    throw new UnsupportedOperationException
-
-}
-
-abstract class AbstractStep(val profile: Profile, val context: Context) extends Step
-
-abstract class AbstractSetupStep(profile: Profile, context: Context)
-  extends AbstractStep(profile, context) with SetupStep
-
-abstract class AbstractCleanupStep(profile: Profile, context: Context)
-  extends AbstractStep(profile, context) with CleanupStep
-
-abstract class AbstractTestStep(profile: Profile, context: Context)
-  extends AbstractStep(profile, context) with TestStep

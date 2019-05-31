@@ -3,7 +3,7 @@ package org.cartagena.tool.core.model
 object StepExtensions {
 
   trait InfoMessages {
-    self: StepX =>
+    self: Step =>
 
     def preRunMsg: String =
       s"Executing '$name'..."
@@ -20,7 +20,7 @@ object StepExtensions {
   }
 
   trait ProfileAndContext {
-    self: StepX =>
+    self: Step =>
 
     def profile: Profile =
       EmptyProfile
@@ -31,7 +31,7 @@ object StepExtensions {
   }
 
   trait UnsupportedRunnable {
-    self: StepX =>
+    self: Step =>
 
     def run(): Unit =
       throw new UnsupportedOperationException

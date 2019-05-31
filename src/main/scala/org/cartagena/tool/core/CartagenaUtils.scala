@@ -4,6 +4,7 @@ import java.net.URL
 
 import org.cartagena.tool.core.http.json4s.Json4sFormats.{addSerializers, setFormats}
 import org.cartagena.tool.core.http.json4s.Json4sFormatsRef.formatsRef
+import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
 import org.cartagena.tool.core.model._
 import org.json4s.{Formats, Serializer}
 
@@ -12,8 +13,14 @@ object CartagenaUtils {
   implicit def stringToUrl(str: String): URL =
     new URL(str)
 
+  implicit def setupStepToSerialSetupStep(step: ShapedSetupStep): SerialSetupStep =
+    SerialSetupStep(step, () => EmptyStep)
+
   implicit def testStepToSerialTestStep(step: ShapedTestStep): SerialTestStep =
     SerialTestStep(step, () => EmptyStep)
+
+  implicit def cleanupStepToSerialCleanupStep(step: ShapedCleanupStep): SerialCleanupStep =
+    SerialCleanupStep(step, () => EmptyStep)
 
   implicit class ContextOperations(context: Context) {
 
@@ -31,17 +38,17 @@ object CartagenaUtils {
       this
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
-    }
-
     def ~==>(key: String): ContextOperations =
       updateKey(key)
 
     def updateKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = false)
       this
+    }
+
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
     }
 
     def <=~[T: Manifest](key: String): Unit =
@@ -71,5 +78,11 @@ object CartagenaUtils {
 
   def useJsonFormats(formats: Formats): Unit =
     setFormats(formatsRef, formats)
+
+  def print[T <: HttpBody](request: HttpRequest[T]): Unit =
+    println(request.toPrettyString)
+
+  def print[T <: HttpBody](response: HttpResponse[T]): Unit =
+    println(response.toPrettyString)
 
 }
