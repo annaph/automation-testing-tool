@@ -13,4 +13,3 @@ object LoginE2EVagrant extends App {
   LoginSuite.run()
 
 }
-

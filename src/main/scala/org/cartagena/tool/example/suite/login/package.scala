@@ -10,13 +10,13 @@ package object login {
   val HEADER_CONTENT_TYPE = "headerContentType"
   val LOGIN_RESPONSE = "loginResponse"
 
-  val onlyVagrantProfile: Profile = new DefaultProfile with VagrantProfile
-  val onlyLocalHostProfile: Profile = new DefaultProfile with LocalHostProfile
-
   val loginContext: Context = SuiteContext(
     LoginSuiteContext(
       headerAccept = "application/json",
       headerContentType = "application/json"))
+
+  val onlyVagrantProfile: Profile = new DefaultProfile with VagrantProfile
+  val onlyLocalHostProfile: Profile = new DefaultProfile with LocalHostProfile
 
   var loginProfile: Profile = _
 

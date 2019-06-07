@@ -30,7 +30,7 @@ object StepDimensions {
       ignoreStep(this)
 
     private[model] def toStream: Stream[Step with StepShape] =
-      this #:: Stream.empty[Step with StepShape]
+      this #:: Stream.empty
 
   }
 

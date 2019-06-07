@@ -6,6 +6,12 @@ sealed trait StepExecution {
 
   def innerStepExecutions: List[StepExecution]
 
+  def toStepReport: StepReport =
+    StepExecution.toStepReport(this)
+
+  def toInnerStepReports: Stream[StepReport] =
+    StepExecution.toInnerStepReports(this)
+
 }
 
 case class PassedStepExecution(stepName: String,
@@ -31,5 +37,13 @@ case class IgnoredStepExecution(stepName: String,
 
   override val failure: Option[Throwable] =
     None
+
+}
+
+object StepExecution {
+
+  private def toStepReport(stepExecution: StepExecution): StepReport = ???
+
+  private def toInnerStepReports(stepExecution: StepExecution): Stream[StepReport] = ???
 
 }

@@ -1,8 +1,8 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.Process.{emit, lift}
 import org.cartagena.tool.core.model.StepDimensions.{Router, Serial, Shapeless, StepShape}
 import org.cartagena.tool.core.model.StepExtensions.InfoMessages
+import org.cartagena.tool.core.util.Process.{emit, lift}
 
 import scala.util.{Failure, Success, Try}
 
@@ -62,9 +62,6 @@ object Step {
     }
   }
 
-  private def printStepSeparator(): Unit =
-    println(StringBuilder.newBuilder.append("-") * 97)
-
   private[model] def executeRouterStep[T <: Step with Router](step: T): StepExecution =
     step.route().execute() match {
       case stepExecution: PassedStepExecution =>
@@ -98,5 +95,7 @@ object Step {
   private[model] def ignoreStep(step: Step): StepExecution =
     IgnoredStepExecution(step.name)
 
+  private def printStepSeparator(): Unit =
+    println(StringBuilder.newBuilder.append("-") * 97)
 
 }
