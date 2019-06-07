@@ -30,15 +30,17 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
     new PartialFunction[HttpRequest[T], HttpResponse[U]] {
 
       override def apply(request: HttpRequest[T]): HttpResponse[U] = (request.method: @unchecked) match {
-        case HttpGet =>
+        case Get =>
           executeHttpGet(request)
-        case HttpPost =>
+        case Post =>
           executeHttpPost(request)
       }
 
       override def isDefinedAt(request: HttpRequest[T]): Boolean = request.method match {
-        case UnsupportedHttpMethod => false
-        case _ => true
+        case UnsupportedMethod =>
+          false
+        case _ =>
+          true
       }
     }
 

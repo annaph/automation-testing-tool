@@ -8,7 +8,7 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
-import org.cartagena.tool.core.CartagenaConverters._
+import org.cartagena.tool.core.CartagenaUtils._
 import org.mockito.ArgumentMatchers.{any, same}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.mockito.MockitoSugar

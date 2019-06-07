@@ -2,96 +2,119 @@ package org.cartagena.tool.core.http
 
 import java.net.URL
 
-sealed trait HttpMethod
+sealed trait HttpMessage {
 
-case object HttpGet extends HttpMethod {
-
-  override def toString: String =
-    "GET"
+  def toPrettyString: String =
+    HttpMessage.toPrettyString(this)
 
 }
-
-case object HttpPost extends HttpMethod {
-
-  override def toString: String =
-    "POST"
-
-}
-
-case object UnsupportedHttpMethod extends HttpMethod
-
-trait NameValuePair {
-
-  def name: String
-
-  def value: String
-
-}
-
-case class HeaderElement(name: String, value: String) extends NameValuePair
-
-case class QueryParam(name: String, value: String) extends NameValuePair
-
-case class Cookie(name: String, value: String, host: String, path: String) extends NameValuePair
-
-sealed trait HttpBody extends Any
-
-case class Text(str: String) extends AnyVal with HttpBody {
-
-  override def toString: String =
-    str
-
-}
-
-case class JsonString(str: String) extends AnyVal with HttpBody {
-
-  override def toString: String =
-    prettyString(this)
-
-}
-
-case object EmptyBody extends HttpBody {
-
-  override def toString: String =
-    "<empty>"
-
-}
-
-sealed trait HttpStatus
-
-case object HttpStatusOK extends HttpStatus {
-
-  override def toString: String =
-    "OK"
-
-}
-
-case object HttpStatusCreated extends HttpStatus {
-
-  override def toString: String =
-    "Created"
-
-}
-
-case object HttpStatusServerError extends HttpStatus {
-
-  override def toString: String =
-    "Server error"
-
-}
-
-case object UnsupportedHttpStatus extends HttpStatus
-
-trait HttpMessage
 
 class HttpRequest[T <: HttpBody](val url: URL,
                                  val method: HttpMethod,
                                  val headers: List[HeaderElement] = List.empty,
                                  val params: List[QueryParam] = List.empty,
-                                 val body: T) extends HttpMessage {
+                                 val body: T) extends HttpMessage
 
-  override def toString: String =
-    prettyString(this)
+case class HttpResponse[T <: HttpBody](status: HttpStatus,
+                                       reason: String,
+                                       body: Option[T] = None,
+                                       cookies: List[Cookie] = List.empty) extends HttpMessage
+
+object HttpMessage {
+
+  private val _NEW_LINE: String = System getProperty "line.separator"
+
+  private[http] def toPrettyString(httpMessage: HttpMessage): String =
+    httpMessage match {
+      case httpRequest: HttpRequest[_] =>
+        httpRequestToPrettyString(httpRequest)
+      case httpResponse: HttpResponse[_] =>
+        httpResponseToPrettyString(httpResponse)
+    }
+
+  private def httpRequestToPrettyString[T <: HttpBody](request: HttpRequest[T]): String = {
+    val headers = request.headers.map {
+      case HeaderElement(name, value) =>
+        s"$name: $value"
+    }
+
+    val params = request.params.map {
+      case QueryParam(name, value) =>
+        s"$name = $value"
+    }
+
+    val builder = StringBuilder.newBuilder
+
+    builder ++= s"=> HTTP request:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tURL:\t\t${request.url}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tMethod:\t\t${request.method.toPrettyString}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tHeaders:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"${headers.map(line => s"\t\t\t$line") mkString "\n"}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tParameters:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"${params.map(line => s"\t\t\t$line") mkString "\n"}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tBody:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"${
+      request.body.toPrettyString.split(_NEW_LINE)
+        .map(line => s"\t\t\t$line")
+        .mkString(_NEW_LINE)
+    }"
+
+    builder.toString()
+  }
+
+  private def httpResponseToPrettyString[T <: HttpBody](response: HttpResponse[T]): String = {
+    val cookies = response.cookies.map {
+      case Cookie(name, value, host, path) =>
+        s"$name: $value, value: $value, host: $host, path: $path"
+    }
+
+    val builder = StringBuilder.newBuilder
+
+    builder ++= s"=> HTTP response:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tStatus:\t\t${response.status.toPrettyString}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tReason:\t\t${response.reason}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tCookies:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"${cookies.map(line => s"\t\t\t$line") mkString "\n"}"
+
+    builder ++= _NEW_LINE
+    builder ++= s"\tBody:"
+
+    builder ++= _NEW_LINE
+    builder ++= s"${
+      response.body
+        .map(_.toPrettyString)
+        .map(_.split(_NEW_LINE)
+          .map(line => s"\t\t\t$line")
+          .mkString(_NEW_LINE))
+        .getOrElse("\t<none>")
+    }"
+
+    builder.toString()
+  }
 
 }
 
@@ -108,15 +131,5 @@ object HttpRequest {
       headers.map(header => HeaderElement(header._1, header._2)),
       params.map(param => QueryParam(param._1, param._2)),
       body)
-
-}
-
-case class HttpResponse[T <: HttpBody](status: HttpStatus,
-                                       reason: String,
-                                       body: Option[T] = None,
-                                       cookies: List[Cookie] = List.empty) {
-
-  override def toString: String =
-    prettyString(this)
 
 }

@@ -3,19 +3,20 @@ package org.cartagena.tool.core.http.apache
 import org.apache.http.client.{HttpClient => Client}
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol.{BasicHttpContext, HttpContext => Context}
+import org.cartagena.tool.core.http.apache.ApacheHttpClientRefs.{ClientRef, ContextRef, Ref}
 import org.cartagena.tool.core.model.HttpNativeClient
 import scalaz.Forall
+import scalaz.effect.ST
 import scalaz.effect.ST.{returnST, runST}
-import scalaz.effect.{ST, STRef}
 
 import scala.util.{Failure, Success, Try}
 
 trait ApacheHttpClient extends HttpNativeClient {
 
-  private[apache] val clientRef: ApacheHttpClient.ClientRef =
+  private[apache] val clientRef: ClientRef =
     ApacheHttpClientRefs.clientRef
 
-  private[apache] val contextRef: ApacheHttpClient.ContextRef =
+  private[apache] val contextRef: ContextRef =
     ApacheHttpClientRefs.contextRef
 
   private[apache] def httpContext: Context =
@@ -41,12 +42,6 @@ trait ApacheHttpClient extends HttpNativeClient {
 object ApacheHttpClient {
 
   type ForallST[T] = Forall[({type λ[S] = ST[S, T]})#λ]
-
-  type Ref[T] = STRef[Nothing, Option[T]]
-
-  type ClientRef = Ref[Client]
-
-  type ContextRef = Ref[Context]
 
   type ReadRefAction[T] = Ref[T] => ST[Nothing, Try[T]]
 
@@ -95,30 +90,27 @@ object ApacheHttpClient {
     })
 
   private def readRefAction[T]: ReadRefAction[T] =
-    ref => {
+    ref =>
       for {
         refAsOption <- ref.read
         refAsTry <- returnST(toTry(refAsOption))
       } yield refAsTry
-    }
 
   private def startClientAndContextAction: UpdateRefsAction =
-    (clientRef, contextRef) => {
+    (clientRef, contextRef) =>
       for {
         client <- readRefAction(clientRef)
         createdClientAndContext <-
           if (client.isSuccess) returnST(Failure(HttpClientIsUp)) else createRefsAction(clientRef, contextRef)
       } yield createdClientAndContext
-    }
 
   private def closeClientAndContextAction: UpdateRefsAction =
-    (clientRef, contextRef) => {
+    (clientRef, contextRef) =>
       for {
         client <- readRefAction(clientRef)
         closedClientAndContext <-
           if (client.isFailure) returnST(Failure(HttpClientIsNotUp)) else destroyRefsAction(clientRef, contextRef)
       } yield closedClientAndContext
-    }
 
   private def resetClientAndContextAction: UpdateRefsAction =
     (clientRef, contextRef) => {
@@ -134,20 +126,18 @@ object ApacheHttpClient {
     }
 
   private def createRefsAction: UpdateRefsAction =
-    (clientRef, context) => {
+    (clientRef, context) =>
       for {
         _ <- clientRef write Some(HttpClientBuilder.create().build())
         _ <- context write Some(new BasicHttpContext())
       } yield Success(())
-    }
 
   private def destroyRefsAction: UpdateRefsAction =
-    (clientRef, context) => {
+    (clientRef, context) =>
       for {
         _ <- clientRef write None
         _ <- context write None
       } yield Success(())
-    }
 
   private def toTry[T](obj: Option[T]): Try[T] =
     obj match {
@@ -160,15 +150,5 @@ object ApacheHttpClient {
   case object HttpClientIsUp extends Exception("Apache Http client is up!")
 
   case object HttpClientIsNotUp extends Exception("Apache Http client is NOT up!")
-
-}
-
-object ApacheHttpClientRefs {
-
-  private[apache] val clientRef =
-    STRef[Nothing](Option.empty[Client])
-
-  private[apache] val contextRef =
-    STRef[Nothing](Option.empty[Context])
 
 }

@@ -1,7 +1,7 @@
 package org.cartagena.tool.core.http.apache
 
 import org.apache.http.entity.StringEntity
-import org.cartagena.tool.core.CartagenaConverters._
+import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.http.apache.ApacheHttpRequestMatchers._
 import org.scalatest.{FlatSpec, Matchers}
 
