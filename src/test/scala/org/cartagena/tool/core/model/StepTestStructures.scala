@@ -16,17 +16,28 @@ object StepTestStructures {
 
   }
 
-  case object MyShapelessStep extends ShapelessTestStep {
+  case object MySetupStep extends ShapelessSetupStep {
 
-    override val name: String = "My Shapeless Step"
+    override def name: String = "My Setup Step"
 
     override def run(): Unit = {}
 
   }
 
-  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
+  case object MySetupStepToFail extends ShapelessSetupStep {
 
-    override val name: String = "My unsupported runnable Step"
+    override def name: String = "My Setup Step to fail"
+
+    override def run(): Unit =
+      throw MyStepException
+
+  }
+
+  case object MyShapelessStep extends ShapelessTestStep {
+
+    override val name: String = "My Shapeless Step"
+
+    override def run(): Unit = {}
 
   }
 
@@ -56,6 +67,23 @@ object StepTestStructures {
 
   }
 
+  case object MyShapelessStep3 extends ShapelessTestStep {
+
+    override val name: String = "My Shapeless Step 3"
+
+    override def run(): Unit = {}
+
+  }
+
+  case object MyShapelessStep3ToFail extends ShapelessTestStep {
+
+    override val name: String = "My Shapeless Step 3 to fail"
+
+    override def run(): Unit =
+      throw MyStepException
+
+  }
+
   case object MyRouterStep extends RouterTestStep {
 
     override val name: String = "My Router Step"
@@ -75,6 +103,29 @@ object StepTestStructures {
       MyShapelessStepToFail
 
     override def run(): Unit = {}
+
+  }
+
+  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
+
+    override val name: String = "My unsupported runnable Step"
+
+  }
+
+  case object MyCleanupStep extends ShapelessCleanupStep {
+
+    override def name: String = "My Cleanup Step"
+
+    override def run(): Unit = {}
+
+  }
+
+  case object MyCleanupStepToFail extends ShapelessCleanupStep {
+
+    override def name: String = "My Cleanup Step to fail"
+
+    override def run(): Unit =
+      throw MyStepException
 
   }
 

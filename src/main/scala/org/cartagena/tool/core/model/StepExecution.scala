@@ -4,18 +4,18 @@ sealed trait StepExecution {
 
   def stepName: String
 
-  def innerStepExecutions: List[StepExecution]
+  def children: List[StepExecution]
+
+  def leafs: List[StepExecution] =
+    StepExecution.leafs(this)
 
   def toStepReport: StepReport =
     StepExecution.toStepReport(this)
 
-  def toInnerStepReports: Stream[StepReport] =
-    StepExecution.toInnerStepReports(this)
-
 }
 
 case class PassedStepExecution(stepName: String,
-                               innerStepExecutions: List[StepExecution] = List.empty) extends StepExecution
+                               children: List[StepExecution] = List.empty) extends StepExecution
 
 sealed trait NonPassedStepExecution extends StepExecution {
 
@@ -25,7 +25,7 @@ sealed trait NonPassedStepExecution extends StepExecution {
 
 case class FailedStepExecution(stepName: String,
                                error: Throwable,
-                               innerStepExecutions: List[StepExecution] = List.empty) extends NonPassedStepExecution {
+                               children: List[StepExecution] = List.empty) extends NonPassedStepExecution {
 
   override val failure: Option[Throwable] =
     Some(error)
@@ -33,7 +33,7 @@ case class FailedStepExecution(stepName: String,
 }
 
 case class IgnoredStepExecution(stepName: String,
-                                innerStepExecutions: List[StepExecution] = List.empty) extends NonPassedStepExecution {
+                                children: List[StepExecution] = List.empty) extends NonPassedStepExecution {
 
   override val failure: Option[Throwable] =
     None
@@ -42,8 +42,22 @@ case class IgnoredStepExecution(stepName: String,
 
 object StepExecution {
 
-  private def toStepReport(stepExecution: StepExecution): StepReport = ???
+  private def leafs(stepExecution: StepExecution): List[StepExecution] =
+    stepExecution.children match {
+      case head :: tail =>
+        leafs(head) ::: tail.flatMap(leafs)
+      case Nil =>
+        stepExecution :: Nil
+    }
 
-  private def toInnerStepReports(stepExecution: StepExecution): Stream[StepReport] = ???
+  private def toStepReport(stepExecution: StepExecution): StepReport =
+    stepExecution match {
+      case PassedStepExecution(stepName, _) =>
+        StepReport(stepName, Passed)
+      case FailedStepExecution(stepName, _, _) =>
+        StepReport(stepName, Failed)
+      case IgnoredStepExecution(stepName, _) =>
+        StepReport(stepName, Ignored)
+    }
 
 }

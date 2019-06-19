@@ -4,34 +4,79 @@ trait Suite {
 
   def name: String
 
-  def setupSteps: SerialSetupStep =
-    SerialSetupStep.empty
+  def setupSteps: SerialSetupStep
 
   def testCases: List[TestCase]
 
-  def cleanupSteps: SerialCleanupStep =
-    SerialCleanupStep.empty
+  def cleanupSteps: SerialCleanupStep
 
-  def run(): Unit =
+  def run(): SuiteReport =
     Suite run this
 
 }
 
 object Suite {
 
-  private def run(suite: Suite): Unit = {
+  import scala.collection.mutable.ListBuffer
 
-    suite.setupSteps.execute()
+  private def run(suite: Suite): SuiteReport = {
 
-    suite.testCases.foreach { testCase =>
-      val stepExecution = testCase.testSteps.execute()
+    val (setupStatus, setupStepReports) = executeSerialSetupStep(suite.setupSteps)
 
-      println(s"Execution report for test case '${testCase.name}'")
-      println(s"\t${stepExecution.innerStepExecutions mkString "\n\t"}")
+    val (testCasesStatus: Status, testCaseReports) = suite.testCases
+      .foldLeft(setupStatus -> ListBuffer.empty[TestCaseReport]) {
+        case ((prevStatus, reports), testCase) =>
+          val (newStatus, testCaseReport) = executeTestCase(prevStatus, testCase)
+
+          newStatus -> (reports :+ testCaseReport)
+      }
+
+    val (status, cleanupStepReports) = executeSerialCleanupStep(testCasesStatus, suite.cleanupSteps)
+
+    SuiteReport(
+      suite.name,
+      setupStepReports,
+      testCaseReports.toList,
+      cleanupStepReports,
+      status)
+  }
+
+  private def executeSerialSetupStep(step: SerialSetupStep): (Status, List[StepReport]) =
+    toStatusAndStepReports(step.execute())
+
+  private def executeTestCase(status: Status, testCase: TestCase): (Status, TestCaseReport) =
+    status match {
+      case Passed =>
+        executeTestCase(testCase)
+      case _ =>
+        Failed -> TestCaseReport(testCase.name, List.empty, Ignored)
     }
 
-    suite.cleanupSteps.execute()
+  private def executeSerialCleanupStep(status: Status, step: SerialCleanupStep): (Status, List[StepReport]) =
+    status match {
+      case Passed =>
+        toStatusAndStepReports(step.execute())
+      case _ =>
+        Failed -> (StepReport(step.name, Ignored) :: Nil)
+    }
 
+  private def executeTestCase(testCase: TestCase): (Status, TestCaseReport) =
+    testCase.run() match {
+      case x@TestCaseReport(_, _, Passed) =>
+        Passed -> x
+      case x@TestCaseReport(_, _, _) =>
+        Failed -> x
+    }
+
+  private def toStatusAndStepReports(stepExecution: StepExecution): (Status, List[StepReport]) = {
+    val status = stepExecution match {
+      case _: PassedStepExecution =>
+        Passed
+      case _: NonPassedStepExecution =>
+        Failed
+    }
+
+    status -> stepExecution.leafs.map(_.toStepReport)
   }
 
 }

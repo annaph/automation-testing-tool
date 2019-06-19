@@ -4,14 +4,14 @@ import org.apache.http.client.{HttpClient => Client}
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol.{BasicHttpContext, HttpContext => Context}
 import org.cartagena.tool.core.http.apache.ApacheHttpClientRefs.{ClientRef, ContextRef, Ref}
-import org.cartagena.tool.core.model.HttpNativeClient
+import org.cartagena.tool.core.model.HttpNativeClientComponent
 import scalaz.Forall
 import scalaz.effect.ST
 import scalaz.effect.ST.{returnST, runST}
 
 import scala.util.{Failure, Success, Try}
 
-trait ApacheHttpClient extends HttpNativeClient {
+trait ApacheHttpClient extends HttpNativeClientComponent {
 
   private[apache] val clientRef: ClientRef =
     ApacheHttpClientRefs.clientRef
@@ -101,7 +101,7 @@ object ApacheHttpClient {
       for {
         client <- readRefAction(clientRef)
         createdClientAndContext <-
-          if (client.isSuccess) returnST(Failure(HttpClientIsUp)) else createRefsAction(clientRef, contextRef)
+        if (client.isSuccess) returnST(Failure(HttpClientIsUp)) else createRefsAction(clientRef, contextRef)
       } yield createdClientAndContext
 
   private def closeClientAndContextAction: UpdateRefsAction =
@@ -109,7 +109,7 @@ object ApacheHttpClient {
       for {
         client <- readRefAction(clientRef)
         closedClientAndContext <-
-          if (client.isFailure) returnST(Failure(HttpClientIsNotUp)) else destroyRefsAction(clientRef, contextRef)
+        if (client.isFailure) returnST(Failure(HttpClientIsNotUp)) else destroyRefsAction(clientRef, contextRef)
       } yield closedClientAndContext
 
   private def resetClientAndContextAction: UpdateRefsAction =
@@ -117,11 +117,11 @@ object ApacheHttpClient {
       for {
         closedClientAndContext <- closeClientAndContextAction(clientRef, contextRef)
         restartedClientAndContext <-
-          if (closedClientAndContext.isFailure) {
-            returnST(Failure(HttpClientIsNotUp))
-          } else {
-            startClientAndContextAction(clientRef, contextRef)
-          }
+        if (closedClientAndContext.isFailure) {
+          returnST(Failure(HttpClientIsNotUp))
+        } else {
+          startClientAndContextAction(clientRef, contextRef)
+        }
       } yield restartedClientAndContext
     }
 
