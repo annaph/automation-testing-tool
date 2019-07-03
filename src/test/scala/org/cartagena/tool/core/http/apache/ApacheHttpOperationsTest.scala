@@ -1,24 +1,23 @@
 package org.cartagena.tool.core.http.apache
 
 import org.apache.http.ProtocolVersion
-import org.apache.http.client.HttpClient
 import org.apache.http.client.protocol.HttpClientContext.COOKIE_STORE
 import org.apache.http.cookie.Cookie
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.message.BasicHttpResponse
-import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.CartagenaUtils._
+import org.cartagena.tool.core.agent.ApacheRestAgentTest
 import org.mockito.ArgumentMatchers.{any, same}
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
-class ApacheHttpOperationsTest extends FlatSpec with Matchers {
+class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestAgentTest {
 
-  import ApacheHttpOperationsTest._
+  override private[core] val apacheHttpOperations =
+    new ApacheHttpOperationsImpl
 
   private val PROTOCOL = "HTTP"
   private val VERSION = 1
@@ -35,7 +34,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
   private val COOKIE_DOMAIN = "domain"
   private val COOKIE_PATH = "path"
 
-  "executeGet" should "execute HTTP GET request" in new TestEnvironment {
+  "executeGet" should "execute HTTP GET request" in new TestNativeClientAndContext {
     // given
     var id: Long = -1
     val response = new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE, REASON_STRING)
@@ -49,7 +48,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
       }
 
     // when
-    val actual: ApacheHttpResponse = executeGet(URL_STRING, Map(HEADER), Map(PARAM))
+    val actual: ApacheHttpResponse = apacheHttpOperations executeGet(URL_STRING, Map(HEADER), Map(PARAM))
 
     // then
     actual should be(ApacheHttpResponse(id, response))
@@ -57,7 +56,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
     verify(client).execute(any[ApacheHttpGet], same(context))
   }
 
-  "executePost" should "execute HTTP POST request" in new TestEnvironment {
+  "executePost" should "execute HTTP POST request" in new TestNativeClientAndContext {
     // given
     var id: Long = -1
     val response = new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE, REASON_STRING)
@@ -71,7 +70,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
       }
 
     // when
-    val actual: ApacheHttpResponse = executePost(URL_STRING, new StringEntity(BODY_CONTENT), Map(HEADER), Map(PARAM))
+    val actual: ApacheHttpResponse = apacheHttpOperations executePost(URL_STRING, new StringEntity(BODY_CONTENT), Map(HEADER), Map(PARAM))
 
     // then
     actual should be(ApacheHttpResponse(id, response))
@@ -79,7 +78,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
     verify(client).execute(any[ApacheHttpPost], same(context))
   }
 
-  "addToCookieStore" should "add cookie to cookie store" in new TestEnvironment {
+  "addToCookieStore" should "add cookie to cookie store" in new TestNativeClientAndContext {
     // given
     val cookieStore = new BasicCookieStore()
 
@@ -87,7 +86,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
       .thenAnswer(_ => cookieStore)
 
     // when
-    addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_DOMAIN, COOKIE_PATH)
+    apacheHttpOperations addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_DOMAIN, COOKIE_PATH)
 
     val cookies: List[Cookie] = cookieStore.getCookies.asScala.toList
     val storedCookie: Cookie = cookies.head
@@ -100,18 +99,6 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers {
     storedCookie.getPath should be(COOKIE_PATH)
 
     verify(context).getAttribute(COOKIE_STORE)
-  }
-
-}
-
-object ApacheHttpOperationsTest {
-
-  trait TestEnvironment extends ApacheHttpOperations with MockitoSugar {
-
-    implicit val client: HttpClient = mock[HttpClient]
-
-    implicit val context: HttpContext = mock[HttpContext]
-
   }
 
 }

@@ -1,60 +1,92 @@
 package org.cartagena.tool.core.http.apache
 
 import org.apache.http.HttpEntity
+import org.apache.http.client.HttpClient
+import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.model.RestHelperComponent
 
-trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpOperations {
+trait ApacheRestHelperComponent extends RestHelperComponent {
+  self: ApacheHttpClientComponent with ApacheHttpOperationsComponent =>
+
+  private[core] val apacheHttpRestHelper: RestHelper
+
+}
+
+class ApacheRestHelper(apacheHttpClient: ApacheHttpClient, apacheHttpOperations: ApacheHttpOperations)
+  extends RestHelper {
 
   override def startRestClient(): Unit =
-    startHttpClient()
+    ApacheRestHelper.startRestClient(apacheHttpClient)
 
   override def restartRestClient(): Unit =
-    resetHttpClient()
+    ApacheRestHelper.restartRestClient(apacheHttpClient)
 
   override def shutdownRestClient(): Unit =
-    closeHttpClient()
+    ApacheRestHelper.shutdownRestClient(apacheHttpClient)
 
   override def isRestClientRunning: Boolean =
-    isHttpClientUp
+    ApacheRestHelper.isRestClientRunning(apacheHttpClient)
 
   override def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                    (implicit mf: Manifest[U]): HttpResponse[U] = {
-    val f = executeFunc[T, U]
-    if (f.isDefinedAt(request)) f(request) else throw new Exception("Unsupported HTTP method request!")
-  }
+                                                    (implicit mf: Manifest[U]): HttpResponse[U] =
+    ApacheRestHelper
+      .execute(apacheHttpClient, apacheHttpOperations, request)(mf, apacheHttpClient.get, apacheHttpClient.context)
 
   override def storeCookie(cookie: Cookie): Unit =
-    addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)(httpClient, httpContext)
+    ApacheRestHelper.storeCookie(apacheHttpOperations, cookie)(apacheHttpClient.get, apacheHttpClient.context)
 
-  private def executeFunc[T <: HttpBody, U <: HttpBody](implicit mf: Manifest[U]) =
-    new PartialFunction[HttpRequest[T], HttpResponse[U]] {
+}
 
-      override def apply(request: HttpRequest[T]): HttpResponse[U] = (request.method: @unchecked) match {
-        case Get =>
-          executeHttpGet(request)
-        case Post =>
-          executeHttpPost(request)
-      }
+object ApacheRestHelper {
 
-      override def isDefinedAt(request: HttpRequest[T]): Boolean = request.method match {
-        case UnsupportedMethod =>
-          false
-        case _ =>
-          true
-      }
+  private def startRestClient(apacheHttpClient: ApacheHttpClient): Unit =
+    apacheHttpClient.start()
+
+  private def restartRestClient(apacheHttpClient: ApacheHttpClient): Unit =
+    apacheHttpClient.reset()
+
+  private def shutdownRestClient(apacheHttpClient: ApacheHttpClient): Unit =
+    apacheHttpClient.close()
+
+  private def isRestClientRunning(apacheHttpClient: ApacheHttpClient): Boolean =
+    apacheHttpClient.isUp
+
+  private def execute[T <: HttpBody, U <: HttpBody](apacheHttpClient: ApacheHttpClient,
+                                                    apacheHttpOperations: ApacheHttpOperations,
+                                                    request: HttpRequest[T])
+                                                   (implicit mf: Manifest[U],
+                                                    client: HttpClient,
+                                                    context: HttpContext): HttpResponse[U] =
+    request.method match {
+      case Get =>
+        executeHttpGet(apacheHttpOperations, request)
+      case Post =>
+        executeHttpPost(apacheHttpClient, apacheHttpOperations, request)
     }
 
-  private def executeHttpGet[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                          (implicit mf: Manifest[U]): HttpResponse[U] =
-    createHttpResponse(
-      request,
-      executeGet(request.url, request.headers, request.params)(httpClient, httpContext))
+  private def storeCookie(apacheHttpOperations: ApacheHttpOperations, cookie: Cookie)
+                         (implicit client: HttpClient, context: HttpContext): Unit =
+    apacheHttpOperations addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
-  private def executeHttpPost[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                           (implicit mf: Manifest[U]): HttpResponse[U] =
+  private def executeHttpGet[T <: HttpBody, U <: HttpBody](apacheHttpOperations: ApacheHttpOperations,
+                                                           request: HttpRequest[T])
+                                                          (implicit mf: Manifest[U],
+                                                           client: HttpClient,
+                                                           context: HttpContext): HttpResponse[U] =
     createHttpResponse(
       request,
-      executePost(request.url, toEntity(request.body), request.headers, request.params)(httpClient, httpContext))
+      apacheHttpOperations executeGet(request.url, request.headers, request.params))
+
+  private def executeHttpPost[T <: HttpBody, U <: HttpBody](apacheHttpClient: ApacheHttpClient,
+                                                            apacheHttpOperations: ApacheHttpOperations,
+                                                            request: HttpRequest[T])
+                                                           (implicit mf: Manifest[U],
+                                                            client: HttpClient,
+                                                            context: HttpContext): HttpResponse[U] =
+    createHttpResponse(
+      request,
+      apacheHttpOperations executePost(request.url, toEntity(request.body), request.headers, request.params))
 
   private def createHttpResponse[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
                                                                apacheResponse: ApacheHttpResponse)
@@ -72,26 +104,28 @@ trait ApacheRestHelper extends RestHelper with ApacheHttpClient with ApacheHttpO
       cookies = cookieHeaderElements.map(_.toList).getOrElse(List.empty))
   }
 
-  private def fromEntity[T <: HttpBody](entity: HttpEntity)(implicit mf: Manifest[T]): T = mf.runtimeClass match {
-    case x if x == classOf[Text] =>
-      fromHttpEntity[Text](entity).asInstanceOf[T]
-    case x if x == classOf[JsonString] =>
-      fromHttpEntity[JsonString](entity).asInstanceOf[T]
-    case _ =>
-      fromHttpEntity[EmptyBody.type](entity).asInstanceOf[T]
-  }
+  private def fromEntity[T <: HttpBody](entity: HttpEntity)(implicit mf: Manifest[T]): T =
+    mf.runtimeClass match {
+      case x if x == classOf[Text] =>
+        fromHttpEntity[Text](entity).asInstanceOf[T]
+      case x if x == classOf[JsonString] =>
+        fromHttpEntity[JsonString](entity).asInstanceOf[T]
+      case _ =>
+        fromHttpEntity[EmptyBody.type](entity).asInstanceOf[T]
+    }
+
+  private def toEntity[T <: HttpBody](body: T): HttpEntity =
+    body match {
+      case x@Text(_) =>
+        toHttpEntity[Text](x)
+      case x@JsonString(_) =>
+        toHttpEntity[JsonString](x)
+      case x@EmptyBody =>
+        toHttpEntity[EmptyBody.type](x)
+    }
 
   private def fromHttpEntity[T: ApacheHttpBodyConverter](entity: HttpEntity): T =
     implicitly[ApacheHttpBodyConverter[T]].fromHttpEntity(entity)
-
-  private def toEntity[T <: HttpBody](body: T): HttpEntity = body match {
-    case x@Text(_) =>
-      toHttpEntity[Text](x)
-    case x@JsonString(_) =>
-      toHttpEntity[JsonString](x)
-    case x@EmptyBody =>
-      toHttpEntity[EmptyBody.type](x)
-  }
 
   private def toHttpEntity[T: ApacheHttpBodyConverter](body: T): HttpEntity =
     implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)

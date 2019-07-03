@@ -10,16 +10,20 @@ trait NoNativeClientComponent extends NativeClientComponent
 
 sealed trait OperationsComponent
 
-trait HttpOperations extends OperationsComponent
+trait HttpOperationsComponent extends OperationsComponent
 
-trait JdbcOperations extends OperationsComponent
+trait JdbcOperationsComponent extends OperationsComponent
 
-trait NoOperations extends OperationsComponent
+trait NoOperationsComponent extends OperationsComponent
 
-trait Helper {
+trait HelperComponent {
   self: NativeClientComponent with OperationsComponent =>
 }
 
-trait JdbcHelper extends {
-  self: JdbcNativeClientComponent with JdbcOperations =>
+trait RestHelperComponent {
+  self: HttpNativeClientComponent with HttpOperationsComponent =>
+}
+
+trait JdbcHelperComponent extends {
+  self: JdbcNativeClientComponent with JdbcOperationsComponent =>
 }
