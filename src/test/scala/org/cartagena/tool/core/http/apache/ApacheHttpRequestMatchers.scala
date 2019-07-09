@@ -3,7 +3,7 @@ package org.cartagena.tool.core.http.apache
 import java.net.URL
 
 import org.apache.http.client.utils.URIBuilder
-import org.cartagena.tool.core.http.json4s.inputStreamToString
+import org.cartagena.tool.core.http.inputStreamToString
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 import scala.collection.JavaConverters._

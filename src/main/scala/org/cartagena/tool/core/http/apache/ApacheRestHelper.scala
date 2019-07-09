@@ -124,10 +124,10 @@ object ApacheRestHelper {
         toHttpEntity[EmptyBody.type](x)
     }
 
-  private def fromHttpEntity[T: ApacheHttpBodyConverter](entity: HttpEntity): T =
+  private def fromHttpEntity[T <: HttpBody : ApacheHttpBodyConverter](entity: HttpEntity): T =
     implicitly[ApacheHttpBodyConverter[T]].fromHttpEntity(entity)
 
-  private def toHttpEntity[T: ApacheHttpBodyConverter](body: T): HttpEntity =
+  private def toHttpEntity[T <: HttpBody : ApacheHttpBodyConverter](body: T): HttpEntity =
     implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)
 
 }

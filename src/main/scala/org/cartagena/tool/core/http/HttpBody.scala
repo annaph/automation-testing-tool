@@ -43,9 +43,9 @@ case object EmptyBody extends HttpBody
 
 object HttpBody {
 
-  val EMPTY_BODY_CONTENT = "<empty>"
+  private[http] val EMPTY_BODY_CONTENT = "<empty>"
 
-  val JSON_STRING_INVALID_ERR_MSG = "Json string invalid!"
+  private[http] val JSON_STRING_INVALID_ERR_MSG = "Json string invalid!"
 
   private val _mapper: ObjectMapper = new ObjectMapper()
 

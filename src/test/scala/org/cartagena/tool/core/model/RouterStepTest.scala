@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.StepTestStructures._
+import org.cartagena.tool.core.model.StepTestStructures.{MyRouterStep, MyRouterStepToFail, MyStepException, MyShapelessStep1 => MyStep, MyShapelessStepToFail1 => MyStepToFail}
 import org.scalatest.{FlatSpec, Matchers}
 
 class RouterStepTest extends FlatSpec with Matchers {
@@ -8,7 +8,7 @@ class RouterStepTest extends FlatSpec with Matchers {
   "execute" should "execute Step with success" in {
     // given
     val step = MyRouterStep
-    val expectedInnerStepExecutions = PassedStepExecution(MyShapelessStep.name) :: Nil
+    val expectedInnerStepExecutions = PassedStepExecution(MyStep.name) :: Nil
 
     // /when
     val actual = step.execute()
@@ -20,7 +20,7 @@ class RouterStepTest extends FlatSpec with Matchers {
   it should "execute Step with failure" in {
     // given
     val step = MyRouterStepToFail
-    val expectedInnerStepExecutions = FailedStepExecution(MyShapelessStepToFail.name, MyStepException) :: Nil
+    val expectedInnerStepExecutions = FailedStepExecution(MyStepToFail.name, MyStepException) :: Nil
 
     // /when
     val actual = step.execute()

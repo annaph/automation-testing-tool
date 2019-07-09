@@ -5,17 +5,6 @@ import org.cartagena.tool.core.model.StepExtensions.UnsupportedRunnable
 
 object StepTestStructures {
 
-  case object MyStepShape extends ShapelessTestStep {
-
-    override val name: String = "My Step Shape"
-
-    override def run(): Unit = {}
-
-    override private[model] def execute(): StepExecution =
-      PassedStepExecution(name)
-
-  }
-
   case object MySetupStep extends ShapelessSetupStep {
 
     override def name: String = "My Setup Step"
@@ -33,7 +22,7 @@ object StepTestStructures {
 
   }
 
-  case object MyShapelessStep extends ShapelessTestStep {
+  case object MyShapelessStep1 extends ShapelessTestStep {
 
     override val name: String = "My Shapeless Step"
 
@@ -41,7 +30,7 @@ object StepTestStructures {
 
   }
 
-  case object MyShapelessStepToFail extends ShapelessTestStep {
+  case object MyShapelessStepToFail1 extends ShapelessTestStep {
 
     override val name: String = "My Shapeless Step to fail"
 
@@ -89,9 +78,7 @@ object StepTestStructures {
     override val name: String = "My Router Step"
 
     override def route(): Step with StepShape =
-      MyShapelessStep
-
-    override def run(): Unit = {}
+      MyShapelessStep1
 
   }
 
@@ -100,15 +87,7 @@ object StepTestStructures {
     override val name: String = "My Router Step to fail"
 
     override def route(): Step with StepShape =
-      MyShapelessStepToFail
-
-    override def run(): Unit = {}
-
-  }
-
-  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
-
-    override val name: String = "My unsupported runnable Step"
+      MyShapelessStepToFail1
 
   }
 
@@ -126,6 +105,23 @@ object StepTestStructures {
 
     override def run(): Unit =
       throw MyStepException
+
+  }
+
+  case object MyStepShape extends ShapelessTestStep {
+
+    override val name: String = "My Step Shape"
+
+    override def run(): Unit = {}
+
+    override private[model] def execute(): StepExecution =
+      PassedStepExecution(name)
+
+  }
+
+  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
+
+    override val name: String = "My unsupported runnable Step"
 
   }
 

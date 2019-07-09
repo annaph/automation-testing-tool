@@ -2,7 +2,7 @@ package org.cartagena.tool.core.http.json4s
 
 import java.io.InputStream
 
-import org.cartagena.tool.core.http.{JsonHelper, JsonString}
+import org.cartagena.tool.core.http.{JsonHelper, JsonString, inputStreamToString}
 import org.json4s.StreamInput
 import org.json4s.jackson.parseJson
 

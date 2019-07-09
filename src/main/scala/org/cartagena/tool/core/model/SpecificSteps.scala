@@ -21,14 +21,17 @@ trait ShapelessCleanupStep extends ShapedCleanupStep
 trait RouterSetupStep extends ShapedSetupStep
   with Router
   with ProfileAndContext
+  with UnsupportedRunnable
 
 trait RouterTestStep extends ShapedTestStep
   with Router
   with ProfileAndContext
+  with UnsupportedRunnable
 
 trait RouterCleanupStep extends ShapedCleanupStep
   with Router
   with ProfileAndContext
+  with UnsupportedRunnable
 
 final case class SerialSetupStep(left: Step with StepShape, right: () => Step with StepShape)
   extends ShapedSetupStep

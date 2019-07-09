@@ -9,7 +9,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
 
   private val SOME_JSON_STRING = """{"field1": 1,"field2": "str","field3": null}"""
 
-  "isValid" should "return true for Text http body type" in {
+  "isValid" should "return true for Text Http body type" in {
     // given
     val text = Text(SOME_TEXT)
 
@@ -17,7 +17,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
     text.isValid should be(true)
   }
 
-  it should "return true for EmptyBody http body type" in {
+  it should "return true for EmptyBody Http body type" in {
     // given
     val emptyBody = EmptyBody
 
@@ -25,7 +25,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
     emptyBody.isValid should be(true)
   }
 
-  it should "return true for valid JsonString http body type" in {
+  it should "return true for valid JsonString Http body type" in {
     // given
     val jsonString = JsonString(SOME_JSON_STRING)
 
@@ -43,7 +43,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
     caught.getMessage should be(s"requirement failed: $JSON_STRING_INVALID_ERR_MSG")
   }
 
-  "toPrettyString" should "prettify Text http body type" in {
+  "toPrettyString" should "prettify Text Http body type" in {
     // given
     val text = Text(SOME_TEXT)
 
@@ -54,7 +54,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
     actual should be(SOME_TEXT)
   }
 
-  it should "prettify JsonString http body type" in {
+  it should "prettify JsonString Http body type" in {
     // given
     val jsonString = JsonString(SOME_JSON_STRING)
     val expected = "{\n  \"field1\" : 1,\n  \"field2\" : \"str\",\n  \"field3\" : null\n}"
@@ -66,7 +66,7 @@ class HttpBodyTest extends FlatSpec with Matchers {
     actual should be(expected)
   }
 
-  it should "prettify EmptyBody http body type" in {
+  it should "prettify EmptyBody Http body type" in {
     // given
     val emptyBody = EmptyBody
 
