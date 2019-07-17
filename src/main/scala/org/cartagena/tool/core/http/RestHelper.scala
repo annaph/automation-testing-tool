@@ -1,9 +1,6 @@
 package org.cartagena.tool.core.http
 
-import org.cartagena.tool.core.model.{Helper, HttpNativeClient, HttpOperations}
-
-trait RestHelper extends Helper {
-  self: HttpNativeClient with HttpOperations =>
+trait RestHelper {
 
   def startRestClient(): Unit
 

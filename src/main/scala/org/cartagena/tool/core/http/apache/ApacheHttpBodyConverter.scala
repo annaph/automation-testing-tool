@@ -2,10 +2,9 @@ package org.cartagena.tool.core.http.apache
 
 import org.apache.http.HttpEntity
 import org.apache.http.entity.StringEntity
-import org.cartagena.tool.core.http.json4s.inputStreamToString
-import org.cartagena.tool.core.http.{EmptyBody, JsonString, Text}
+import org.cartagena.tool.core.http.{EmptyBody, HttpBody, JsonString, Text, inputStreamToString}
 
-sealed trait ApacheHttpBodyConverter[T] {
+sealed trait ApacheHttpBodyConverter[T <: HttpBody] {
 
   def fromHttpEntity(entity: HttpEntity): T
 
@@ -14,6 +13,8 @@ sealed trait ApacheHttpBodyConverter[T] {
 }
 
 object ApacheHttpBodyConverter {
+
+  private[http] val EMPTY_STRING = ""
 
   implicit object TextApacheHttpBodyConverter extends ApacheHttpBodyConverter[Text] {
 
@@ -40,18 +41,14 @@ object ApacheHttpBodyConverter {
       EmptyBody
 
     override def toHttpEntity(body: EmptyBody.type): HttpEntity =
-      new StringEntity("")
+      new StringEntity(EMPTY_STRING)
 
   }
 
   private def convertFromStringLikeHttpEntity[T](entity: HttpEntity)(f: String => T): T =
-    Some(entity)
-      .map(_.getContent)
-      .map(inputStreamToString)
-      .map(f)
-      .get
+    f(entity.getContent)
 
-  private def convertToStringLikeHttpEntity[T](body: T)(f: T => String): StringEntity =
+  private def convertToStringLikeHttpEntity[T <: HttpBody](body: T)(f: T => String): StringEntity =
     new StringEntity(f(body))
 
 }

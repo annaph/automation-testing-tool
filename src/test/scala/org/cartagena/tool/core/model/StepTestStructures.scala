@@ -5,18 +5,24 @@ import org.cartagena.tool.core.model.StepExtensions.UnsupportedRunnable
 
 object StepTestStructures {
 
-  case object MyStepShape extends ShapelessTestStep {
+  case object MySetupStep extends ShapelessSetupStep {
 
-    override val name: String = "My Step Shape"
+    override def name: String = "My Setup Step"
 
     override def run(): Unit = {}
 
-    override private[model] def execute(): StepExecution =
-      PassedStepExecution(name)
+  }
+
+  case object MySetupStepToFail extends ShapelessSetupStep {
+
+    override def name: String = "My Setup Step to fail"
+
+    override def run(): Unit =
+      throw MyStepException
 
   }
 
-  case object MyShapelessStep extends ShapelessTestStep {
+  case object MyShapelessStep1 extends ShapelessTestStep {
 
     override val name: String = "My Shapeless Step"
 
@@ -24,13 +30,7 @@ object StepTestStructures {
 
   }
 
-  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
-
-    override val name: String = "My unsupported runnable Step"
-
-  }
-
-  case object MyShapelessStepToFail extends ShapelessTestStep {
+  case object MyShapelessStepToFail1 extends ShapelessTestStep {
 
     override val name: String = "My Shapeless Step to fail"
 
@@ -56,14 +56,29 @@ object StepTestStructures {
 
   }
 
+  case object MyShapelessStep3 extends ShapelessTestStep {
+
+    override val name: String = "My Shapeless Step 3"
+
+    override def run(): Unit = {}
+
+  }
+
+  case object MyShapelessStep3ToFail extends ShapelessTestStep {
+
+    override val name: String = "My Shapeless Step 3 to fail"
+
+    override def run(): Unit =
+      throw MyStepException
+
+  }
+
   case object MyRouterStep extends RouterTestStep {
 
     override val name: String = "My Router Step"
 
     override def route(): Step with StepShape =
-      MyShapelessStep
-
-    override def run(): Unit = {}
+      MyShapelessStep1
 
   }
 
@@ -72,9 +87,41 @@ object StepTestStructures {
     override val name: String = "My Router Step to fail"
 
     override def route(): Step with StepShape =
-      MyShapelessStepToFail
+      MyShapelessStepToFail1
+
+  }
+
+  case object MyCleanupStep extends ShapelessCleanupStep {
+
+    override def name: String = "My Cleanup Step"
 
     override def run(): Unit = {}
+
+  }
+
+  case object MyCleanupStepToFail extends ShapelessCleanupStep {
+
+    override def name: String = "My Cleanup Step to fail"
+
+    override def run(): Unit =
+      throw MyStepException
+
+  }
+
+  case object MyStepShape extends ShapelessTestStep {
+
+    override val name: String = "My Step Shape"
+
+    override def run(): Unit = {}
+
+    override private[model] def execute(): StepExecution =
+      PassedStepExecution(name)
+
+  }
+
+  case object MyUnsupportedRunnableStep extends ShapelessTestStep with UnsupportedRunnable {
+
+    override val name: String = "My unsupported runnable Step"
 
   }
 

@@ -1,9 +1,8 @@
 package org.cartagena.tool.example.suite.login.testcase
 
 import org.cartagena.tool.core.CartagenaUtils._
-import org.cartagena.tool.core.agent.JsonAgent
+import org.cartagena.tool.core.agent.{JsonAgent, RestAgent}
 import org.cartagena.tool.core.http._
-import org.cartagena.tool.core.http.apache.ApacheRestHelper
 import org.cartagena.tool.core.model.{SerialTestStep, TestCase, ShapelessTestStep => TestStep}
 import org.cartagena.tool.example.suite.login.model.LoginDTO
 import org.cartagena.tool.example.suite.login.{LoginProfileAndContext, _}
@@ -22,7 +21,7 @@ case object CreateSession extends TestCase {
 case object ExecuteHttpPutRequest
   extends TestStep
     with LoginProfileAndContext
-    with ApacheRestHelper {
+    with RestAgent {
 
   override val name: String = "Execute HTTP PUT request"
 
@@ -48,7 +47,7 @@ case object ExecuteHttpPutRequest
 
     print(request)
 
-    val response = execute[EmptyBody.type, JsonString](request)
+    val response = restHelper execute[EmptyBody.type, JsonString] request
     print(response)
 
     assert(
@@ -67,7 +66,7 @@ case object ExecuteHttpPutRequest
 case object StoreSessionCookie
   extends TestStep
     with LoginProfileAndContext
-    with ApacheRestHelper {
+    with RestAgent {
 
   override val name: String = "Store session cookie"
 
@@ -76,7 +75,7 @@ case object StoreSessionCookie
 
     response.cookies.find(_.name == "JSESSIONID") match {
       case Some(cookie) =>
-        storeCookie(cookie)
+        restHelper storeCookie cookie
       case None =>
         throw new Exception("No session cookie to store!")
     }

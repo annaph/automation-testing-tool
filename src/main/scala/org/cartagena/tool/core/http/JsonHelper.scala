@@ -2,9 +2,9 @@ package org.cartagena.tool.core.http
 
 import java.io.InputStream
 
-import org.cartagena.tool.core.model.{NoNativeClient, NoOperations}
+import org.cartagena.tool.core.model.{NoNativeClientComponent, NoOperationsComponent}
 
-trait JsonHelper extends NoNativeClient with NoOperations {
+trait JsonHelper extends NoNativeClientComponent with NoOperationsComponent {
 
   def parse[T: Manifest](json: JsonString): T
 

@@ -85,9 +85,9 @@ object Step {
       case (acc, stepExecution) =>
         stepExecution match {
           case _: PassedStepExecution =>
-            PassedStepExecution(step.name, acc.innerStepExecutions :+ stepExecution)
+            PassedStepExecution(step.name, acc.children :+ stepExecution)
           case _: NonPassedStepExecution =>
-            FailedStepExecution(step.name, SerialStepFailed, acc.innerStepExecutions :+ stepExecution)
+            FailedStepExecution(step.name, SerialStepFailed, acc.children :+ stepExecution)
         }
     }
   }

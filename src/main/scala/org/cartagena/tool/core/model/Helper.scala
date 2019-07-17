@@ -1,25 +1,29 @@
 package org.cartagena.tool.core.model
 
-sealed trait NativeClient
+sealed trait NativeClientComponent
 
-trait HttpNativeClient extends NativeClient
+trait HttpNativeClientComponent extends NativeClientComponent
 
-trait JdbcNativeClient extends NativeClient
+trait JdbcNativeClientComponent extends NativeClientComponent
 
-trait NoNativeClient extends NativeClient
+trait NoNativeClientComponent extends NativeClientComponent
 
-sealed trait Operations
+sealed trait OperationsComponent
 
-trait HttpOperations extends Operations
+trait HttpOperationsComponent extends OperationsComponent
 
-trait JdbcOperations extends Operations
+trait JdbcOperationsComponent extends OperationsComponent
 
-trait NoOperations extends Operations
+trait NoOperationsComponent extends OperationsComponent
 
-trait Helper {
-  self: NativeClient with Operations =>
+trait HelperComponent {
+  self: NativeClientComponent with OperationsComponent =>
 }
 
-trait JdbcHelper extends {
-  self: JdbcNativeClient with JdbcOperations =>
+trait RestHelperComponent {
+  self: HttpNativeClientComponent with HttpOperationsComponent =>
+}
+
+trait JdbcHelperComponent extends {
+  self: JdbcNativeClientComponent with JdbcOperationsComponent =>
 }
