@@ -8,6 +8,7 @@ import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.message.BasicHttpResponse
 import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.agent.ApacheRestAgentTest
+import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
 import org.mockito.ArgumentMatchers.{any, same}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.{FlatSpec, Matchers}
@@ -19,25 +20,11 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestAge
   override private[core] val apacheHttpOperations =
     new ApacheHttpOperationsImpl
 
-  private val PROTOCOL = "HTTP"
-  private val VERSION = 1
-  private val STATUS_CODE = 7
-  private val REASON_STRING = "Great"
-
-  private val URL_STRING = "http://www.google.com"
-  private val HEADER = "header1" -> "value1"
-  private val PARAM = "param1" -> "value1"
-  private val BODY_CONTENT = "This is some body"
-
-  private val COOKIE_NAME = "name"
-  private val COOKIE_VALUE = "value"
-  private val COOKIE_DOMAIN = "domain"
-  private val COOKIE_PATH = "path"
-
   "executeGet" should "execute HTTP GET request" in new TestNativeClientAndContext {
     // given
     var id: Long = -1
-    val response = new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE, REASON_STRING)
+    val response = new BasicHttpResponse(
+      new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)
 
     when(client.execute(any[ApacheHttpGet], same(context)))
       .thenAnswer { invocation =>
@@ -59,7 +46,8 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestAge
   "executePost" should "execute HTTP POST request" in new TestNativeClientAndContext {
     // given
     var id: Long = -1
-    val response = new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE, REASON_STRING)
+    val response = new BasicHttpResponse(
+      new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)
 
     when(client.execute(any[ApacheHttpPost], same(context)))
       .thenAnswer { invocation =>
@@ -70,7 +58,8 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestAge
       }
 
     // when
-    val actual: ApacheHttpResponse = apacheHttpOperations executePost(URL_STRING, new StringEntity(BODY_CONTENT), Map(HEADER), Map(PARAM))
+    val actual: ApacheHttpResponse = apacheHttpOperations executePost(
+      URL_STRING, new StringEntity(BODY_CONTENT), Map(HEADER), Map(PARAM))
 
     // then
     actual should be(ApacheHttpResponse(id, response))

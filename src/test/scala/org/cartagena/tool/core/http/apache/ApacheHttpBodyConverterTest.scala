@@ -2,13 +2,11 @@ package org.cartagena.tool.core.http.apache
 
 import org.apache.http.entity.StringEntity
 import org.cartagena.tool.core.http.apache.ApacheHttpBodyConverter.{EMPTY_STRING, EmptyBodyApacheHttpBodyConverter, JsonStringApacheHttpBodyConverter, TextApacheHttpBodyConverter}
+import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil.{SOME_JSON_STRING, SOME_TEXT}
 import org.cartagena.tool.core.http.{EmptyBody, JsonString, Text, inputStreamToString}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ApacheHttpBodyConverterTest extends FlatSpec with Matchers {
-
-  private val SOME_TEXT = "some content"
-  private val SOME_JSON_STRING = "{}"
 
   "fromHttpEntity" should "convert from Apache Http Entity to Text Http body" in {
     // given

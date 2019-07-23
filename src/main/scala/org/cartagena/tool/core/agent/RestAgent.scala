@@ -1,7 +1,7 @@
 package org.cartagena.tool.core.agent
 
 import org.cartagena.tool.core.http.RestHelper
-import org.cartagena.tool.core.http.apache.{ApacheHttpClient, ApacheHttpClientComponent, ApacheHttpClientImpl, ApacheHttpOperations, ApacheHttpOperationsComponent, ApacheHttpOperationsImpl, ApacheRestHelper, ApacheRestHelperComponent}
+import org.cartagena.tool.core.http.apache.{ApacheHttpClient, ApacheHttpClientComponent, ApacheHttpClientImpl, ApacheHttpOperations, ApacheHttpOperationsComponent, ApacheHttpOperationsImpl, ApacheRestHelperComponent, ApacheRestHelperImpl}
 
 trait ApacheRestAgent
   extends ApacheHttpClientComponent
@@ -15,7 +15,7 @@ trait ApacheRestAgent
     new ApacheHttpOperationsImpl
 
   override private[core] val apacheHttpRestHelper: RestHelper =
-    new ApacheRestHelper(apacheHttpClient, apacheHttpOperations)
+    new ApacheRestHelperImpl(apacheHttpClient, apacheHttpOperations)
 
 }
 

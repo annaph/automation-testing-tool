@@ -3,7 +3,8 @@ package org.cartagena.tool.core.http.apache
 import java.net.URI
 
 import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut, HttpRequestBase}
-import org.apache.http.{Header, HttpEntity, HttpResponse}
+import org.apache.http.{Header, HttpEntity, HttpResponse, HeaderElement => ApacheHeaderElement}
+import org.cartagena.tool.core.http.{EmptyBody, HeaderElement, HttpBody, JsonString, Text}
 
 sealed trait ApacheHttpRequest extends HttpRequestBase {
 
@@ -40,9 +41,7 @@ class ApacheHttpPost(val id: Long, val uri: URI) extends HttpPost with ApacheHtt
 
 class ApacheHttpPut(val id: Long, val uri: URI) extends HttpPut with ApacheHttpRequest
 
-class ApacheHttpResponse(val id: Long, response: HttpResponse) {
-
-  def get: HttpResponse = response
+class ApacheHttpResponse(val id: Long, val nativeResponse: HttpResponse) {
 
   override def equals(that: Any): Boolean = that match {
     case that: ApacheHttpResponse =>
@@ -56,7 +55,7 @@ class ApacheHttpResponse(val id: Long, response: HttpResponse) {
     var result = 1
 
     result = prime * result + id.hashCode()
-    result = prime * result + response.hashCode()
+    result = prime * result + nativeResponse.hashCode()
 
     result
   }
@@ -65,7 +64,43 @@ class ApacheHttpResponse(val id: Long, response: HttpResponse) {
 
 object ApacheHttpResponse {
 
+  private[apache] val COOKIE_HEADER_NAME = "Set-Cookie"
+
   def apply(id: Long, response: HttpResponse) =
     new ApacheHttpResponse(id, response)
+
+  implicit class HttpResponseOps(httpResponse: HttpResponse) {
+
+    def statusCode: Int =
+      httpResponse.getStatusLine.getStatusCode
+
+    def reasonPhrase: String =
+      httpResponse.getStatusLine.getReasonPhrase
+
+    def cookieHeaderElements: List[HeaderElement] =
+      Option(httpResponse.getFirstHeader(COOKIE_HEADER_NAME))
+        .map(_.getElements)
+        .map(toHeaderElements)
+        .getOrElse(List.empty)
+
+    def httpBody[T <: HttpBody](implicit mf: Manifest[T]): T =
+      mf.runtimeClass match {
+        case x if x == classOf[Text] =>
+          httpBody[Text](httpResponse.getEntity).asInstanceOf[T]
+        case x if x == classOf[JsonString] =>
+          httpBody[JsonString](httpResponse.getEntity).asInstanceOf[T]
+        case _ =>
+          httpBody[EmptyBody.type](httpResponse.getEntity).asInstanceOf[T]
+      }
+
+    private def toHeaderElements(apacheHeaderElements: Array[ApacheHeaderElement]): List[HeaderElement] =
+      apacheHeaderElements.map { header =>
+        HeaderElement(header.getName, header.getValue)
+      }.toList
+
+    private def httpBody[T <: HttpBody : ApacheHttpBodyConverter](entity: HttpEntity): T =
+      implicitly[ApacheHttpBodyConverter[T]] fromHttpEntity entity
+
+  }
 
 }

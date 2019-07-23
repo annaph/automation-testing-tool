@@ -2,20 +2,18 @@ package org.cartagena.tool.core.http
 
 import java.io.InputStream
 
-import org.cartagena.tool.core.model.{NoNativeClientComponent, NoOperationsComponent}
+import org.json4s.{Formats, Serializer}
 
-trait JsonHelper extends NoNativeClientComponent with NoOperationsComponent {
+trait JsonHelper {
 
-  def parse[T: Manifest](json: JsonString): T
+  def useJsonFormats(formats: Formats): Unit
 
-  def parse[T: Manifest](json: InputStream): T
+  def useJsonSerializer(serializer: Serializer[_]): Unit
 
-  def toJsonString(in: InputStream): JsonString
+  def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit
 
-}
+  def parse[T](json: JsonString)(implicit mf: Manifest[T]): T
 
-trait JsonHelperComponent {
-
-  val jsonHelper: JsonHelper
+  def parse[T](json: InputStream)(implicit mf: Manifest[T]): T
 
 }
