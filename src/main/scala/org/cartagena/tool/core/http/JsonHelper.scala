@@ -12,8 +12,8 @@ trait JsonHelper {
 
   def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit
 
-  def parse[T](json: JsonString)(implicit mf: Manifest[T]): T
+  def parse[T: Manifest](json: JsonString): T
 
-  def parse[T](json: InputStream)(implicit mf: Manifest[T]): T
+  def parse[T: Manifest](json: InputStream): T
 
 }

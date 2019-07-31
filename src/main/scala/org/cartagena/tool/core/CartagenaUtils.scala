@@ -35,17 +35,17 @@ object CartagenaUtils {
       this
     }
 
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
+    }
+
     def ~==>(key: String): ContextOperations =
       updateKey(key)
 
     def updateKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = false)
       this
-    }
-
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
     }
 
     def <=~[T: Manifest](key: String): Unit =
@@ -64,6 +64,13 @@ object CartagenaUtils {
     }
 
     object KeyNotSpecifiedException extends Exception("No key specified!")
+
+  }
+
+  implicit class SuiteReportPrinter(suiteReport: SuiteReport) {
+
+    def print(): Unit =
+      println(suiteReport.toPrettyString)
 
   }
 

@@ -3,15 +3,16 @@ package org.cartagena.tool.core.http.json4s
 import java.nio.charset.StandardCharsets
 
 import org.apache.commons.io.IOUtils
-import org.cartagena.tool.core.agent.Json4sAgentTest
-import org.cartagena.tool.core.http.json4s.Json4sOperationsTest._
-import org.json4s.{DefaultFormats, Formats}
+import org.cartagena.tool.core.http.json4s.Json4sTestUtil.{FLAG_VALUE, INT_VALUE, MyDomainEntity, STR_VALUE, json, MyFormats1 => MyFormats}
+import org.cartagena.tool.core.registry.Json4sRegistryTest
+import org.json4s.Formats
 import org.scalatest.{FlatSpec, Matchers}
 
-class Json4sOperationsTest extends FlatSpec with Matchers with Json4sAgentTest {
+class Json4sOperationsTest extends FlatSpec with Matchers with Json4sRegistryTest {
 
-  override private[core] val json4sOperations =
-    new Json4sOperationsImpl
+  override private[core] val json4sOperations = new Json4sOperationsImpl
+
+  implicit val formats: Formats = MyFormats
 
   "parse" should "parse Json String to domain entity" in {
     // given
@@ -34,28 +35,5 @@ class Json4sOperationsTest extends FlatSpec with Matchers with Json4sAgentTest {
     // then
     actual should be(MyDomainEntity(STR_VALUE, INT_VALUE, FLAG_VALUE))
   }
-
-}
-
-object Json4sOperationsTest {
-
-  implicit val formats: Formats = DefaultFormats
-
-  val STR_VALUE = "some_string"
-
-  val INT_VALUE = 12
-
-  val FLAG_VALUE = true
-
-  val json: String =
-    s"""
-       |{
-       | "str": "$STR_VALUE",
-       | "int": $INT_VALUE,
-       | "flag": $FLAG_VALUE
-       |}
-    """.stripMargin
-
-  case class MyDomainEntity(str: String, int: Int, flag: Boolean)
 
 }

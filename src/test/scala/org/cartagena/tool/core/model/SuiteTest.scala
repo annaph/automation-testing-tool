@@ -1,7 +1,7 @@
 package org.cartagena.tool.core.model
 
 import org.cartagena.tool.core.CartagenaUtils._
-import org.cartagena.tool.core.model.StepTestStructures.{MyCleanupStep => CleanupStep, MyCleanupStepToFail => CleanupStepToFail, MySetupStep => SetupStep, MySetupStepToFail => SetupStepToFail, MyShapelessStep1 => S1, MyShapelessStep2 => S2, MyShapelessStep2ToFail => S2ToFail, MyShapelessStep3 => S3, MyShapelessStep3ToFail => S3ToFail, MyShapelessStepToFail1 => S1ToFail}
+import org.cartagena.tool.core.model.StepTestUtil.{MyCleanupStep => CleanupStep, MyCleanupStepToFail => CleanupStepToFail, MySetupStep => SetupStep, MySetupStepToFail => SetupStepToFail, MyShapelessStep1 => S1, MyShapelessStep2 => S2, MyShapelessStep2ToFail => S2ToFail, MyShapelessStep3 => S3, MyShapelessStep3ToFail => S3ToFail, MyShapelessStepToFail1 => S1ToFail}
 import org.cartagena.tool.core.model.SuiteTest._
 import org.scalatest.{FlatSpec, Matchers}
 

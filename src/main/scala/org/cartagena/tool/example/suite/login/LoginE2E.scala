@@ -1,12 +1,12 @@
 package org.cartagena.tool.example.suite.login
 
+import org.cartagena.tool.core.CartagenaUtils._
+
 object LoginE2ELocalhost extends App {
 
   loginProfile = onlyLocalHostProfile
 
-  val suiteReport = LoginSuite.run()
-
-  println(suiteReport)
+  LoginSuite.run().print()
 
 }
 
@@ -14,8 +14,6 @@ object LoginE2EVagrant extends App {
 
   loginProfile = onlyVagrantProfile
 
-  val suiteReport = LoginSuite.run()
-
-  println(suiteReport)
+  LoginSuite.run().print()
 
 }

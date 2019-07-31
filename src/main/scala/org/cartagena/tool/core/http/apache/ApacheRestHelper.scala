@@ -28,10 +28,11 @@ class ApacheRestHelperImpl(apacheHttpClient: ApacheHttpClient, apacheHttpOperati
   override def isRestClientRunning: Boolean =
     ApacheRestHelperImpl.isRestClientRunning(apacheHttpClient)
 
-  override def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                    (implicit mf: Manifest[U]): HttpResponse[U] =
+  override def execute[T <: HttpBody, U <: HttpBody : Manifest](request: HttpRequest[T]): HttpResponse[U] =
     ApacheRestHelperImpl.execute(
-      apacheHttpClient, apacheHttpOperations, request)(mf, apacheHttpClient.get, apacheHttpClient.context)
+      apacheHttpClient,
+      apacheHttpOperations,
+      request)(implicitly[Manifest[U]], apacheHttpClient.get, apacheHttpClient.context)
 
   override def storeCookie(cookie: Cookie): Unit =
     ApacheRestHelperImpl.storeCookie(apacheHttpOperations, cookie)(apacheHttpClient.get, apacheHttpClient.context)
@@ -96,8 +97,9 @@ object ApacheRestHelperImpl {
     HttpResponse(
       status = apacheResponse.nativeResponse.statusCode,
       reason = apacheResponse.nativeResponse.reasonPhrase,
-      body = Option(apacheResponse.nativeResponse.httpBody),
-      cookies = toCookies(apacheResponse.nativeResponse.cookieHeaderElements, request.url.getHost, COOKIE_PATH))
+      body = apacheResponse.nativeResponse.httpBody,
+      cookies = toCookies(
+        apacheResponse.nativeResponse.cookieHeaderElements, request.url.getHost, COOKIE_PATH))
   }
 
 }

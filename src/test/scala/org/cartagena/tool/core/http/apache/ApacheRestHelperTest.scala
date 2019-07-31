@@ -3,14 +3,14 @@ package org.cartagena.tool.core.http.apache
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.{HttpEntity, ProtocolVersion}
 import org.cartagena.tool.core.CartagenaUtils._
-import org.cartagena.tool.core.agent.ApacheRestAgentTest
 import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
+import org.cartagena.tool.core.registry.ApacheRestRegistryTest
 import org.mockito.ArgumentMatchers.{any, same, eq => eqTo}
 import org.mockito.Mockito.{doNothing, verify, when}
 import org.scalatest.{FlatSpec, Matchers}
 
-class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTest {
+class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistryTest {
 
   override private[core] val apacheHttpRestHelper =
     new ApacheRestHelperImpl(apacheHttpClient, apacheHttpOperations)
@@ -83,7 +83,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)))
 
-    val expected = HttpResponse(OK, REASON_PHRASE_OK, Some(EmptyBody))
+    val expected = HttpResponse(OK, REASON_PHRASE_OK, EmptyBody)
 
     // when
     val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
@@ -117,7 +117,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)))
 
-    val expected = HttpResponse(Created, REASON_PHRASE_CREATED, Some(EmptyBody))
+    val expected = HttpResponse(Created, REASON_PHRASE_CREATED, EmptyBody)
 
     // when
     val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request

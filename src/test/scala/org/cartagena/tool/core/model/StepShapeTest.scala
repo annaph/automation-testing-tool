@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.StepTestStructures.MyStepShape
+import org.cartagena.tool.core.model.StepTestUtil.MyStepShape
 import org.scalatest.{FlatSpec, Matchers}
 
 class StepShapeTest extends FlatSpec with Matchers {

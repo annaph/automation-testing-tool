@@ -1,5 +1,6 @@
 package org.cartagena.tool.core.model
 
+import org.cartagena.tool.core.PrettyPrintConstants.LINE_SEPARATOR
 import org.cartagena.tool.core.model.StepDimensions.{Router, Serial, Shapeless, StepShape}
 import org.cartagena.tool.core.model.StepExtensions.InfoMessages
 import org.cartagena.tool.core.util.Process.{emit, lift}
@@ -96,6 +97,6 @@ object Step {
     IgnoredStepExecution(step.name)
 
   private def printStepSeparator(): Unit =
-    println(StringBuilder.newBuilder.append("-") * 97)
+    println(LINE_SEPARATOR)
 
 }

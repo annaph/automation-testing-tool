@@ -1,10 +1,10 @@
-package org.cartagena.tool.core.agent
+package org.cartagena.tool.core.registry
 
 import org.cartagena.tool.core.http.JsonHelper
 import org.cartagena.tool.core.http.json4s._
 import org.scalatest.mockito.MockitoSugar
 
-trait Json4sAgentTest
+trait Json4sRegistryTest
   extends Json4sClientComponent
     with Json4sOperationsComponent
     with Json4sHelperComponent

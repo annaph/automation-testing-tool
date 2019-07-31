@@ -25,11 +25,11 @@ class Json4sHelperImpl(json4sClient: Json4sClient, json4sOperations: Json4sOpera
   override def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit =
     Json4sHelperImpl.useJsonSerializers(json4sClient, serializers)
 
-  override def parse[T](json: JsonString)(implicit mf: Manifest[T]): T =
-    Json4sHelperImpl.parse(json4sOperations, json)(mf, json4sClient.formats)
+  override def parse[T: Manifest](json: JsonString): T =
+    Json4sHelperImpl.parse(json4sOperations, json)(implicitly[Manifest[T]], json4sClient.formats)
 
-  override def parse[T](json: InputStream)(implicit mf: Manifest[T]): T =
-    Json4sHelperImpl.parse(json4sOperations, json)(mf, json4sClient.formats)
+  override def parse[T: Manifest](json: InputStream): T =
+    Json4sHelperImpl.parse(json4sOperations, json)(implicitly[Manifest[T]], json4sClient.formats)
 
 }
 

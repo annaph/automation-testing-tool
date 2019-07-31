@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.StepTestStructures.{MyShapelessStep1 => MyStep}
+import org.cartagena.tool.core.model.StepTestUtil.{MyShapelessStep1 => MyStep}
 import org.scalatest.{FlatSpec, Matchers}
 
 class InfoMessagesTest extends FlatSpec with Matchers {

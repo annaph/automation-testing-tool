@@ -7,15 +7,15 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.message.BasicHttpResponse
 import org.cartagena.tool.core.CartagenaUtils._
-import org.cartagena.tool.core.agent.ApacheRestAgentTest
 import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
+import org.cartagena.tool.core.registry.ApacheRestRegistryTest
 import org.mockito.ArgumentMatchers.{any, same}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
-class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestAgentTest {
+class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestRegistryTest {
 
   override private[core] val apacheHttpOperations =
     new ApacheHttpOperationsImpl

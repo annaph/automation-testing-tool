@@ -94,17 +94,12 @@ case object AssertJsonResponse
   override def run(): Unit = {
     val response: HttpResponse[JsonString] = context </[HttpResponse[JsonString]] LOGIN_RESPONSE
 
-    response.body match {
-      case Some(b) =>
-        val expected = jsonHelper parse[LoginDTO] getClass.getResourceAsStream(expectedResult)
-        val actual: LoginDTO = jsonHelper parse[LoginDTO] b
+    val expected = jsonHelper parse[LoginDTO] getClass.getResourceAsStream(expectedResult)
+    val actual: LoginDTO = jsonHelper parse[LoginDTO] response.body
 
-        assert(
-          actual.copy(timestamp = 1) == expected,
-          "Login DTO not correct!")
-      case None =>
-        throw new Exception("No response body to assert!")
-    }
+    assert(
+      actual.copy(timestamp = 1) == expected,
+      "Login DTO not correct!")
   }
 
 }

@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.StepTestStructures.MyUnsupportedRunnableStep
+import org.cartagena.tool.core.model.StepTestUtil.MyUnsupportedRunnableStep
 import org.scalatest.{FlatSpec, Matchers}
 
 class UnsupportedRunnableTest extends FlatSpec with Matchers {
