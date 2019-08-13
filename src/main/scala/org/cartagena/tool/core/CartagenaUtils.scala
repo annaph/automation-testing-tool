@@ -4,6 +4,7 @@ import java.net.URL
 
 import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
 import org.cartagena.tool.core.model._
+import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
 
 object CartagenaUtils {
 
@@ -35,17 +36,17 @@ object CartagenaUtils {
       this
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
-    }
-
     def ~==>(key: String): ContextOperations =
       updateKey(key)
 
     def updateKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = false)
       this
+    }
+
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
     }
 
     def <=~[T: Manifest](key: String): Unit =
@@ -73,6 +74,15 @@ object CartagenaUtils {
       println(suiteReport.toPrettyString)
 
   }
+
+  def StartRestClient: StartRestClient =
+    new StartRestClient()
+
+  def ShutdownRestClient: ShutdownRestClient =
+    new ShutdownRestClient()
+
+  def RemoveJsonSerializers: RemoveJsonSerializers =
+    new RemoveJsonSerializers()
 
   def print[T <: HttpBody](request: HttpRequest[T]): Unit =
     println(request.toPrettyString)
