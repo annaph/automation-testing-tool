@@ -17,14 +17,14 @@ class HttpRequest[T <: HttpBody](val url: URL,
 
 case class HttpResponse[T <: HttpBody](status: HttpStatus,
                                        reason: String,
-                                       body: Option[T] = None,
+                                       body: T,
                                        cookies: List[Cookie] = List.empty) extends HttpMessage
 
 object HttpMessage {
 
-  private val _NEW_LINE: String = System getProperty "line.separator"
+  import org.cartagena.tool.core.PrettyPrintConstants.NEW_LINE
 
-  private[http] def toPrettyString(httpMessage: HttpMessage): String =
+  private def toPrettyString(httpMessage: HttpMessage): String =
     httpMessage match {
       case httpRequest: HttpRequest[_] =>
         httpRequestToPrettyString(httpRequest)
@@ -47,32 +47,32 @@ object HttpMessage {
 
     builder ++= s"=> HTTP request:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tURL:\t\t${request.url}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tMethod:\t\t${request.method.toPrettyString}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tHeaders:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"${headers.map(line => s"\t\t\t$line") mkString "\n"}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tParameters:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"${params.map(line => s"\t\t\t$line") mkString "\n"}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tBody:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"${
-      request.body.toPrettyString.split(_NEW_LINE)
+      request.body.toPrettyString.split(NEW_LINE)
         .map(line => s"\t\t\t$line")
-        .mkString(_NEW_LINE)
+        .mkString(NEW_LINE)
     }"
 
     builder.toString()
@@ -88,29 +88,28 @@ object HttpMessage {
 
     builder ++= s"=> HTTP response:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tStatus:\t\t${response.status.toPrettyString}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tReason:\t\t${response.reason}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tCookies:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"${cookies.map(line => s"\t\t\t$line") mkString "\n"}"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"\tBody:"
 
-    builder ++= _NEW_LINE
+    builder ++= NEW_LINE
     builder ++= s"${
       response.body
-        .map(_.toPrettyString)
-        .map(_.split(_NEW_LINE)
-          .map(line => s"\t\t\t$line")
-          .mkString(_NEW_LINE))
-        .getOrElse("\t<none>")
+        .toPrettyString
+        .split(NEW_LINE)
+        .map(line => s"\t\t\t$line")
+        .mkString(NEW_LINE)
     }"
 
     builder.toString()

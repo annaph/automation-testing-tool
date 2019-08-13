@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class HttpMessageTest extends FlatSpec with Matchers {
 
-  private val _jsonString = JsonString("""{"field1": 1,"field2": "str","field3": null}""")
+  private val jsonString = JsonString("""{"field1": 1,"field2": "str","field3": null}""")
 
   "toPrettyString" should "prettify http request message" in {
     // given
@@ -20,7 +20,7 @@ class HttpMessageTest extends FlatSpec with Matchers {
         "param1" -> "param1_value",
         "param2" -> "param2_value",
         "param3" -> "param3_value"),
-      body = _jsonString)
+      body = jsonString)
 
     val expected = "=> HTTP request:\n" +
       "\tURL:\t\thttp://www.google.com/\n" +
@@ -56,7 +56,7 @@ class HttpMessageTest extends FlatSpec with Matchers {
         Cookie("name1", "value1", "host1", "path1"),
         Cookie("name2", "value2", "host2", "path2"),
         Cookie("name3", "value3", "host3", "path3")),
-      body = Some(_jsonString))
+      body = jsonString)
 
     val expected = "=> HTTP response:\n" +
       "\tStatus:\t\tOK\n" +

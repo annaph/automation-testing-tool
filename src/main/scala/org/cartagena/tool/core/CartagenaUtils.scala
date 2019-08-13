@@ -2,11 +2,8 @@ package org.cartagena.tool.core
 
 import java.net.URL
 
-import org.cartagena.tool.core.http.json4s.Json4sFormats.{addSerializers, setFormats}
-import org.cartagena.tool.core.http.json4s.Json4sFormatsRef.formatsRef
 import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
 import org.cartagena.tool.core.model._
-import org.json4s.{Formats, Serializer}
 
 object CartagenaUtils {
 
@@ -38,17 +35,17 @@ object CartagenaUtils {
       this
     }
 
+    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
+      _key = Some(key)
+      _isCreateNew = isCreateNew
+    }
+
     def ~==>(key: String): ContextOperations =
       updateKey(key)
 
     def updateKey(key: String): ContextOperations = {
       updateInternalState(key, isCreateNew = false)
       this
-    }
-
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
     }
 
     def <=~[T: Manifest](key: String): Unit =
@@ -70,14 +67,12 @@ object CartagenaUtils {
 
   }
 
-  def useJsonSerializer(serializer: Serializer[_]): Unit =
-    addSerializers(formatsRef, List(serializer))
+  implicit class SuiteReportPrinter(suiteReport: SuiteReport) {
 
-  def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit =
-    addSerializers(formatsRef, serializers)
+    def print(): Unit =
+      println(suiteReport.toPrettyString)
 
-  def useJsonFormats(formats: Formats): Unit =
-    setFormats(formatsRef, formats)
+  }
 
   def print[T <: HttpBody](request: HttpRequest[T]): Unit =
     println(request.toPrettyString)

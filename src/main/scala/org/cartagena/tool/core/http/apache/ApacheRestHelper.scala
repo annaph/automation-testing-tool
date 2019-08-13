@@ -1,9 +1,9 @@
 package org.cartagena.tool.core.http.apache
 
-import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.http.apache.ApacheHttpResponse.HttpResponseOps
 import org.cartagena.tool.core.model.RestHelperComponent
 
 trait ApacheRestHelperComponent extends RestHelperComponent {
@@ -13,32 +13,35 @@ trait ApacheRestHelperComponent extends RestHelperComponent {
 
 }
 
-class ApacheRestHelper(apacheHttpClient: ApacheHttpClient, apacheHttpOperations: ApacheHttpOperations)
+class ApacheRestHelperImpl(apacheHttpClient: ApacheHttpClient, apacheHttpOperations: ApacheHttpOperations)
   extends RestHelper {
 
   override def startRestClient(): Unit =
-    ApacheRestHelper.startRestClient(apacheHttpClient)
+    ApacheRestHelperImpl.startRestClient(apacheHttpClient)
 
   override def restartRestClient(): Unit =
-    ApacheRestHelper.restartRestClient(apacheHttpClient)
+    ApacheRestHelperImpl.restartRestClient(apacheHttpClient)
 
   override def shutdownRestClient(): Unit =
-    ApacheRestHelper.shutdownRestClient(apacheHttpClient)
+    ApacheRestHelperImpl.shutdownRestClient(apacheHttpClient)
 
   override def isRestClientRunning: Boolean =
-    ApacheRestHelper.isRestClientRunning(apacheHttpClient)
+    ApacheRestHelperImpl.isRestClientRunning(apacheHttpClient)
 
-  override def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])
-                                                    (implicit mf: Manifest[U]): HttpResponse[U] =
-    ApacheRestHelper
-      .execute(apacheHttpClient, apacheHttpOperations, request)(mf, apacheHttpClient.get, apacheHttpClient.context)
+  override def execute[T <: HttpBody, U <: HttpBody : Manifest](request: HttpRequest[T]): HttpResponse[U] =
+    ApacheRestHelperImpl.execute(
+      apacheHttpClient,
+      apacheHttpOperations,
+      request)(implicitly[Manifest[U]], apacheHttpClient.get, apacheHttpClient.context)
 
   override def storeCookie(cookie: Cookie): Unit =
-    ApacheRestHelper.storeCookie(apacheHttpOperations, cookie)(apacheHttpClient.get, apacheHttpClient.context)
+    ApacheRestHelperImpl.storeCookie(apacheHttpOperations, cookie)(apacheHttpClient.get, apacheHttpClient.context)
 
 }
 
-object ApacheRestHelper {
+object ApacheRestHelperImpl {
+
+  private val COOKIE_PATH = "/"
 
   private def startRestClient(apacheHttpClient: ApacheHttpClient): Unit =
     apacheHttpClient.start()
@@ -86,48 +89,17 @@ object ApacheRestHelper {
                                                             context: HttpContext): HttpResponse[U] =
     createHttpResponse(
       request,
-      apacheHttpOperations executePost(request.url, toEntity(request.body), request.headers, request.params))
+      apacheHttpOperations executePost(request.url, request.body, request.headers, request.params))
 
   private def createHttpResponse[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
                                                                apacheResponse: ApacheHttpResponse)
                                                               (implicit mf: Manifest[U]): HttpResponse[U] = {
-    val cookieHeaderElements = Option {
-      apacheResponse.get.getFirstHeader("Set-Cookie")
-    }.map(_.getElements.map { header =>
-      Cookie(header.getName, header.getValue, request.url.getHost, "/")
-    })
-
     HttpResponse(
-      status = apacheResponse.get.getStatusLine.getStatusCode,
-      reason = apacheResponse.get.getStatusLine.getReasonPhrase,
-      body = Option(apacheResponse.get.getEntity).map(fromEntity(_)),
-      cookies = cookieHeaderElements.map(_.toList).getOrElse(List.empty))
+      status = apacheResponse.nativeResponse.statusCode,
+      reason = apacheResponse.nativeResponse.reasonPhrase,
+      body = apacheResponse.nativeResponse.httpBody,
+      cookies = toCookies(
+        apacheResponse.nativeResponse.cookieHeaderElements, request.url.getHost, COOKIE_PATH))
   }
-
-  private def fromEntity[T <: HttpBody](entity: HttpEntity)(implicit mf: Manifest[T]): T =
-    mf.runtimeClass match {
-      case x if x == classOf[Text] =>
-        fromHttpEntity[Text](entity).asInstanceOf[T]
-      case x if x == classOf[JsonString] =>
-        fromHttpEntity[JsonString](entity).asInstanceOf[T]
-      case _ =>
-        fromHttpEntity[EmptyBody.type](entity).asInstanceOf[T]
-    }
-
-  private def toEntity[T <: HttpBody](body: T): HttpEntity =
-    body match {
-      case x@Text(_) =>
-        toHttpEntity[Text](x)
-      case x@JsonString(_) =>
-        toHttpEntity[JsonString](x)
-      case x@EmptyBody =>
-        toHttpEntity[EmptyBody.type](x)
-    }
-
-  private def fromHttpEntity[T <: HttpBody : ApacheHttpBodyConverter](entity: HttpEntity): T =
-    implicitly[ApacheHttpBodyConverter[T]].fromHttpEntity(entity)
-
-  private def toHttpEntity[T <: HttpBody : ApacheHttpBodyConverter](body: T): HttpEntity =
-    implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)
 
 }

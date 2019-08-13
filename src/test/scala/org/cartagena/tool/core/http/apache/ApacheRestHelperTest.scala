@@ -3,28 +3,17 @@ package org.cartagena.tool.core.http.apache
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.{HttpEntity, ProtocolVersion}
 import org.cartagena.tool.core.CartagenaUtils._
-import org.cartagena.tool.core.agent.ApacheRestAgentTest
 import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
+import org.cartagena.tool.core.registry.ApacheRestRegistryTest
 import org.mockito.ArgumentMatchers.{any, same, eq => eqTo}
 import org.mockito.Mockito.{doNothing, verify, when}
 import org.scalatest.{FlatSpec, Matchers}
 
-class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTest {
+class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistryTest {
 
   override private[core] val apacheHttpRestHelper =
-    new ApacheRestHelper(apacheHttpClient, apacheHttpOperations)
-
-  private val URL_STRING = "http://www.google.com"
-  private val PROTOCOL = "HTTP"
-  private val VERSION = 1
-  private val STATUS_CODE_200 = 200
-  private val STATUS_CODE_201 = 201
-  private val REASON_STRING = "Great"
-
-  private val COOKIE_NAME = "name"
-  private val COOKIE_VALUE = "value"
-  private val COOKIE_HOST = "host"
-  private val COOKIE_PATH = "path"
+    new ApacheRestHelperImpl(apacheHttpClient, apacheHttpOperations)
 
   "startRestClient" should "start Rest client" in {
     // given
@@ -91,9 +80,10 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
       .thenReturn(
         new ApacheHttpResponse(
           1L,
-          new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE_200, REASON_STRING)))
+          new BasicHttpResponse(
+            new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)))
 
-    val expected = HttpResponse(OK, REASON_STRING)
+    val expected = HttpResponse(OK, REASON_PHRASE_OK, EmptyBody)
 
     // when
     val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
@@ -124,9 +114,10 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
       .thenReturn(
         new ApacheHttpResponse(
           1L,
-          new BasicHttpResponse(new ProtocolVersion(PROTOCOL, VERSION, VERSION), STATUS_CODE_201, REASON_STRING)))
+          new BasicHttpResponse(
+            new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)))
 
-    val expected = HttpResponse(Created, REASON_STRING)
+    val expected = HttpResponse(Created, REASON_PHRASE_CREATED, EmptyBody)
 
     // when
     val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
@@ -142,7 +133,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
 
   "storeCookie" should "store Cookie" in new TestNativeClientAndContext {
     // given
-    val cookie = Cookie(COOKIE_NAME, COOKIE_VALUE, COOKIE_HOST, COOKIE_PATH)
+    val cookie = Cookie(COOKIE_NAME, COOKIE_VALUE, COOKIE_DOMAIN, COOKIE_PATH)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -151,14 +142,14 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestAgentTe
       .thenReturn(context)
 
     doNothing().when(apacheHttpOperations)
-      .addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_HOST, COOKIE_PATH)(client, context)
+      .addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_DOMAIN, COOKIE_PATH)(client, context)
 
     // when
     apacheHttpRestHelper storeCookie cookie
 
     // then
     verify(apacheHttpOperations)
-      .addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_HOST, COOKIE_PATH)(client, context)
+      .addToCookieStore(COOKIE_NAME, COOKIE_VALUE, COOKIE_DOMAIN, COOKIE_PATH)(client, context)
   }
 
 }

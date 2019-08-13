@@ -1,7 +1,7 @@
 package org.cartagena.tool.core.model
 
 import org.cartagena.tool.core.model.StepExecutionTest._
-import org.cartagena.tool.core.model.StepTestStructures.MyStepException
+import org.cartagena.tool.core.model.StepTestUtil.MyStepException
 import org.scalatest.{FlatSpec, Matchers}
 
 class StepExecutionTest extends FlatSpec with Matchers {

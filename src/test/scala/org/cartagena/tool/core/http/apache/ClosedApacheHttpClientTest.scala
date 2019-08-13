@@ -1,12 +1,12 @@
 package org.cartagena.tool.core.http.apache
 
-import org.cartagena.tool.core.agent.ApacheRestAgentTest
 import org.cartagena.tool.core.http.apache.ApacheHttpClientRefs.{ClientRef, ContextRef}
 import org.cartagena.tool.core.http.apache.ClosedApacheHttpClientTest.ClosedApacheHttpClient
+import org.cartagena.tool.core.registry.ApacheRestRegistryTest
 import org.scalatest.{FlatSpec, Matchers}
 import scalaz.effect.STRef
 
-class ClosedApacheHttpClientTest extends FlatSpec with Matchers with ApacheRestAgentTest {
+class ClosedApacheHttpClientTest extends FlatSpec with Matchers with ApacheRestRegistryTest {
 
   override private[core] val apacheHttpClient =
     new ClosedApacheHttpClient

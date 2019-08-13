@@ -1,10 +1,10 @@
 package org.cartagena.tool.core.agent
 
-import org.cartagena.tool.core.http.json4s.Json4sHelper
-import org.cartagena.tool.core.http.{JsonHelper, JsonHelperComponent}
+import org.cartagena.tool.core.http.JsonHelper
+import org.cartagena.tool.core.registry.Json4sRegistry
 
-trait JsonAgent extends JsonHelperComponent {
+trait JsonAgent extends Json4sRegistry {
 
-  override val jsonHelper: JsonHelper = Json4sHelper()
+  val jsonHelper: JsonHelper = json4sHelper
 
 }

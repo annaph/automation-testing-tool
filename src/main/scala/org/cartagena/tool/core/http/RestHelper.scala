@@ -10,7 +10,7 @@ trait RestHelper {
 
   def isRestClientRunning: Boolean
 
-  def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T])(implicit mf: Manifest[U]): HttpResponse[U]
+  def execute[T <: HttpBody, U <: HttpBody : Manifest](request: HttpRequest[T]): HttpResponse[U]
 
   def storeCookie(cookie: Cookie): Unit
 

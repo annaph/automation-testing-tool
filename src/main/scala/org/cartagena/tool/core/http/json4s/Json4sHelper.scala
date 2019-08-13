@@ -2,25 +2,51 @@ package org.cartagena.tool.core.http.json4s
 
 import java.io.InputStream
 
-import org.cartagena.tool.core.http.{JsonHelper, JsonString, inputStreamToString}
-import org.json4s.StreamInput
-import org.json4s.jackson.parseJson
+import org.cartagena.tool.core.http.{JsonHelper, JsonString}
+import org.cartagena.tool.core.model.JsonHelperComponent
+import org.json4s.{Formats, Serializer}
 
-class Json4sHelper extends JsonHelper with Json4sFormats {
+trait Json4sHelperComponent extends JsonHelperComponent {
+  self: Json4sClientComponent with Json4sOperationsComponent =>
 
-  override def parse[T: Manifest](json: JsonString): T =
-    parseJson(json.str).extract[T](formats, implicitly[Manifest[T]])
-
-  override def parse[T: Manifest](json: InputStream): T =
-    parseJson(StreamInput(json)).extract[T](formats, implicitly[Manifest[T]])
-
-  override def toJsonString(in: InputStream): JsonString =
-    JsonString(in)
+  private[core] val json4sHelper: JsonHelper
 
 }
 
-object Json4sHelper {
+class Json4sHelperImpl(json4sClient: Json4sClient, json4sOperations: Json4sOperations)
+  extends JsonHelper {
 
-  def apply(): Json4sHelper = new Json4sHelper()
+  override def useJsonFormats(formats: Formats): Unit =
+    Json4sHelperImpl.useJsonFormats(json4sClient, formats)
+
+  override def useJsonSerializer(serializer: Serializer[_]): Unit =
+    Json4sHelperImpl.useJsonSerializers(json4sClient, serializer :: Nil)
+
+  override def useJsonSerializers(serializers: Iterable[Serializer[_]]): Unit =
+    Json4sHelperImpl.useJsonSerializers(json4sClient, serializers)
+
+  override def parse[T: Manifest](json: JsonString): T =
+    Json4sHelperImpl.parse(json4sOperations, json)(implicitly[Manifest[T]], json4sClient.formats)
+
+  override def parse[T: Manifest](json: InputStream): T =
+    Json4sHelperImpl.parse(json4sOperations, json)(implicitly[Manifest[T]], json4sClient.formats)
+
+}
+
+object Json4sHelperImpl {
+
+  private def useJsonFormats(json4sClient: Json4sClient, formats: Formats): Unit =
+    json4sClient setFormats formats
+
+  private def useJsonSerializers(json4sClient: Json4sClient, serializers: Iterable[Serializer[_]]): Unit =
+    json4sClient addSerializers serializers
+
+  private def parse[T](json4sOperations: Json4sOperations, json: JsonString)
+                      (implicit mf: Manifest[T], formats: Formats): T =
+    json4sOperations parse json.str
+
+  private def parse[T](json4sOperations: Json4sOperations, json: InputStream)
+                      (implicit mf: Manifest[T], formats: Formats): T =
+    json4sOperations parse json
 
 }

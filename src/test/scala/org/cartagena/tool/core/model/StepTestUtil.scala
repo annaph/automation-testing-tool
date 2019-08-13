@@ -3,7 +3,7 @@ package org.cartagena.tool.core.model
 import org.cartagena.tool.core.model.StepDimensions.StepShape
 import org.cartagena.tool.core.model.StepExtensions.UnsupportedRunnable
 
-object StepTestStructures {
+object StepTestUtil {
 
   case object MySetupStep extends ShapelessSetupStep {
 
