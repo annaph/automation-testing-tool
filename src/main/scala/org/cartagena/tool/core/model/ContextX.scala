@@ -52,7 +52,8 @@ class SuiteContextX() extends ContextX {
   override def update[T: TypeTag](key: String, value: T): Try[T] =
     SuiteContextX.update(entriesRef, key, value)
 
-  override def remove[T: TypeTag](key: String): Try[T] = ???
+  override def remove[T: TypeTag](key: String): Try[T] =
+    SuiteContextX.remove(entriesRef, key)
 
 }
 
@@ -70,6 +71,10 @@ object SuiteContextX {
 
   type WriteEntryAction[T] = (EntriesRef, String, T) => ST[Nothing, Try[T]]
 
+  type RemoveEntryAction[T] = (EntriesRef, String) => ST[Nothing, Try[T]]
+
+  def apply(): SuiteContextX = new SuiteContextX()
+
   private def get[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
     runReadEntryAction(entriesRef, key)(readEntryAction)
 
@@ -78,6 +83,9 @@ object SuiteContextX {
 
   private def update[T: TypeTag](entriesRef: EntriesRef, key: String, value: T): Try[T] =
     runWriteEntryAction(entriesRef, key, value)(writeEntryAction(updateEntry[T]))
+
+  private def remove[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
+    runRemoveEntryAction(entriesRef, key)(removeEntryAction)
 
   private def runReadEntryAction[T: TypeTag](entriesRef: EntriesRef, key: String)
                                             (action: ReadEntryAction[T]): Try[T] =
@@ -93,11 +101,18 @@ object SuiteContextX {
         action(entriesRef, key, value).asInstanceOf[ST[S, Try[T]]]
     })
 
+  private def runRemoveEntryAction[T: TypeTag](entriesRef: EntriesRef, key: String)
+                                              (action: RemoveEntryAction[T]): Try[T] =
+    runST(new ForallST[Try[T]] {
+      override def apply[S]: ST[S, Try[T]] =
+        action(entriesRef, key).asInstanceOf[ST[S, Try[T]]]
+    })
+
   private def readEntryAction[T: TypeTag]: ReadEntryAction[T] =
     (entriesRef, key) =>
       for {
         entries <- entriesRef.read
-        value <- returnST(readEntryValue(entries, key))
+        value <- returnST(readEntry(entries, key))
       } yield value
 
   private def writeEntryAction[T: TypeTag](writeFunc: (Entries, String, T) => Try[Entries]): WriteEntryAction[T] =
@@ -105,18 +120,33 @@ object SuiteContextX {
       for {
         entries <- entriesRef.read
         newEntries <- returnST[Nothing, Try[Entries]](writeFunc(entries, key, value))
-        newValue <- newEntries match {
-          case Success(x) =>
+        writtenValue <- newEntries match {
+          case Success(map) =>
             for {
-              updatedEntriesRef <- entriesRef write x
+              updatedEntriesRef <- entriesRef write map
               updatedEntries <- updatedEntriesRef.read
             } yield Success[T](updatedEntries(key)._2.asInstanceOf[T])
           case Failure(e) =>
             returnST(Failure[T](e))
         }
-      } yield newValue
+      } yield writtenValue
 
-  private def readEntryValue[T: TypeTag](entries: mutable.Map[String, (TypeTag[_], Any)], key: String): Try[T] =
+  private def removeEntryAction[T: TypeTag]: RemoveEntryAction[T] =
+    (entriesRef, key) =>
+      for {
+        entries <- entriesRef.read
+        deletedValueAndNewEntries <- returnST[Nothing, Try[(T, Entries)]](removeEntry(entries, key))
+        deletedValue <- deletedValueAndNewEntries match {
+          case Success((t, map)) =>
+            for {
+              _ <- entriesRef write map
+            } yield Success[T](t)
+          case Failure(e) =>
+            returnST(Failure[T](e))
+        }
+      } yield deletedValue
+
+  private def readEntry[T: TypeTag](entries: mutable.Map[String, (TypeTag[_], Any)], key: String): Try[T] =
     entries get key match {
       case Some((tag, value)) if tag.tpe =:= implicitly[TypeTag[T]].tpe =>
         Success(value.asInstanceOf[T])
@@ -140,6 +170,17 @@ object SuiteContextX {
       case Some((tag, _)) if tag.tpe =:= implicitly[TypeTag[T]].tpe =>
         entries update(key, implicitly[TypeTag[T]] -> value)
         Success(entries)
+      case Some(_) =>
+        Failure(new ValueTypeMismatchException(s"Incorrect value type for '$key' key specified!"))
+      case None =>
+        Failure(new KeyNotPresentException(s"No entry with '$key' key!"))
+    }
+
+  private def removeEntry[T: TypeTag](entries: mutable.Map[String, (TypeTag[_], Any)], key: String): Try[(T, Entries)] =
+    entries get key match {
+      case Some((tag, value)) if tag.tpe =:= implicitly[TypeTag[T]].tpe =>
+        entries remove key
+        Success(value.asInstanceOf[T] -> entries)
       case Some(_) =>
         Failure(new ValueTypeMismatchException(s"Incorrect value type for '$key' key specified!"))
       case None =>

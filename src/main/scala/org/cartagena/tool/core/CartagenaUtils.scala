@@ -6,6 +6,9 @@ import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
 import org.cartagena.tool.core.model._
 import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
 
+import scala.reflect.runtime.universe.TypeTag
+import scala.util.{Failure, Success, Try}
+
 object CartagenaUtils {
 
   implicit def stringToUrl(str: String): URL =
@@ -20,49 +23,77 @@ object CartagenaUtils {
   implicit def cleanupStepToSerialCleanupStep(step: ShapedCleanupStep): SerialCleanupStep =
     SerialCleanupStep(step, () => EmptyStep)
 
-  implicit class ContextOperations(context: Context) {
+  implicit class ContextOperations(context: ContextX) {
 
     private var _key: Option[String] = None
     private var _isCreateNew = false
 
-    def </[T: Manifest](key: String): T =
-      context get[T] key
+    def </[T: TypeTag](key: String): T =
+      get(key)
+
+    def get[T: TypeTag](key: String): T =
+      context.get[T](key) match {
+        case Success(value) =>
+          value
+        case Failure(e) =>
+          throw e
+      }
 
     def ~=>(key: String): ContextOperations =
-      createKey(key)
+      create(key)
 
-    def createKey(key: String): ContextOperations = {
-      updateInternalState(key, isCreateNew = true)
+    def create(key: String): ContextOperations = {
+      _key = Some(key)
+      _isCreateNew = true
+
       this
     }
 
     def ~==>(key: String): ContextOperations =
-      updateKey(key)
+      update(key)
 
-    def updateKey(key: String): ContextOperations = {
-      updateInternalState(key, isCreateNew = false)
+    def update(key: String): ContextOperations = {
+      _key = Some(key)
+      _isCreateNew = false
+
       this
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
-    }
+    def <=~[T: TypeTag](key: String): Unit =
+      remove(key)
 
-    def <=~[T: Manifest](key: String): Unit =
-      context remove[T] key
+    def remove[T: TypeTag](key: String): Unit =
+      context.remove[T](key) match {
+        case Success(_) =>
+          ()
+        case Failure(e) =>
+          throw e
+      }
 
-    def />[T: Manifest](value: T): Unit =
+    def />[T: TypeTag](value: T): Unit =
       withValue[T](value)
 
-    def withValue[T: Manifest](value: T): Unit = _key match {
+    def withValue[T: TypeTag](value: T): Unit = _key match {
       case Some(key) if _isCreateNew =>
-        context create[T](key, value)
+        context.create[T](key, value) match {
+          case Success(_) =>
+            ()
+          case Failure(e) =>
+            throw e
+        }
       case Some(key) if !_isCreateNew =>
-        context update[T](key, value)
+        extractValue(context.update[T](key, value))
       case None =>
         throw KeyNotSpecifiedException
     }
+
+    private def extractValue[T](value: Try[T]): T =
+      value match {
+        case Success(v) =>
+          v
+        case Failure(e) =>
+          throw e
+      }
 
     object KeyNotSpecifiedException extends Exception("No key specified!")
 
