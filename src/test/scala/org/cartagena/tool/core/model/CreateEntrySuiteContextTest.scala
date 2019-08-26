@@ -1,12 +1,9 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.CreateEntrySuiteContextTest.SuiteContextTest
-import org.cartagena.tool.core.model.SuiteContextX.{EntriesRef, KeyAlreadyPresentException}
+import org.cartagena.tool.core.model.SuiteContext.KeyAlreadyPresentException
+import org.cartagena.tool.core.model.SuiteContextTestUtil._
 import org.scalatest.{FlatSpec, Matchers}
-import scalaz.effect.STRef
 
-import scala.collection.mutable
-import scala.reflect.runtime.universe.typeTag
 import scala.util.Success
 
 class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
@@ -66,18 +63,6 @@ class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
     // then
     actual.isFailure should be(true)
     actual.failed.get shouldBe a[KeyAlreadyPresentException]
-  }
-
-}
-
-object CreateEntrySuiteContextTest {
-
-  case object SuiteContextTest extends SuiteContextX {
-
-    override private[model] val entriesRef: EntriesRef = STRef[Nothing](mutable.Map(
-      "key1" -> (typeTag[String] -> "value1"),
-      "key2" -> (typeTag[List[Int]] -> (1 :: Nil))))
-
   }
 
 }

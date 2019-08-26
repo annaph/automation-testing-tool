@@ -1,8 +1,11 @@
 package org.cartagena.tool.core
 
+import java.io.InputStream
 import java.net.URL
+import java.nio.charset.StandardCharsets
 
-import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
+import org.apache.commons.io.IOUtils
+import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse, JsonString}
 import org.cartagena.tool.core.model._
 import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
 
@@ -14,6 +17,11 @@ object CartagenaUtils {
   implicit def stringToUrl(str: String): URL =
     new URL(str)
 
+  implicit def inputStreamToJsonString(in: InputStream): JsonString =
+    JsonString {
+      IOUtils toString(in, StandardCharsets.UTF_8.name())
+    }
+
   implicit def setupStepToSerialSetupStep(step: ShapedSetupStep): SerialSetupStep =
     SerialSetupStep(step, () => EmptyStep)
 
@@ -23,7 +31,7 @@ object CartagenaUtils {
   implicit def cleanupStepToSerialCleanupStep(step: ShapedCleanupStep): SerialCleanupStep =
     SerialCleanupStep(step, () => EmptyStep)
 
-  implicit class ContextOperations(context: ContextX) {
+  implicit class ContextOperations(context: Context) {
 
     private var _key: Option[String] = None
     private var _isCreateNew = false
@@ -32,12 +40,7 @@ object CartagenaUtils {
       get(key)
 
     def get[T: TypeTag](key: String): T =
-      context.get[T](key) match {
-        case Success(value) =>
-          value
-        case Failure(e) =>
-          throw e
-      }
+      extractValue(context.get[T](key))
 
     def ~=>(key: String): ContextOperations =
       create(key)
@@ -62,25 +65,15 @@ object CartagenaUtils {
     def <=~[T: TypeTag](key: String): Unit =
       remove(key)
 
-    def remove[T: TypeTag](key: String): Unit =
-      context.remove[T](key) match {
-        case Success(_) =>
-          ()
-        case Failure(e) =>
-          throw e
-      }
+    def remove[T: TypeTag](key: String): T =
+      extractValue(context.remove[T](key))
 
     def />[T: TypeTag](value: T): Unit =
       withValue[T](value)
 
-    def withValue[T: TypeTag](value: T): Unit = _key match {
+    def withValue[T: TypeTag](value: T): T = _key match {
       case Some(key) if _isCreateNew =>
-        context.create[T](key, value) match {
-          case Success(_) =>
-            ()
-          case Failure(e) =>
-            throw e
-        }
+        extractValue(context.create[T](key, value))
       case Some(key) if !_isCreateNew =>
         extractValue(context.update[T](key, value))
       case None =>

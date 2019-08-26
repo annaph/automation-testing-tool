@@ -27,15 +27,37 @@ class HttpStatusTest extends FlatSpec with Matchers {
     actual should be(Created)
   }
 
-  it should "create ServerError http status for code 500" in {
+  it should "create Accepted http status for code 202" in {
     // given
-    val code = HTTP_STATUS_SERVER_ERROR_CODE
+    val code = HTTP_STATUS_ACCEPTED_CODE
 
     // when
     val actual = HttpStatus(code)
 
     // then
-    actual should be(ServerError)
+    actual should be(Accepted)
+  }
+
+  it should "create NoContent http status for code 204" in {
+    // given
+    val code = HTTP_STATUS_NO_CONTENT_CODE
+
+    // when
+    val actual = HttpStatus(code)
+
+    // then
+    actual should be(NoContent)
+  }
+
+  it should "create InternalServerError http status for code 500" in {
+    // given
+    val code = HTTP_STATUS_INTERNAL_SERVER_ERROR_CODE
+
+    // when
+    val actual = HttpStatus(code)
+
+    // then
+    actual should be(InternalServerError)
   }
 
   it should "create Unsupported http status for code -1" in {
@@ -71,15 +93,37 @@ class HttpStatusTest extends FlatSpec with Matchers {
     actual should be(HTTP_STATUS_CREATED)
   }
 
-  it should "prettify ServerError http status" in {
+  it should "prettify Accepted http status" in {
     // given
-    val status = ServerError
+    val status = Accepted
 
     // when
     val actual = status.toPrettyString
 
     // then
-    actual should be(HTTP_STATUS_SERVER_ERROR)
+    actual should be(HTTP_STATUS_ACCEPTED)
+  }
+
+  it should "prettify NoContent http status" in {
+    // given
+    val status = NoContent
+
+    // when
+    val actual = status.toPrettyString
+
+    // then
+    actual should be(HTTP_STATUS_NO_CONTENT)
+  }
+
+  it should "prettify InternalServerError http status" in {
+    // given
+    val status = InternalServerError
+
+    // when
+    val actual = status.toPrettyString
+
+    // then
+    actual should be(HTTP_STATUS_INTERNAL_SERVER_ERROR)
   }
 
   it should "prettify Unsupported http status" in {

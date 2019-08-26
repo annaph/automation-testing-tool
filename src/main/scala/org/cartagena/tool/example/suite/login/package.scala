@@ -11,8 +11,8 @@ package object login {
   val HEADER_CONTENT_TYPE = "headerContentType"
   val LOGIN_RESPONSE = "loginResponse"
 
-  val loginContext: ContextX = SuiteContextX()
-  
+  val loginContext: Context = SuiteContext()
+
   loginContext ~=> HEADER_ACCEPT />[String] "application/json"
   loginContext ~=> HEADER_CONTENT_TYPE />[String] "application/json"
 
@@ -27,7 +27,7 @@ package object login {
     override def profile: Profile =
       loginProfile
 
-    override def context: ContextX =
+    override def context: Context =
       loginContext
 
   }

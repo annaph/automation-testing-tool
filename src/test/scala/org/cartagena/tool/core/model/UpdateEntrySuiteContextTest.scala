@@ -1,12 +1,9 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.SuiteContextX.{EntriesRef, KeyNotPresentException, ValueTypeMismatchException}
-import org.cartagena.tool.core.model.UpdateEntrySuiteContextTest.SuiteContextTest
+import org.cartagena.tool.core.model.SuiteContext.{KeyNotPresentException, ValueTypeMismatchException}
+import org.cartagena.tool.core.model.SuiteContextTestUtil._
 import org.scalatest.{FlatSpec, Matchers}
-import scalaz.effect.STRef
 
-import scala.collection.mutable
-import scala.reflect.runtime.universe.typeTag
 import scala.util.Success
 
 class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
@@ -14,7 +11,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
   "update" should "succeed to update an entry value associated with a given key" in {
     // given
     val context = SuiteContextTest
-    val key = "key1"
+    val key = KEY_1
     val value = "newValue1"
 
     // when
@@ -42,7 +39,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
   it should "fail to update an entry value associated with a given key where incorrect value type is specified" in {
     // given
     val context = SuiteContextTest
-    val key = "key1"
+    val key = KEY_1
     val value = true
 
     // when
@@ -56,7 +53,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
   it should "succeed to update a collection entry value associated with a given key" in {
     // given
     val context = SuiteContextTest
-    val key = "key2"
+    val key = KEY_2
     val value = 2 :: Nil
 
     // when
@@ -85,7 +82,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
     "type is specified" in {
     // given
     val context = SuiteContextTest
-    val key = "key2"
+    val key = KEY_2
     val value = true :: Nil
 
     // when
@@ -94,18 +91,6 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
     // then
     actual.isFailure should be(true)
     actual.failed.get shouldBe a[ValueTypeMismatchException]
-  }
-
-}
-
-object UpdateEntrySuiteContextTest {
-
-  case object SuiteContextTest extends SuiteContextX {
-
-    override private[model] val entriesRef: EntriesRef = STRef[Nothing](mutable.Map(
-      "key1" -> (typeTag[String] -> "value1"),
-      "key2" -> (typeTag[List[Int]] -> (1 :: Nil))))
-
   }
 
 }

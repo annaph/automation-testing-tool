@@ -17,9 +17,13 @@ sealed trait HasParams extends BuildStep
 
 sealed trait HasEntity extends BuildStep
 
+sealed trait HasMaybeEntity extends BuildStep
+
 sealed trait EntityMark
 
 sealed trait MustHaveEntity extends EntityMark
+
+sealed trait MayHaveEntity extends EntityMark
 
 sealed trait CannotHaveEntity extends EntityMark
 
@@ -27,10 +31,9 @@ class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: 
                                                                         var url: URL,
                                                                         var headers: Map[String, String],
                                                                         var params: Map[String, String],
-                                                                        var entity: Option[HttpEntity] = None) {
-
+                                                                        var entity: Option[HttpEntity]) {
   protected def this() =
-    this(0, null, Map.empty, Map.empty)
+    this(0, null, Map.empty, Map.empty, None)
 
   protected def this(builder: ApacheHttpRequestBuilder[_, _]) =
     this(builder.id, builder.url, builder.headers, builder.params, builder.entity)
@@ -64,11 +67,20 @@ class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: 
     new ApacheHttpRequestBuilder[HasEntity, MustHaveEntity](this)
   }
 
+  def withEntity(entity: Option[HttpEntity])
+                (implicit ev: E =:= MayHaveEntity): ApacheHttpRequestBuilder[HasMaybeEntity, MayHaveEntity] = {
+    this.entity = entity
+    new ApacheHttpRequestBuilder[HasMaybeEntity, MayHaveEntity](this)
+  }
+
   def buildHttpGet()(implicit ev1: S =:= HasParams, ev2: E =:= CannotHaveEntity): ApacheHttpGet =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpGet(_, _))
 
   def buildHttpPost()(implicit ev1: S =:= HasEntity, ev2: E =:= MustHaveEntity): ApacheHttpPost =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPost(_, _))
+
+  def buildHttpDelete()(implicit ev1: S =:= HasMaybeEntity, ev2: E =:= MayHaveEntity): ApacheHttpDelete =
+    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpDelete(_, _))
 
 }
 

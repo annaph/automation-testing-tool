@@ -6,7 +6,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
 
   "get" should "fail to return an entry value" in {
     // given
-    val context = EmptyContextX
+    val context = EmptyContext
     val key = "key"
 
     // when
@@ -19,7 +19,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
 
   "create" should "fail to create an entry" in {
     // given
-    val context = EmptyContextX
+    val context = EmptyContext
     val key = "key"
     val value = "value"
 
@@ -33,7 +33,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
 
   "update" should "fail to update an entry value" in {
     // given
-    val context = EmptyContextX
+    val context = EmptyContext
     val key = "key"
     val value = "value"
 
@@ -47,7 +47,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
 
   "remove" should "fail to remove an entry" in {
     // given
-    val context = EmptyContextX
+    val context = EmptyContext
     val key = "key"
 
     // when

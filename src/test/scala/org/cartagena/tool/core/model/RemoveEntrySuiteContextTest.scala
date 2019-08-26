@@ -1,7 +1,7 @@
 package org.cartagena.tool.core.model
 
+import org.cartagena.tool.core.model.SuiteContext.{KeyNotPresentException, ValueTypeMismatchException}
 import org.cartagena.tool.core.model.SuiteContextTestUtil._
-import org.cartagena.tool.core.model.SuiteContextX.{KeyNotPresentException, ValueTypeMismatchException}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Success

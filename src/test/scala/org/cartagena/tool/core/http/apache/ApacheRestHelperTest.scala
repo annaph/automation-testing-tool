@@ -110,7 +110,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
 
     when(apacheHttpOperations
       .executePost(
-        eqTo(stringToUrl(URL_STRING)), any[HttpEntity], eqTo(Map.empty), eqTo(Map.empty))(same(client), same(context)))
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), any[HttpEntity])(same(client), same(context)))
       .thenReturn(
         new ApacheHttpResponse(
           1L,
@@ -127,8 +127,48 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
 
     verify(apacheHttpOperations)
       .executePost(
-        eqTo(stringToUrl(URL_STRING)), any[HttpEntity], eqTo(Map.empty), eqTo(Map.empty))(same(client), same(context))
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), any[HttpEntity])(same(client), same(context))
 
+  }
+
+  it should "execute HTTP DELETE request" in new TestNativeClientAndContext {
+    // given
+    val request = HttpRequest(
+      url = URL_STRING,
+      method = Delete,
+      body = EmptyBody)
+
+    when(apacheHttpClient.get)
+      .thenReturn(client)
+
+    when(apacheHttpClient.context)
+      .thenReturn(context)
+
+    when(apacheHttpOperations
+      .executeDelete(
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), eqTo(None))(same(client), same(context)))
+      .thenReturn(
+        new ApacheHttpResponse(
+          1L,
+          new BasicHttpResponse(
+            new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION),
+            STATUS_CODE_204,
+            REASON_PHRASE_NO_CONTENT)))
+
+    val expected = HttpResponse(
+      status = NoContent,
+      reason = REASON_PHRASE_NO_CONTENT,
+      body = EmptyBody)
+
+    // when
+    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+
+    // then
+    actual should be(expected)
+
+    verify(apacheHttpOperations)
+      .executeDelete(
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), eqTo(None))(same(client), same(context))
   }
 
   "storeCookie" should "store Cookie" in new TestNativeClientAndContext {

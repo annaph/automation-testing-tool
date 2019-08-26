@@ -1,5 +1,6 @@
 package org.cartagena.tool.core.http.apache
 
+import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
@@ -66,6 +67,8 @@ object ApacheRestHelperImpl {
         executeHttpGet(apacheHttpOperations, request)
       case Post =>
         executeHttpPost(apacheHttpClient, apacheHttpOperations, request)
+      case Delete =>
+        executeHttpDelete(apacheHttpOperations, request)
     }
 
   private def storeCookie(apacheHttpOperations: ApacheHttpOperations, cookie: Cookie)
@@ -89,7 +92,24 @@ object ApacheRestHelperImpl {
                                                             context: HttpContext): HttpResponse[U] =
     createHttpResponse(
       request,
-      apacheHttpOperations executePost(request.url, request.body, request.headers, request.params))
+      apacheHttpOperations executePost(request.url, request.headers, request.params, request.body))
+
+  private def executeHttpDelete[T <: HttpBody, U <: HttpBody](apacheHttpOperations: ApacheHttpOperations,
+                                                            request: HttpRequest[T])
+                                                           (implicit mf: Manifest[U],
+                                                            client: HttpClient,
+                                                            context: HttpContext): HttpResponse[U] = {
+    val entity = request.body match {
+      case EmptyBody =>
+        None
+      case x =>
+        Some[HttpEntity](x)
+    }
+
+    createHttpResponse(
+      request,
+      apacheHttpOperations executeDelete(request.url, request.headers, request.params, entity))
+  }
 
   private def createHttpResponse[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
                                                                apacheResponse: ApacheHttpResponse)

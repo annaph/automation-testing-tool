@@ -13,7 +13,7 @@ trait Step {
 
   def profile: Profile
 
-  def context: ContextX
+  def context: Context
 
   def run(): Unit
 

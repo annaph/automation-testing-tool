@@ -2,7 +2,7 @@ package org.cartagena.tool.core.http.apache
 
 import java.net.URI
 
-import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut, HttpRequestBase}
+import org.apache.http.client.methods.{HttpGet, HttpPost, HttpRequestBase}
 import org.apache.http.{Header, HttpEntity, HttpResponse, HeaderElement => ApacheHeaderElement}
 import org.cartagena.tool.core.http.{EmptyBody, HeaderElement, HttpBody, JsonString, Text}
 
@@ -39,7 +39,15 @@ class ApacheHttpPost(val id: Long, val uri: URI) extends HttpPost with ApacheHtt
 
 }
 
-class ApacheHttpPut(val id: Long, val uri: URI) extends HttpPut with ApacheHttpRequest
+class ApacheHttpDelete(val id: Long, val uri: URI) extends HttpPost with ApacheHttpRequest {
+
+  override def getMethod: String =
+    "DELETE"
+
+  override def getURI: URI =
+    uri
+
+}
 
 class ApacheHttpResponse(val id: Long, val nativeResponse: HttpResponse) {
 

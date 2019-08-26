@@ -22,7 +22,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestReg
 
   "executeGet" should "execute HTTP GET request" in new TestNativeClientAndContext {
     // given
-    var id: Long = -1
+    var id: Long = -1L
     val response = new BasicHttpResponse(
       new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)
 
@@ -45,7 +45,7 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestReg
 
   "executePost" should "execute HTTP POST request" in new TestNativeClientAndContext {
     // given
-    var id: Long = -1
+    var id: Long = -1L
     val response = new BasicHttpResponse(
       new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)
 
@@ -59,12 +59,35 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestReg
 
     // when
     val actual: ApacheHttpResponse = apacheHttpOperations executePost(
-      URL_STRING, new StringEntity(BODY_CONTENT), Map(HEADER), Map(PARAM))
+      URL_STRING, Map(HEADER), Map(PARAM), new StringEntity(BODY_CONTENT))
 
     // then
     actual should be(ApacheHttpResponse(id, response))
 
     verify(client).execute(any[ApacheHttpPost], same(context))
+  }
+
+  "executeDelete" should "execute HTTP DELETE request" in new TestNativeClientAndContext {
+    // given
+    var id: Long = -1L
+    val response = new BasicHttpResponse(
+      new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_204, REASON_PHRASE_NO_CONTENT)
+
+    when(client.execute(any[ApacheHttpDelete], same(context)))
+      .thenAnswer { invocation =>
+        val request = invocation getArgument(0, classOf[ApacheHttpDelete])
+        id = request.id
+
+        response
+      }
+
+    // when
+    val actual: ApacheHttpResponse = apacheHttpOperations executeDelete(URL_STRING, Map(HEADER), Map(PARAM), None)
+
+    // then
+    actual should be(ApacheHttpResponse(id, response))
+
+    verify(client).execute(any[ApacheHttpDelete], same(context))
   }
 
   "addToCookieStore" should "add cookie to cookie store" in new TestNativeClientAndContext {

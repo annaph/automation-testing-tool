@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.model
 
-import org.cartagena.tool.core.model.SuiteContextX.EntriesRef
+import org.cartagena.tool.core.model.SuiteContext.EntriesRef
 import scalaz.effect.STRef
 
 import scala.collection.mutable
@@ -16,7 +16,10 @@ object SuiteContextTestUtil {
 
   val VALUE_2 = List(1)
 
-  case object SuiteContextTest extends SuiteContextX {
+  def SuiteContextTest: SuiteContextTest =
+    new SuiteContextTest()
+
+  class SuiteContextTest extends SuiteContext {
 
     override private[model] val entriesRef: EntriesRef = STRef[Nothing](mutable.Map(
       KEY_1 -> (typeTag[String] -> VALUE_1),
