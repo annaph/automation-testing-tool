@@ -67,7 +67,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val request = HttpRequest(
       url = URL_STRING,
       method = Get,
-      body = EmptyBody)
+      body = Empty)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -83,10 +83,13 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)))
 
-    val expected = HttpResponse(OK, REASON_PHRASE_OK, EmptyBody)
+    val expected = HttpResponse(
+      status = OK,
+      reason = REASON_PHRASE_OK,
+      body = Empty)
 
     // when
-    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
 
     // then
     actual should be(expected)
@@ -100,7 +103,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val request = HttpRequest(
       url = URL_STRING,
       method = Post,
-      body = EmptyBody)
+      body = Empty)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -117,10 +120,13 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)))
 
-    val expected = HttpResponse(Created, REASON_PHRASE_CREATED, EmptyBody)
+    val expected = HttpResponse(
+      status = Created,
+      reason = REASON_PHRASE_CREATED,
+      body = Empty)
 
     // when
-    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
 
     // then
     actual should be(expected)
@@ -136,7 +142,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val request = HttpRequest(
       url = URL_STRING,
       method = Delete,
-      body = EmptyBody)
+      body = Empty)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -158,10 +164,10 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val expected = HttpResponse(
       status = NoContent,
       reason = REASON_PHRASE_NO_CONTENT,
-      body = EmptyBody)
+      body = Empty)
 
     // when
-    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
 
     // then
     actual should be(expected)

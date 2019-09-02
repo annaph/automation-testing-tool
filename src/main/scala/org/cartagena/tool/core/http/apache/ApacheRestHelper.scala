@@ -1,6 +1,5 @@
 package org.cartagena.tool.core.http.apache
 
-import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.protocol.HttpContext
 import org.cartagena.tool.core.http._
@@ -31,9 +30,7 @@ class ApacheRestHelperImpl(apacheHttpClient: ApacheHttpClient, apacheHttpOperati
 
   override def execute[T <: HttpBody, U <: HttpBody : Manifest](request: HttpRequest[T]): HttpResponse[U] =
     ApacheRestHelperImpl.execute(
-      apacheHttpClient,
-      apacheHttpOperations,
-      request)(implicitly[Manifest[U]], apacheHttpClient.get, apacheHttpClient.context)
+      request, apacheHttpOperations)(implicitly[Manifest[U]], apacheHttpClient.get, apacheHttpClient.context)
 
   override def storeCookie(cookie: Cookie): Unit =
     ApacheRestHelperImpl.storeCookie(apacheHttpOperations, cookie)(apacheHttpClient.get, apacheHttpClient.context)
@@ -56,70 +53,62 @@ object ApacheRestHelperImpl {
   private def isRestClientRunning(apacheHttpClient: ApacheHttpClient): Boolean =
     apacheHttpClient.isUp
 
-  private def execute[T <: HttpBody, U <: HttpBody](apacheHttpClient: ApacheHttpClient,
-                                                    apacheHttpOperations: ApacheHttpOperations,
-                                                    request: HttpRequest[T])
+  private def execute[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                    apacheHttpOperations: ApacheHttpOperations)
                                                    (implicit mf: Manifest[U],
                                                     client: HttpClient,
                                                     context: HttpContext): HttpResponse[U] =
     request.method match {
       case Get =>
-        executeHttpGet(apacheHttpOperations, request)
+        executeHttpGet(request, apacheHttpOperations)
       case Post =>
-        executeHttpPost(apacheHttpClient, apacheHttpOperations, request)
+        executeHttpPost(request, apacheHttpOperations)
       case Delete =>
-        executeHttpDelete(apacheHttpOperations, request)
+        executeHttpDelete(request, apacheHttpOperations)
     }
 
   private def storeCookie(apacheHttpOperations: ApacheHttpOperations, cookie: Cookie)
                          (implicit client: HttpClient, context: HttpContext): Unit =
     apacheHttpOperations addToCookieStore(cookie.name, cookie.value, cookie.host, cookie.path)
 
-  private def executeHttpGet[T <: HttpBody, U <: HttpBody](apacheHttpOperations: ApacheHttpOperations,
-                                                           request: HttpRequest[T])
+  private def executeHttpGet[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                           apacheHttpOperations: ApacheHttpOperations)
                                                           (implicit mf: Manifest[U],
                                                            client: HttpClient,
                                                            context: HttpContext): HttpResponse[U] =
     createHttpResponse(
-      request,
+      request.url.getHost,
       apacheHttpOperations executeGet(request.url, request.headers, request.params))
 
-  private def executeHttpPost[T <: HttpBody, U <: HttpBody](apacheHttpClient: ApacheHttpClient,
-                                                            apacheHttpOperations: ApacheHttpOperations,
-                                                            request: HttpRequest[T])
+  private def executeHttpPost[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                            apacheHttpOperations: ApacheHttpOperations)
                                                            (implicit mf: Manifest[U],
                                                             client: HttpClient,
                                                             context: HttpContext): HttpResponse[U] =
     createHttpResponse(
-      request,
+      request.url.getHost,
       apacheHttpOperations executePost(request.url, request.headers, request.params, request.body))
 
-  private def executeHttpDelete[T <: HttpBody, U <: HttpBody](apacheHttpOperations: ApacheHttpOperations,
-                                                            request: HttpRequest[T])
-                                                           (implicit mf: Manifest[U],
-                                                            client: HttpClient,
-                                                            context: HttpContext): HttpResponse[U] = {
-    val entity = request.body match {
-      case EmptyBody =>
-        None
-      case x =>
-        Some[HttpEntity](x)
-    }
-
+  private def executeHttpDelete[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                              apacheHttpOperations: ApacheHttpOperations)
+                                                             (implicit mf: Manifest[U],
+                                                              client: HttpClient,
+                                                              context: HttpContext): HttpResponse[U] = {
     createHttpResponse(
-      request,
-      apacheHttpOperations executeDelete(request.url, request.headers, request.params, entity))
+      request.url.getHost,
+      apacheHttpOperations executeDelete(request.url, request.headers, request.params, request.body))
   }
 
-  private def createHttpResponse[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
-                                                               apacheResponse: ApacheHttpResponse)
+  private def createHttpResponse[T <: HttpBody, U <: HttpBody](host: String, apacheResponse: => ApacheHttpResponse)
                                                               (implicit mf: Manifest[U]): HttpResponse[U] = {
+    lazy val response = apacheResponse
+
     HttpResponse(
-      status = apacheResponse.nativeResponse.statusCode,
-      reason = apacheResponse.nativeResponse.reasonPhrase,
-      body = apacheResponse.nativeResponse.httpBody,
+      status = response.nativeResponse.statusCode,
+      reason = response.nativeResponse.reasonPhrase,
+      body = response.nativeResponse.httpBody,
       cookies = toCookies(
-        apacheResponse.nativeResponse.cookieHeaderElements, request.url.getHost, COOKIE_PATH))
+        response.nativeResponse.cookieHeaderElements, host, COOKIE_PATH))
   }
 
 }

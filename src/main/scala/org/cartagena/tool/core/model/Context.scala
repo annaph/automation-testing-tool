@@ -73,9 +73,6 @@ object SuiteContext {
 
   type RemoveEntryAction[T] = (EntriesRef, String) => ST[Nothing, Try[T]]
 
-  def apply(): SuiteContext =
-    new SuiteContext()
-
   private def get[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
     runReadEntryAction(entriesRef, key)(readEntryAction)
 
@@ -86,7 +83,7 @@ object SuiteContext {
     runWriteEntryAction(entriesRef, key, value)(writeEntryAction(updateEntry[T]))
 
   private def remove[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
-    runRemoveEntryAction(entriesRef, key)(removeEntryAction)
+    runRemoveEntryAction(entriesRef, key)(removeEntryAction())
 
   private def runReadEntryAction[T: TypeTag](entriesRef: EntriesRef, key: String)
                                             (action: ReadEntryAction[T]): Try[T] =
@@ -132,7 +129,7 @@ object SuiteContext {
         }
       } yield writtenValue
 
-  private def removeEntryAction[T: TypeTag]: RemoveEntryAction[T] =
+  private def removeEntryAction[T: TypeTag](): RemoveEntryAction[T] =
     (entriesRef, key) =>
       for {
         entries <- entriesRef.read

@@ -17,12 +17,12 @@ class HttpBodyTest extends FlatSpec with Matchers {
     text.isValid should be(true)
   }
 
-  it should "return true for EmptyBody Http body type" in {
+  it should "return true for Empty Http body type" in {
     // given
-    val emptyBody = EmptyBody
+    val empty = Empty
 
     // then
-    emptyBody.isValid should be(true)
+    empty.isValid should be(true)
   }
 
   it should "return true for valid JsonString Http body type" in {
@@ -66,12 +66,12 @@ class HttpBodyTest extends FlatSpec with Matchers {
     actual should be(expected)
   }
 
-  it should "prettify EmptyBody Http body type" in {
+  it should "prettify Empty Http body type" in {
     // given
-    val emptyBody = EmptyBody
+    val empty = Empty
 
     // when
-    val actual = emptyBody.toPrettyString
+    val actual = empty.toPrettyString
 
     // then
     actual should be(EMPTY_BODY_CONTENT)

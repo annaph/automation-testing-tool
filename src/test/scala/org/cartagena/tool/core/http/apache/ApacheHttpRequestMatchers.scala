@@ -3,7 +3,6 @@ package org.cartagena.tool.core.http.apache
 import java.net.URL
 
 import org.apache.http.client.utils.URIBuilder
-import org.cartagena.tool.core.http.inputStreamToString
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 import scala.collection.JavaConverters._
@@ -87,7 +86,7 @@ object ApacheHttpRequestMatchers {
 
     override def apply(left: ApacheHttpRequest): MatchResult = {
       val content = left.getEntity.getContent
-      val actualBody = inputStreamToString(content)
+      val actualBody: String = content
 
       MatchResult(
         actualBody == expectedBody,

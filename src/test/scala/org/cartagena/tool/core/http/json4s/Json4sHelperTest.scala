@@ -1,8 +1,8 @@
 package org.cartagena.tool.core.http.json4s
 
+import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
-import org.apache.commons.io.IOUtils
 import org.cartagena.tool.core.http.JsonString
 import org.cartagena.tool.core.http.json4s.Json4sTestUtil.{FLAG_VALUE, INT_VALUE, MyDomainEntity, MyFormats2, MySerializer1, MySerializer2, STR_VALUE, json, MyFormats1 => MyFormats}
 import org.cartagena.tool.core.registry.Json4sRegistryTest
@@ -79,7 +79,7 @@ class Json4sHelperTest extends FlatSpec with Matchers with Json4sRegistryTest {
 
   it should "parse Json Input Stream to domain entity" in {
     // given
-    val jsonInputStream = IOUtils toInputStream(json, StandardCharsets.UTF_8.name())
+    val jsonInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8.name()))
     val domainEntity = MyDomainEntity(STR_VALUE, INT_VALUE, FLAG_VALUE)
 
     when(json4sClient.formats)

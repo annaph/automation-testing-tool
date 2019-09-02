@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class EmptyContextTest extends FlatSpec with Matchers {
 
-  "get" should "fail to return an entry value" in {
+  "get" should "throw unsupported operation exception" in {
     // given
     val context = EmptyContext
     val key = "key"
@@ -17,7 +17,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
     actual.failed.get shouldBe a[UnsupportedOperationException]
   }
 
-  "create" should "fail to create an entry" in {
+  "create" should "throw unsupported operation exception" in {
     // given
     val context = EmptyContext
     val key = "key"
@@ -31,7 +31,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
     actual.failed.get shouldBe a[UnsupportedOperationException]
   }
 
-  "update" should "fail to update an entry value" in {
+  "update" should "throw unsupported operation exception" in {
     // given
     val context = EmptyContext
     val key = "key"
@@ -45,7 +45,7 @@ class EmptyContextTest extends FlatSpec with Matchers {
     actual.failed.get shouldBe a[UnsupportedOperationException]
   }
 
-  "remove" should "fail to remove an entry" in {
+  "remove" should "throw unsupported operation exception" in {
     // given
     val context = EmptyContext
     val key = "key"

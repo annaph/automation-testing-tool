@@ -21,7 +21,7 @@ object HttpMethod {
 
   val HTTP_METHOD_DELETE = "DELETE"
 
-  private[http] def toPrettyString(httpMethod: HttpMethod): String =
+  private def toPrettyString(httpMethod: HttpMethod): String =
     httpMethod match {
       case Get =>
         HTTP_METHOD_GET

@@ -2,9 +2,8 @@ package org.cartagena.tool.core
 
 import java.io.InputStream
 import java.net.URL
-import java.nio.charset.StandardCharsets
 
-import org.apache.commons.io.IOUtils
+import org.cartagena.tool.core.http.apache.inputStreamToString
 import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse, JsonString}
 import org.cartagena.tool.core.model._
 import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
@@ -18,9 +17,7 @@ object CartagenaUtils {
     new URL(str)
 
   implicit def inputStreamToJsonString(in: InputStream): JsonString =
-    JsonString {
-      IOUtils toString(in, StandardCharsets.UTF_8.name())
-    }
+    JsonString(inputStreamToString(in))
 
   implicit def setupStepToSerialSetupStep(step: ShapedSetupStep): SerialSetupStep =
     SerialSetupStep(step, () => EmptyStep)
@@ -41,6 +38,14 @@ object CartagenaUtils {
 
     def get[T: TypeTag](key: String): T =
       extractValue(context.get[T](key))
+
+    private def extractValue[T](value: Try[T]): T =
+      value match {
+        case Success(v) =>
+          v
+        case Failure(e) =>
+          throw e
+      }
 
     def ~=>(key: String): ContextOperations =
       create(key)
@@ -80,14 +85,6 @@ object CartagenaUtils {
         throw KeyNotSpecifiedException
     }
 
-    private def extractValue[T](value: Try[T]): T =
-      value match {
-        case Success(v) =>
-          v
-        case Failure(e) =>
-          throw e
-      }
-
     object KeyNotSpecifiedException extends Exception("No key specified!")
 
   }
@@ -98,6 +95,9 @@ object CartagenaUtils {
       println(suiteReport.toPrettyString)
 
   }
+
+  def SuiteContext: SuiteContext =
+    new SuiteContext()
 
   def StartRestClient: StartRestClient =
     new StartRestClient()

@@ -2,7 +2,7 @@ package org.cartagena.tool.core.http.apache
 
 import org.apache.http.HttpEntity
 import org.apache.http.entity.StringEntity
-import org.cartagena.tool.core.http.{EmptyBody, HttpBody, JsonString, Text, inputStreamToString}
+import org.cartagena.tool.core.http.{Empty, HttpBody, JsonString, Text}
 
 sealed trait ApacheHttpBodyConverter[T <: HttpBody] {
 
@@ -35,12 +35,12 @@ object ApacheHttpBodyConverter {
 
   }
 
-  implicit object EmptyBodyApacheHttpBodyConverter extends ApacheHttpBodyConverter[EmptyBody.type] {
+  implicit object EmptyApacheHttpBodyConverter extends ApacheHttpBodyConverter[Empty.type] {
 
-    override def fromHttpEntity(entity: HttpEntity): EmptyBody.type =
-      EmptyBody
+    override def fromHttpEntity(entity: HttpEntity): Empty.type =
+      Empty
 
-    override def toHttpEntity(body: EmptyBody.type): HttpEntity =
+    override def toHttpEntity(body: Empty.type): HttpEntity =
       new StringEntity(EMPTY_STRING)
 
   }
