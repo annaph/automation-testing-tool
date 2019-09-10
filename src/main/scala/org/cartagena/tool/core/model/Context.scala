@@ -5,7 +5,6 @@ import scalaz.effect.ST.{returnST, runST}
 import scalaz.effect.{ST, STRef}
 
 import scala.collection.mutable
-import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.{Failure, Success, Try}
 
@@ -19,25 +18,64 @@ sealed trait Context {
 
   def remove[T: TypeTag](key: String): Try[T]
 
-}
+  def size: Int
 
-case object EmptyContext extends Context {
+  def isEmpty: Boolean =
+    Context.isEmpty(this)
 
-  override def get[T: TypeTag](key: String): Try[T] =
-    Failure(new UnsupportedOperationException)
-
-  override def create[T: universe.TypeTag](key: String, value: T): Try[T] =
-    Failure(new UnsupportedOperationException)
-
-  override def update[T: TypeTag](key: String, value: T): Try[T] =
-    Failure(new UnsupportedOperationException)
-
-  override def remove[T: universe.TypeTag](key: String): Try[T] =
-    Failure(new UnsupportedOperationException)
+  def nonEmpty: Boolean =
+    !isEmpty
 
 }
 
-class SuiteContext() extends Context {
+object Context {
+
+  def empty: Context =
+    new SuiteContext
+
+  def apply(): Context =
+    empty
+
+  def apply[T: TypeTag](entry: (String, T)): Context =
+    entry match {
+      case (key, value) =>
+        val context = new SuiteContext
+        context create(key, value)
+
+        context
+    }
+
+  def apply[T1: TypeTag, T2: TypeTag](entry1: (String, T1), entry2: (String, T2)): Context =
+    (entry1, entry2) match {
+      case ((key1, value1), (key2, value2)) =>
+        val context = new SuiteContext
+
+        context create(key1, value1)
+        context create(key2, value2)
+
+        context
+    }
+
+  def apply[T1: TypeTag, T2: TypeTag, T3: TypeTag](entry1: (String, T1),
+                                                   entry2: (String, T2),
+                                                   entry3: (String, T3)): Context =
+    (entry1, entry2, entry3) match {
+      case ((key1, value1), (key2, value2), (key3, value3)) =>
+        val context = new SuiteContext
+
+        context create(key1, value1)
+        context create(key2, value2)
+        context create(key3, value3)
+
+        context
+    }
+
+  private def isEmpty(context: Context): Boolean =
+    if (context.size == 0) true else false
+
+}
+
+class SuiteContext extends Context {
 
   import SuiteContext.EntriesRef
 
@@ -54,6 +92,9 @@ class SuiteContext() extends Context {
 
   override def remove[T: TypeTag](key: String): Try[T] =
     SuiteContext.remove(entriesRef, key)
+
+  override def size: Int =
+    SuiteContext.size(entriesRef)
 
 }
 
@@ -73,6 +114,8 @@ object SuiteContext {
 
   type RemoveEntryAction[T] = (EntriesRef, String) => ST[Nothing, Try[T]]
 
+  type SizeAction = EntriesRef => ST[Nothing, Int]
+
   private def get[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
     runReadEntryAction(entriesRef, key)(readEntryAction)
 
@@ -84,6 +127,9 @@ object SuiteContext {
 
   private def remove[T: TypeTag](entriesRef: EntriesRef, key: String): Try[T] =
     runRemoveEntryAction(entriesRef, key)(removeEntryAction())
+
+  private def size(entriesRef: EntriesRef): Int =
+    runSizeAction(entriesRef)(sizeAction())
 
   private def runReadEntryAction[T: TypeTag](entriesRef: EntriesRef, key: String)
                                             (action: ReadEntryAction[T]): Try[T] =
@@ -104,6 +150,13 @@ object SuiteContext {
     runST(new ForallST[Try[T]] {
       override def apply[S]: ST[S, Try[T]] =
         action(entriesRef, key).asInstanceOf[ST[S, Try[T]]]
+    })
+
+  private def runSizeAction(entriesRef: EntriesRef)
+                           (action: SizeAction): Int =
+    runST(new ForallST[Int] {
+      override def apply[S]: ST[S, Int] =
+        action(entriesRef).asInstanceOf[ST[S, Int]]
     })
 
   private def readEntryAction[T: TypeTag]: ReadEntryAction[T] =
@@ -143,6 +196,12 @@ object SuiteContext {
             returnST(Failure[T](e))
         }
       } yield deletedValue
+
+  private def sizeAction(): SizeAction =
+    entriesRef =>
+      for {
+        entries <- entriesRef.read
+      } yield entries.size
 
   private def readEntry[T: TypeTag](entries: mutable.Map[String, (TypeTag[_], Any)], key: String): Try[T] =
     entries get key match {

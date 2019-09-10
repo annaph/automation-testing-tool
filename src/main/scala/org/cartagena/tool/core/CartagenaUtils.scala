@@ -19,13 +19,13 @@ object CartagenaUtils {
   implicit def inputStreamToJsonString(in: InputStream): JsonString =
     JsonString(inputStreamToString(in))
 
-  implicit def setupStepToSerialSetupStep(step: ShapedSetupStep): SerialSetupStep =
+  implicit def shapelessSetupStepToSerialSetupStep(step: ShapelessSetupStep): SerialSetupStep =
     SerialSetupStep(step, () => EmptyStep)
 
-  implicit def testStepToSerialTestStep(step: ShapedTestStep): SerialTestStep =
+  implicit def shapelessTestStepToSerialTestStep(step: ShapelessTestStep): SerialTestStep =
     SerialTestStep(step, () => EmptyStep)
 
-  implicit def cleanupStepToSerialCleanupStep(step: ShapedCleanupStep): SerialCleanupStep =
+  implicit def shapelessCleanupStepToSerialCleanupStep(step: ShapelessCleanupStep): SerialCleanupStep =
     SerialCleanupStep(step, () => EmptyStep)
 
   implicit class ContextOperations(context: Context) {
@@ -33,19 +33,13 @@ object CartagenaUtils {
     private var _key: Option[String] = None
     private var _isCreateNew = false
 
-    def </[T: TypeTag](key: String): T =
-      get(key)
+    def </[T: TypeTag](key: String): T = {
+      //get(key)
+     ContextOperationsBuilder().withContext(context).withKey(key).get
+    }
 
     def get[T: TypeTag](key: String): T =
       extractValue(context.get[T](key))
-
-    private def extractValue[T](value: Try[T]): T =
-      value match {
-        case Success(v) =>
-          v
-        case Failure(e) =>
-          throw e
-      }
 
     def ~=>(key: String): ContextOperations =
       create(key)
@@ -73,7 +67,7 @@ object CartagenaUtils {
     def remove[T: TypeTag](key: String): T =
       extractValue(context.remove[T](key))
 
-    def />[T: TypeTag](value: T): Unit =
+    def />[T: TypeTag](value: T): T =
       withValue[T](value)
 
     def withValue[T: TypeTag](value: T): T = _key match {
@@ -85,6 +79,14 @@ object CartagenaUtils {
         throw KeyNotSpecifiedException
     }
 
+    private def extractValue[T](value: Try[T]): T =
+      value match {
+        case Success(v) =>
+          v
+        case Failure(e) =>
+          throw e
+      }
+
     object KeyNotSpecifiedException extends Exception("No key specified!")
 
   }
@@ -95,9 +97,6 @@ object CartagenaUtils {
       println(suiteReport.toPrettyString)
 
   }
-
-  def SuiteContext: SuiteContext =
-    new SuiteContext()
 
   def StartRestClient: StartRestClient =
     new StartRestClient()

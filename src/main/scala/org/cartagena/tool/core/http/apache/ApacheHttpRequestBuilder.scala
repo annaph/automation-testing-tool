@@ -7,25 +7,25 @@ import org.apache.http.client.utils.URIBuilder
 
 sealed trait BuildStep
 
-sealed trait HasID extends BuildStep
+trait HasID extends BuildStep
 
-sealed trait HasURL extends BuildStep
+trait HasURL extends BuildStep
 
-sealed trait HasHeaders extends BuildStep
+trait HasHeaders extends BuildStep
 
-sealed trait HasParams extends BuildStep
+trait HasParams extends BuildStep
 
-sealed trait HasEntity extends BuildStep
+trait HasEntity extends BuildStep
 
-sealed trait HasMaybeEntity extends BuildStep
+trait HasMaybeEntity extends BuildStep
 
 sealed trait EntityMark
 
-sealed trait MustHaveEntity extends EntityMark
+trait MustHaveEntity extends EntityMark
 
-sealed trait MayHaveEntity extends EntityMark
+trait MayHaveEntity extends EntityMark
 
-sealed trait CannotHaveEntity extends EntityMark
+trait CannotHaveEntity extends EntityMark
 
 class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: Long,
                                                                         var url: URL,

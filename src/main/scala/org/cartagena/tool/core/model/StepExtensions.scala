@@ -26,7 +26,7 @@ object StepExtensions {
       EmptyProfile
 
     def context: Context =
-      EmptyContext
+      Context.empty
 
   }
 
