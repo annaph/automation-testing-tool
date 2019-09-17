@@ -39,6 +39,8 @@ class ApacheHttpPost(val id: Long, val uri: URI) extends HttpPost with ApacheHtt
 
 }
 
+class ApacheHttpPut
+
 class ApacheHttpDelete(val id: Long, val uri: URI) extends HttpPost with ApacheHttpRequest {
 
   override def getMethod: String =

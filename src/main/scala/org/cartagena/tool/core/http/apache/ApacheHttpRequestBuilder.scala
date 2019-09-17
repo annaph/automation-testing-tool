@@ -27,11 +27,11 @@ trait MayHaveEntity extends EntityMark
 
 trait CannotHaveEntity extends EntityMark
 
-class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: Long,
-                                                                        var url: URL,
-                                                                        var headers: Map[String, String],
-                                                                        var params: Map[String, String],
-                                                                        var entity: Option[HttpEntity]) {
+class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(private var id: Long,
+                                                                        private var url: URL,
+                                                                        private var headers: Map[String, String],
+                                                                        private var params: Map[String, String],
+                                                                        private var entity: Option[HttpEntity]) {
   protected def this() =
     this(0, null, Map.empty, Map.empty, None)
 

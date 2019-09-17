@@ -16,7 +16,7 @@ object SuiteContextTestUtil {
 
   val VALUE_2 = List(1)
 
-  case class SuiteContextTest() extends SuiteContext {
+  case class MySuiteContextTest() extends SuiteContext {
 
     override private[model] val entriesRef: EntriesRef = STRef[Nothing](mutable.Map(
       KEY_1 -> (typeTag[String] -> VALUE_1),

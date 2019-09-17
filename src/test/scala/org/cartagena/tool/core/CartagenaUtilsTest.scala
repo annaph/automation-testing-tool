@@ -1,14 +1,20 @@
 package org.cartagena.tool.core
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
 
-import org.cartagena.tool.core.CartagenaUtils.{ContextOperations, inputStreamToJsonString, shapelessCleanupStepToSerialCleanupStep, shapelessSetupStepToSerialSetupStep, shapelessTestStepToSerialTestStep, stringToUrl}
-import org.cartagena.tool.core.http.JsonString
+import org.cartagena.tool.core.CartagenaUtils._
+import org.cartagena.tool.core.PrettyPrintConstants.NEW_LINE
+import org.cartagena.tool.core.http.{HttpRequest, HttpResponse, JsonString, Text}
 import org.cartagena.tool.core.model._
+import org.mockito.Mockito.{verify, when}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
-class CartagenaUtilsTest extends FlatSpec with Matchers {
+import scala.reflect.runtime.universe.typeTag
+import scala.util.Success
+
+class CartagenaUtilsTest extends FlatSpec with Matchers with MockitoSugar {
 
   "stringToUrl" should "convert String to URL" in {
     // given
@@ -80,29 +86,172 @@ class CartagenaUtilsTest extends FlatSpec with Matchers {
     actual.right() should be(EmptyStep)
   }
 
-  "ContextOperations.get" should "return an entry value associated with a given key" in {
+  "ContextOperations" should "return an entry value associated with a given key" in {
     // given
     val key = "key"
     val value = "value"
 
-    val context = Context(key -> value)
+    val context = mock[Context]
+
+    when(context.get(key)(typeTag[String]))
+      .thenReturn(Success(value))
 
     // when
     val actual: String = context </[String] key
 
     // then
     actual should be(value)
+
+    verify(context).get(key)(typeTag[String])
   }
 
-  it should "throw an exception" in {
+  it should "create an entry with given value and key" in {
     // given
     val key = "key"
-    val context = Context.empty
+    val value = "value"
 
-    intercept[Exception] {
-      // when
-      context </ key
+    val context = mock[Context]
+
+    when(context.create(key, value)(typeTag[String]))
+      .thenReturn(Success(value))
+
+    // when
+    val actual = context ~=> key />[String] value
+
+    // then
+    actual should be(value)
+
+    verify(context).create(key, value)(typeTag[String])
+  }
+
+  it should "update an entry value associated with a given key" in {
+    // given
+    val key = "key"
+    val value = "value"
+
+    val context = mock[Context]
+
+    when(context.update(key, value)(typeTag[String]))
+      .thenReturn(Success(value))
+
+    // when
+    val actual = context ~==> key />[String] value
+
+    // then
+    actual should be(value)
+
+    verify(context).update(key, value)(typeTag[String])
+  }
+
+  it should "remove an entry associated with a given key" in {
+    // given
+    val key = "key"
+    val value = "value"
+
+    val context = mock[Context]
+
+    when(context.remove(key)(typeTag[String]))
+      .thenReturn(Success(value))
+
+    // when
+    val actual: String = context <=~[String] key
+
+    // then
+    actual should be(value)
+
+    verify(context).remove(key)(typeTag[String])
+  }
+
+  "SuiteReportPrinter" should "pretty print Suite Report" in {
+    // given
+    val suiteReport = mock[SuiteReport]
+    val prettyStr = "pretty_string"
+
+    when(suiteReport.toPrettyString)
+      .thenReturn(prettyStr)
+
+    val consoleOutput = new ByteArrayOutputStream()
+
+    // when
+    Console.withOut(consoleOutput) {
+      suiteReport.print()
     }
+
+    // then
+    consoleOutput.toString should be(prettyStr + NEW_LINE)
+
+    verify(suiteReport).toPrettyString
+  }
+
+  "StartRestClient" should "create StartRestClient step" in {
+    // when
+    val actual = StartRestClient
+
+    // then
+    actual shouldBe a[step.StartRestClient]
+    actual.name should be(step.StartRestClient.STEP_NAME)
+  }
+
+  "ShutdownRestClient" should "create ShutdownRestClient step" in {
+    // when
+    val actual = ShutdownRestClient
+
+    // then
+    actual shouldBe a[step.ShutdownRestClient]
+    actual.name should be(step.ShutdownRestClient.STEP_NAME)
+  }
+
+  "RemoveJsonSerializers" should "create RemoveJsonSerializers step" in {
+    // when
+    val actual = RemoveJsonSerializers
+
+    // then
+    actual shouldBe a[step.RemoveJsonSerializers]
+    actual.name should be(step.RemoveJsonSerializers.STEP_NAME)
+  }
+
+  "print" should "pretty print HttpRequest message" in {
+    // given
+    val request = mock[HttpRequest[Text]]
+
+    val prettyStr = "pretty_string"
+
+    when(request.toPrettyString)
+      .thenReturn(prettyStr)
+
+    val consoleOutput = new ByteArrayOutputStream()
+
+    // when
+    Console.withOut(consoleOutput) {
+      print(request)
+    }
+
+    // then
+    consoleOutput.toString should be(prettyStr + NEW_LINE)
+
+    verify(request).toPrettyString
+  }
+
+  it should "pretty print HttpResponse message" in {
+    // given
+    val response = mock[HttpResponse[Text]]
+
+    val prettyStr = "pretty_string"
+
+    when(response.toPrettyString)
+      .thenReturn(prettyStr)
+
+    val consoleOutput = new ByteArrayOutputStream()
+
+    // when
+    Console.withOut(consoleOutput) {
+      print(response)
+    }
+
+    // then
+    consoleOutput.toString should be(prettyStr + NEW_LINE)
+
+    verify(response).toPrettyString
   }
 
 }

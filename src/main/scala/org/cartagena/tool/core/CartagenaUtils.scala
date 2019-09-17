@@ -9,7 +9,6 @@ import org.cartagena.tool.core.model._
 import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
 
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Failure, Success, Try}
 
 object CartagenaUtils {
 
@@ -30,64 +29,64 @@ object CartagenaUtils {
 
   implicit class ContextOperations(context: Context) {
 
-    private var _key: Option[String] = None
-    private var _isCreateNew = false
-
-    def </[T: TypeTag](key: String): T = {
-      //get(key)
-     ContextOperationsBuilder().withContext(context).withKey(key).get
-    }
+    def </[T: TypeTag](key: String): T =
+      get(key)
 
     def get[T: TypeTag](key: String): T =
-      extractValue(context.get[T](key))
+      ContextOperationsBuilder[T]()
+        .withContext(context)
+        .withKey(key)
+        .get
 
-    def ~=>(key: String): ContextOperations =
+    def ~=>(key: String): WriteContext =
       create(key)
 
-    def create(key: String): ContextOperations = {
-      _key = Some(key)
-      _isCreateNew = true
+    def create(key: String): WriteContext =
+      new CreateContextEntry(ContextOperationsBuilder().withContext(context).withKey(key))
 
-      this
-    }
-
-    def ~==>(key: String): ContextOperations =
+    def ~==>(key: String): UpdateContextEntry =
       update(key)
 
-    def update(key: String): ContextOperations = {
-      _key = Some(key)
-      _isCreateNew = false
+    def update(key: String): UpdateContextEntry =
+      new UpdateContextEntry(ContextOperationsBuilder().withContext(context).withKey(key))
 
-      this
-    }
-
-    def <=~[T: TypeTag](key: String): Unit =
+    def <=~[T: TypeTag](key: String): T =
       remove(key)
 
     def remove[T: TypeTag](key: String): T =
-      extractValue(context.remove[T](key))
+      ContextOperationsBuilder()
+        .withContext(context)
+        .withKey(key)
+        .remove()
 
-    def />[T: TypeTag](value: T): T =
-      withValue[T](value)
+    trait WriteContext {
 
-    def withValue[T: TypeTag](value: T): T = _key match {
-      case Some(key) if _isCreateNew =>
-        extractValue(context.create[T](key, value))
-      case Some(key) if !_isCreateNew =>
-        extractValue(context.update[T](key, value))
-      case None =>
-        throw KeyNotSpecifiedException
+      def builder: ContextOperationsBuilder[_, HasKey]
+
+      def />[T: TypeTag](value: T): T =
+        withValue(value)
+
+      def withValue[T: TypeTag](value: T): T
+
     }
 
-    private def extractValue[T](value: Try[T]): T =
-      value match {
-        case Success(v) =>
-          v
-        case Failure(e) =>
-          throw e
-      }
+    class CreateContextEntry(val builder: ContextOperationsBuilder[_, HasKey]) extends WriteContext {
 
-    object KeyNotSpecifiedException extends Exception("No key specified!")
+      override def withValue[T: TypeTag](value: T): T =
+        builder.asInstanceOf[ContextOperationsBuilder[T, HasKey]]
+          .withValue(value)
+          .create()
+
+    }
+
+    class UpdateContextEntry(val builder: ContextOperationsBuilder[_, HasKey]) extends WriteContext {
+
+      override def withValue[T: TypeTag](value: T): T =
+        builder.asInstanceOf[ContextOperationsBuilder[T, HasKey]]
+          .withValue(value)
+          .update()
+
+    }
 
   }
 

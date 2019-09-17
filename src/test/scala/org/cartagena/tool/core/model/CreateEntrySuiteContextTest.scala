@@ -10,7 +10,8 @@ class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   "create" should "succeed to create an entry with given value and key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
+
     val key = "key3"
     val value = "value3"
 
@@ -24,7 +25,8 @@ class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to create an entry with given value and key where key is already associated with some value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
+
     val key = "key1"
     val value = "value1"
 
@@ -38,7 +40,8 @@ class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "succeed to create an entry with given collection value and key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
+
     val key = "key4"
     val value = "value4" :: Nil
 
@@ -53,7 +56,8 @@ class CreateEntrySuiteContextTest extends FlatSpec with Matchers {
   it should "fail to create an entry with given collection value and key where key is already associated with some " +
     "value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
+
     val key = "key1"
     val value = "value1" :: Nil
 

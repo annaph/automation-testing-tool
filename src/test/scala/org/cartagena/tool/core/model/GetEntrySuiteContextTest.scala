@@ -10,7 +10,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
 
   "get" should "succeed to return an entry value associated with a given key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_1
 
     // when
@@ -22,7 +22,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to return an entry value where given key is not associated with any value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = "non-existing"
 
     // when
@@ -35,7 +35,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to return an entry value associated with a given key where incorrect value type is specified" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_1
 
     // when
@@ -48,7 +48,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "succeed to return a collection entry value associated with a given key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_2
 
     // when
@@ -60,7 +60,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to return a collection entry value where given key is not associated with any value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = "non-existing"
 
     // when
@@ -74,7 +74,7 @@ class GetEntrySuiteContextTest extends FlatSpec with Matchers {
   it should "fail to return a collection entry value associated with a given key where incorrect collection value " +
     "type is specified" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_2
 
     // when

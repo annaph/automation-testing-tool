@@ -10,7 +10,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   "update" should "succeed to update an entry value associated with a given key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_1
     val value = "newValue1"
 
@@ -24,7 +24,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to update an entry value when given key is not associated with any value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = "non-existing"
     val value = "newValue"
 
@@ -38,7 +38,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to update an entry value associated with a given key where incorrect value type is specified" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_1
     val value = true
 
@@ -52,7 +52,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "succeed to update a collection entry value associated with a given key" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_2
     val value = 2 :: Nil
 
@@ -66,7 +66,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
 
   it should "fail to update a collection entry value where given key is not associated with any value" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = "non-existing"
     val value = "newValue" :: Nil
 
@@ -81,7 +81,7 @@ class UpdateEntrySuiteContextTest extends FlatSpec with Matchers {
   it should "fail to update a collection entry value associated with a given key where incorrect collection value " +
     "type is specified" in {
     // given
-    val context = SuiteContextTest()
+    val context = MySuiteContextTest()
     val key = KEY_2
     val value = true :: Nil
 

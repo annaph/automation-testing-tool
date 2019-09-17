@@ -15,10 +15,10 @@ trait HasValue extends BuildStep
 
 class ContextOperationsBuilder[T, S <: BuildStep] private(private var context: Context,
                                                           private var key: String,
-                                                          private var value: Option[T]) {
+                                                          private var value: T) {
 
   protected def this() =
-    this(null, null, None)
+    this(null, null, null.asInstanceOf[T])
 
   protected def this(builder: ContextOperationsBuilder[T, _]) =
     this(builder.context, builder.key, builder.value)
@@ -34,20 +34,21 @@ class ContextOperationsBuilder[T, S <: BuildStep] private(private var context: C
   }
 
   def withValue(value: T)(implicit ev: S =:= HasKey): ContextOperationsBuilder[T, HasValue] = {
-    this.value = Some(value)
+    this.value = value
     new ContextOperationsBuilder[T, HasValue](this)
   }
 
   def get(implicit ev1: S =:= HasKey, ev2: TypeTag[T]): T =
-    extractValue(context.get[T](key))
+    ContextOperationsBuilder.extractValue(context.get[T](key))
 
-  private def extractValue(value: Try[T]): T =
-    value match {
-      case Success(v) =>
-        v
-      case Failure(e) =>
-        throw e
-    }
+  def create()(implicit ev1: S =:= HasValue, ev2: TypeTag[T]): T =
+    ContextOperationsBuilder.extractValue(context.create[T](key, value))
+
+  def update()(implicit ev1: S =:= HasValue, ev2: TypeTag[T]): T =
+    ContextOperationsBuilder.extractValue(context.update[T](key, value))
+
+  def remove()(implicit ev1: S =:= HasKey, ev2: TypeTag[T]): T =
+    ContextOperationsBuilder.extractValue(context.remove[T](key))
 
 }
 
@@ -55,5 +56,13 @@ object ContextOperationsBuilder {
 
   def apply[T](): ContextOperationsBuilder[T, BuildStep] =
     new ContextOperationsBuilder[T, BuildStep]()
+
+  private def extractValue[T](value: Try[T]): T =
+    value match {
+      case Success(v) =>
+        v
+      case Failure(e) =>
+        throw e
+    }
 
 }
