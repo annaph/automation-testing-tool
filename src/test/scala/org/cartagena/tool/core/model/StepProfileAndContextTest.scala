@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class StepProfileAndContextTest extends FlatSpec with Matchers {
 
-  "profile" should "return empty profile" in {
+  "profile" should "return empty Profile" in {
     // given
     val step = MyStep
 
@@ -16,7 +16,7 @@ class StepProfileAndContextTest extends FlatSpec with Matchers {
     actual should be(EmptyProfile)
   }
 
-  "context" should "return empty context" in {
+  "context" should "return empty Context" in {
     // given
     val step = MyStep
 
@@ -24,7 +24,7 @@ class StepProfileAndContextTest extends FlatSpec with Matchers {
     val actual = step.context
 
     // then
-    actual should be(EmptyContext)
+    actual.isEmpty should be(true)
   }
 
 }

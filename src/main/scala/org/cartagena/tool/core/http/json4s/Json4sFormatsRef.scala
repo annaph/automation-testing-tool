@@ -7,7 +7,7 @@ object Json4sFormatsRef {
 
   type FormatsRef = STRef[Nothing, Formats]
 
-  private[core] val formatsRef: FormatsRef =
+  private[json4s] val formatsRef: FormatsRef =
     STRef[Nothing](DefaultFormats)
 
 }

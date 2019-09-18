@@ -17,8 +17,11 @@ trait ApacheHttpOperations {
   def executeGet(url: URL, headers: NameValuePairs, params: NameValuePairs)
                 (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
 
-  def executePost(url: URL, entity: HttpEntity, headers: NameValuePairs, params: NameValuePairs)
+  def executePost(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
                  (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
+
+  def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])
+                   (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
 
   def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
                       (implicit client: HttpClient, context: HttpContext): Unit
@@ -37,9 +40,13 @@ class ApacheHttpOperationsImpl extends ApacheHttpOperations {
                          (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
     ApacheHttpOperationsImpl.executeGet(url, headers, params)
 
-  override def executePost(url: URL, entity: HttpEntity, headers: NameValuePairs, params: NameValuePairs)
+  override def executePost(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
                           (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
-    ApacheHttpOperationsImpl.executePost(url, entity, headers, params)
+    ApacheHttpOperationsImpl.executePost(url, headers, params, entity)
+
+  override def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])
+                            (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    ApacheHttpOperationsImpl.executeDelete(url, headers, params, entity)
 
   override def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
                                (implicit client: HttpClient, context: HttpContext): Unit =
@@ -66,7 +73,7 @@ object ApacheHttpOperationsImpl {
         .buildHttpGet()
     }
 
-  private def executePost(url: URL, entity: HttpEntity, headers: NameValuePairs, params: NameValuePairs)
+  private def executePost(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
                          (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
     execute { id =>
       ApacheHttpRequestBuilder[MustHaveEntity]()
@@ -78,11 +85,17 @@ object ApacheHttpOperationsImpl {
         .buildHttpPost()
     }
 
-  private def execute[T <: ApacheHttpRequest](request: Long => T)
-                                             (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse = {
-    val id = idCounter.incrementAndGet()
-    ApacheHttpResponse(id, client execute(request(id), context))
-  }
+  private def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])
+                           (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    execute { id =>
+      ApacheHttpRequestBuilder[MayHaveEntity]()
+        .withId(id)
+        .withURL(url)
+        .withHeaders(headers)
+        .withParams(params)
+        .withEntity(entity)
+        .buildHttpDelete()
+    }
 
   private def addToCookieStore(elementName: String, elementValue: String, domain: String, path: String)
                               (implicit client: HttpClient, context: HttpContext): Unit = {
@@ -92,6 +105,12 @@ object ApacheHttpOperationsImpl {
 
     val cookieStore = (context getAttribute COOKIE_STORE).asInstanceOf[BasicCookieStore]
     cookieStore addCookie cookie
+  }
+
+  private def execute[T <: ApacheHttpRequest](request: Long => T)
+                                             (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse = {
+    val id = idCounter.incrementAndGet()
+    ApacheHttpResponse(id, client execute(request(id), context))
   }
 
 }

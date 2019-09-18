@@ -43,11 +43,11 @@ case object ExecuteHttpPutRequest
       params = List(
         "username" -> username,
         "password" -> password),
-      body = EmptyBody)
+      body = Empty)
 
     print(request)
 
-    val response = restHelper execute[EmptyBody.type, JsonString] request
+    val response = restHelper execute[Empty.type, JsonString] request
     print(response)
 
     assert(

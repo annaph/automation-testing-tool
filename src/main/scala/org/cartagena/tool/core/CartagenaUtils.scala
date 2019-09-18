@@ -1,69 +1,92 @@
 package org.cartagena.tool.core
 
+import java.io.InputStream
 import java.net.URL
 
-import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse}
+import org.cartagena.tool.core.http.apache.inputStreamToString
+import org.cartagena.tool.core.http.{HttpBody, HttpRequest, HttpResponse, JsonString}
 import org.cartagena.tool.core.model._
+import org.cartagena.tool.core.step.{RemoveJsonSerializers, ShutdownRestClient, StartRestClient}
+
+import scala.reflect.runtime.universe.TypeTag
 
 object CartagenaUtils {
 
   implicit def stringToUrl(str: String): URL =
     new URL(str)
 
-  implicit def setupStepToSerialSetupStep(step: ShapedSetupStep): SerialSetupStep =
+  implicit def inputStreamToJsonString(in: InputStream): JsonString =
+    JsonString(inputStreamToString(in))
+
+  implicit def shapelessSetupStepToSerialSetupStep(step: ShapelessSetupStep): SerialSetupStep =
     SerialSetupStep(step, () => EmptyStep)
 
-  implicit def testStepToSerialTestStep(step: ShapedTestStep): SerialTestStep =
+  implicit def shapelessTestStepToSerialTestStep(step: ShapelessTestStep): SerialTestStep =
     SerialTestStep(step, () => EmptyStep)
 
-  implicit def cleanupStepToSerialCleanupStep(step: ShapedCleanupStep): SerialCleanupStep =
+  implicit def shapelessCleanupStepToSerialCleanupStep(step: ShapelessCleanupStep): SerialCleanupStep =
     SerialCleanupStep(step, () => EmptyStep)
 
   implicit class ContextOperations(context: Context) {
 
-    private var _key: Option[String] = None
-    private var _isCreateNew = false
+    def </[T: TypeTag](key: String): T =
+      get(key)
 
-    def </[T: Manifest](key: String): T =
-      context get[T] key
+    def get[T: TypeTag](key: String): T =
+      ContextOperationsBuilder[T]()
+        .withContext(context)
+        .withKey(key)
+        .get
 
-    def ~=>(key: String): ContextOperations =
-      createKey(key)
+    def ~=>(key: String): WriteContext =
+      create(key)
 
-    def createKey(key: String): ContextOperations = {
-      updateInternalState(key, isCreateNew = true)
-      this
+    def create(key: String): WriteContext =
+      new CreateContextEntry(ContextOperationsBuilder().withContext(context).withKey(key))
+
+    def ~==>(key: String): UpdateContextEntry =
+      update(key)
+
+    def update(key: String): UpdateContextEntry =
+      new UpdateContextEntry(ContextOperationsBuilder().withContext(context).withKey(key))
+
+    def <=~[T: TypeTag](key: String): T =
+      remove(key)
+
+    def remove[T: TypeTag](key: String): T =
+      ContextOperationsBuilder()
+        .withContext(context)
+        .withKey(key)
+        .remove()
+
+    trait WriteContext {
+
+      def builder: ContextOperationsBuilder[_, HasKey]
+
+      def />[T: TypeTag](value: T): T =
+        withValue(value)
+
+      def withValue[T: TypeTag](value: T): T
+
     }
 
-    private def updateInternalState(key: String, isCreateNew: Boolean): Unit = {
-      _key = Some(key)
-      _isCreateNew = isCreateNew
+    class CreateContextEntry(val builder: ContextOperationsBuilder[_, HasKey]) extends WriteContext {
+
+      override def withValue[T: TypeTag](value: T): T =
+        builder.asInstanceOf[ContextOperationsBuilder[T, HasKey]]
+          .withValue(value)
+          .create()
+
     }
 
-    def ~==>(key: String): ContextOperations =
-      updateKey(key)
+    class UpdateContextEntry(val builder: ContextOperationsBuilder[_, HasKey]) extends WriteContext {
 
-    def updateKey(key: String): ContextOperations = {
-      updateInternalState(key, isCreateNew = false)
-      this
+      override def withValue[T: TypeTag](value: T): T =
+        builder.asInstanceOf[ContextOperationsBuilder[T, HasKey]]
+          .withValue(value)
+          .update()
+
     }
-
-    def <=~[T: Manifest](key: String): Unit =
-      context remove[T] key
-
-    def />[T: Manifest](value: T): Unit =
-      withValue[T](value)
-
-    def withValue[T: Manifest](value: T): Unit = _key match {
-      case Some(key) if _isCreateNew =>
-        context create[T](key, value)
-      case Some(key) if !_isCreateNew =>
-        context update[T](key, value)
-      case None =>
-        throw KeyNotSpecifiedException
-    }
-
-    object KeyNotSpecifiedException extends Exception("No key specified!")
 
   }
 
@@ -73,6 +96,15 @@ object CartagenaUtils {
       println(suiteReport.toPrettyString)
 
   }
+
+  def StartRestClient: StartRestClient =
+    new StartRestClient()
+
+  def ShutdownRestClient: ShutdownRestClient =
+    new ShutdownRestClient()
+
+  def RemoveJsonSerializers: RemoveJsonSerializers =
+    new RemoveJsonSerializers()
 
   def print[T <: HttpBody](request: HttpRequest[T]): Unit =
     println(request.toPrettyString)

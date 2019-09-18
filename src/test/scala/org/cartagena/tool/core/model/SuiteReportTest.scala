@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class SuiteReportTest extends FlatSpec with Matchers {
 
-  "toPrettyString" should "prettify suite report" in {
+  "toPrettyString" should "prettify Suite Report" in {
     // given
     val suiteReport = SuiteReport(
       suiteName = "MySuite",

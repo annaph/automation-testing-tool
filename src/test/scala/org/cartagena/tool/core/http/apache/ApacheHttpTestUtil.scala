@@ -10,11 +10,13 @@ object ApacheHttpTestUtil {
 
   val STATUS_CODE_200 = 200
   val STATUS_CODE_201 = 201
+  val STATUS_CODE_204 = 204
 
   val REASON_PHRASE_OK = "OK"
   val REASON_PHRASE_CREATED = "Created"
+  val REASON_PHRASE_NO_CONTENT = "No Content"
 
-  val URL_STRING = "http://www.google.com"
+  val URL_STRING = "http://www.google.com/"
   val HEADER: (String, String) = "header1" -> "value1"
   val PARAM: (String, String) = "param1" -> "value1"
   val BODY_CONTENT = "This is some body"

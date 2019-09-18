@@ -7,30 +7,33 @@ import org.apache.http.client.utils.URIBuilder
 
 sealed trait BuildStep
 
-sealed trait HasID extends BuildStep
+trait HasID extends BuildStep
 
-sealed trait HasURL extends BuildStep
+trait HasURL extends BuildStep
 
-sealed trait HasHeaders extends BuildStep
+trait HasHeaders extends BuildStep
 
-sealed trait HasParams extends BuildStep
+trait HasParams extends BuildStep
 
-sealed trait HasEntity extends BuildStep
+trait HasEntity extends BuildStep
+
+trait HasMaybeEntity extends BuildStep
 
 sealed trait EntityMark
 
-sealed trait MustHaveEntity extends EntityMark
+trait MustHaveEntity extends EntityMark
 
-sealed trait CannotHaveEntity extends EntityMark
+trait MayHaveEntity extends EntityMark
 
-class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: Long,
-                                                                        var url: URL,
-                                                                        var headers: Map[String, String],
-                                                                        var params: Map[String, String],
-                                                                        var entity: Option[HttpEntity] = None) {
+trait CannotHaveEntity extends EntityMark
 
+class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(private var id: Long,
+                                                                        private var url: URL,
+                                                                        private var headers: Map[String, String],
+                                                                        private var params: Map[String, String],
+                                                                        private var entity: Option[HttpEntity]) {
   protected def this() =
-    this(0, null, Map.empty, Map.empty)
+    this(0, null, Map.empty, Map.empty, None)
 
   protected def this(builder: ApacheHttpRequestBuilder[_, _]) =
     this(builder.id, builder.url, builder.headers, builder.params, builder.entity)
@@ -64,11 +67,20 @@ class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(var id: 
     new ApacheHttpRequestBuilder[HasEntity, MustHaveEntity](this)
   }
 
+  def withEntity(entity: Option[HttpEntity])
+                (implicit ev: E =:= MayHaveEntity): ApacheHttpRequestBuilder[HasMaybeEntity, MayHaveEntity] = {
+    this.entity = entity
+    new ApacheHttpRequestBuilder[HasMaybeEntity, MayHaveEntity](this)
+  }
+
   def buildHttpGet()(implicit ev1: S =:= HasParams, ev2: E =:= CannotHaveEntity): ApacheHttpGet =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpGet(_, _))
 
   def buildHttpPost()(implicit ev1: S =:= HasEntity, ev2: E =:= MustHaveEntity): ApacheHttpPost =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPost(_, _))
+
+  def buildHttpDelete()(implicit ev1: S =:= HasMaybeEntity, ev2: E =:= MayHaveEntity): ApacheHttpDelete =
+    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpDelete(_, _))
 
 }
 

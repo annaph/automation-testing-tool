@@ -11,18 +11,24 @@ case object Get extends HttpMethod
 
 case object Post extends HttpMethod
 
+case object Delete extends HttpMethod
+
 object HttpMethod {
 
   val HTTP_METHOD_GET = "GET"
 
   val HTTP_METHOD_POST = "POST"
 
-  private[http] def toPrettyString(httpMethod: HttpMethod): String =
+  val HTTP_METHOD_DELETE = "DELETE"
+
+  private def toPrettyString(httpMethod: HttpMethod): String =
     httpMethod match {
       case Get =>
         HTTP_METHOD_GET
       case Post =>
         HTTP_METHOD_POST
+      case Delete =>
+        HTTP_METHOD_DELETE
     }
 
 }

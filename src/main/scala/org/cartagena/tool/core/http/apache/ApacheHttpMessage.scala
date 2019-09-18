@@ -2,9 +2,9 @@ package org.cartagena.tool.core.http.apache
 
 import java.net.URI
 
-import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut, HttpRequestBase}
+import org.apache.http.client.methods.{HttpGet, HttpPost, HttpRequestBase}
 import org.apache.http.{Header, HttpEntity, HttpResponse, HeaderElement => ApacheHeaderElement}
-import org.cartagena.tool.core.http.{EmptyBody, HeaderElement, HttpBody, JsonString, Text}
+import org.cartagena.tool.core.http._
 
 sealed trait ApacheHttpRequest extends HttpRequestBase {
 
@@ -25,10 +25,10 @@ sealed trait ApacheHttpRequest extends HttpRequestBase {
 class ApacheHttpGet(val id: Long, val uri: URI) extends HttpGet(uri) with ApacheHttpRequest {
 
   override def getEntity: HttpEntity =
-    throw new UnsupportedOperationException("HTTP GET request has no entity!")
+    throw new UnsupportedOperationException
 
   override def setEntity(entity: HttpEntity): Unit =
-    throw new UnsupportedOperationException("Cannot set entity to HTTP GET request!")
+    throw new UnsupportedOperationException
 
 }
 
@@ -39,25 +39,34 @@ class ApacheHttpPost(val id: Long, val uri: URI) extends HttpPost with ApacheHtt
 
 }
 
-class ApacheHttpPut(val id: Long, val uri: URI) extends HttpPut with ApacheHttpRequest
+class ApacheHttpPut
+
+class ApacheHttpDelete(val id: Long, val uri: URI) extends HttpPost with ApacheHttpRequest {
+
+  override def getMethod: String =
+    "DELETE"
+
+  override def getURI: URI =
+    uri
+
+}
 
 class ApacheHttpResponse(val id: Long, val nativeResponse: HttpResponse) {
-
-  override def equals(that: Any): Boolean = that match {
-    case that: ApacheHttpResponse =>
-      this.hashCode == that.hashCode
-    case _ =>
-      false
-  }
 
   override def hashCode(): Int = {
     val prime = 31
     var result = 1
 
     result = prime * result + id.hashCode()
-    result = prime * result + nativeResponse.hashCode()
 
     result
+  }
+
+  override def equals(that: Any): Boolean = that match {
+    case _: ApacheHttpResponse =>
+      this.hashCode == that.hashCode
+    case _ =>
+      false
   }
 
 }
@@ -90,7 +99,7 @@ object ApacheHttpResponse {
         case x if x == classOf[JsonString] =>
           httpBody[JsonString](httpResponse.getEntity).asInstanceOf[T]
         case _ =>
-          httpBody[EmptyBody.type](httpResponse.getEntity).asInstanceOf[T]
+          httpBody[Empty.type](httpResponse.getEntity).asInstanceOf[T]
       }
 
     private def toHeaderElements(apacheHeaderElements: Array[ApacheHeaderElement]): List[HeaderElement] =

@@ -3,10 +3,10 @@ package org.cartagena.tool.core.http.apache
 import java.net.URL
 
 import org.apache.http.client.utils.URIBuilder
-import org.cartagena.tool.core.http.inputStreamToString
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 object ApacheHttpRequestMatchers {
 
@@ -25,14 +25,17 @@ object ApacheHttpRequestMatchers {
   def haveBody(expectedBody: String) =
     new RequestHasBodyMatcher(expectedBody)
 
+  def notHaveBody =
+    new RequestHasNoBodyMatcher()
+
   class RequestHasIdMatcher(expectedId: Long) extends Matcher[ApacheHttpRequest] {
 
     override def apply(left: ApacheHttpRequest): MatchResult = {
       val actualId = left.id
       MatchResult(
         actualId == expectedId,
-        s"Request ID '$actualId' did not equal to '$expectedId'",
-        s"Request ID '$actualId' did equal to '$expectedId'")
+        s"Request ID '$actualId' is not equal to '$expectedId'",
+        s"Request ID '$actualId' is equal to '$expectedId'")
     }
 
   }
@@ -43,8 +46,8 @@ object ApacheHttpRequestMatchers {
       val actualURL = left.getURI.toURL.toString.split("\\?")(0)
       MatchResult(
         actualURL.toString == expectedURL.toString,
-        s"Request URL '$actualURL' did not equal to '$expectedURL'",
-        s"Request URL '$actualURL' did equal to '$expectedURL'")
+        s"Request URL '$actualURL' is not equal to '$expectedURL'",
+        s"Request URL '$actualURL' is equal to '$expectedURL'")
     }
 
   }
@@ -58,8 +61,8 @@ object ApacheHttpRequestMatchers {
 
       MatchResult(
         actualHeaders == expectedHeaders,
-        s"Request headers '$actualHeaders' did not contain '$expectedHeaders'",
-        s"Request headers '$actualHeaders' did contain '$expectedHeaders'")
+        s"Request headers '$actualHeaders' do not contain '$expectedHeaders'",
+        s"Request headers '$actualHeaders' contain '$expectedHeaders'")
     }
 
   }
@@ -73,8 +76,8 @@ object ApacheHttpRequestMatchers {
 
       MatchResult(
         actualParams == expectedParams,
-        s"Request query parameters '$actualParams' did not contain '$expectedParams'",
-        s"Request query parameters '$actualParams' did contain '$expectedParams'")
+        s"Request query parameters '$actualParams' do not contain '$expectedParams'",
+        s"Request query parameters '$actualParams' contain '$expectedParams'")
     }
 
   }
@@ -83,12 +86,32 @@ object ApacheHttpRequestMatchers {
 
     override def apply(left: ApacheHttpRequest): MatchResult = {
       val content = left.getEntity.getContent
-      val actualBody = inputStreamToString(content)
+      val actualBody: String = content
 
       MatchResult(
         actualBody == expectedBody,
-        s"Request body '$actualBody' did not equal to '$expectedBody'",
-        s"Request body '$actualBody' did equal to '$expectedBody'")
+        s"Request body '$actualBody' is not equal to '$expectedBody'",
+        s"Request body '$actualBody' is equal to '$expectedBody'")
+    }
+
+  }
+
+  class RequestHasNoBodyMatcher() extends Matcher[ApacheHttpRequest] {
+
+    override def apply(left: ApacheHttpRequest): MatchResult = {
+      val content = Try {
+        left.getEntity
+      } match {
+        case Success(entity) =>
+          Option(entity)
+        case Failure(_) =>
+          None
+      }
+
+      MatchResult(
+        content.isEmpty,
+        s"Request body is not empty",
+        s"Request body is empty")
     }
 
   }

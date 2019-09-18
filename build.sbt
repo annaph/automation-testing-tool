@@ -2,7 +2,7 @@ name := "cartagena-tool"
 
 organization := "org.cartagena.tool"
 
-version := "1.0.4"
+version := "1.0.5"
 
 scalaVersion := "2.12.8"
 
@@ -13,11 +13,11 @@ scalacOptions ++= Seq(
   "-language:reflectiveCalls")
 
 libraryDependencies ++= Seq(
-  "org.apache.httpcomponents" % "httpclient" % "4.5.7",
-  "commons-io" % "commons-io" % "2.6",
-  "org.json4s" %% "json4s-jackson" % "3.6.5",
+  "org.scala-lang" % "scala-reflect" % "2.12.8",
   "org.scalaz" %% "scalaz-core" % "7.2.27",
   "org.scalaz" %% "scalaz-effect" % "7.2.27",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.7",
+  "org.json4s" %% "json4s-jackson" % "3.6.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   "org.mockito" % "mockito-core" % "2.25.1" % Test)
 

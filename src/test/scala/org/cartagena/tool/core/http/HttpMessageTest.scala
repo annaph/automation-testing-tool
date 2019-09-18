@@ -7,7 +7,7 @@ class HttpMessageTest extends FlatSpec with Matchers {
 
   private val jsonString = JsonString("""{"field1": 1,"field2": "str","field3": null}""")
 
-  "toPrettyString" should "prettify http request message" in {
+  "toPrettyString" should "prettify HttpRequest message" in {
     // given
     val request = HttpRequest(
       url = "http://www.google.com/",
@@ -47,7 +47,7 @@ class HttpMessageTest extends FlatSpec with Matchers {
     actual should be(expected)
   }
 
-  it should "prettify http response message" in {
+  it should "prettify httpResponse message" in {
     // given
     val response = HttpResponse(
       status = OK,

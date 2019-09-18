@@ -39,7 +39,7 @@ case class JsonString(str: String) extends HttpBody {
 
 }
 
-case object EmptyBody extends HttpBody
+case object Empty extends HttpBody
 
 object HttpBody {
 
@@ -49,13 +49,13 @@ object HttpBody {
 
   private val _mapper: ObjectMapper = new ObjectMapper()
 
-  private[http] def toPrettyString(httpBody: HttpBody): String =
+  private def toPrettyString(httpBody: HttpBody): String =
     httpBody match {
       case Text(str) =>
         str
-      case jsonString: JsonString =>
-        prettifyJsonString(jsonString)
-      case EmptyBody =>
+      case x: JsonString =>
+        prettifyJsonString(x)
+      case Empty =>
         EMPTY_BODY_CONTENT
     }
 

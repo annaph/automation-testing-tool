@@ -67,7 +67,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val request = HttpRequest(
       url = URL_STRING,
       method = Get,
-      body = EmptyBody)
+      body = Empty)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -83,10 +83,13 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)))
 
-    val expected = HttpResponse(OK, REASON_PHRASE_OK, EmptyBody)
+    val expected = HttpResponse(
+      status = OK,
+      reason = REASON_PHRASE_OK,
+      body = Empty)
 
     // when
-    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
 
     // then
     actual should be(expected)
@@ -100,7 +103,7 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
     val request = HttpRequest(
       url = URL_STRING,
       method = Post,
-      body = EmptyBody)
+      body = Empty)
 
     when(apacheHttpClient.get)
       .thenReturn(client)
@@ -110,25 +113,68 @@ class ApacheRestHelperTest extends FlatSpec with Matchers with ApacheRestRegistr
 
     when(apacheHttpOperations
       .executePost(
-        eqTo(stringToUrl(URL_STRING)), any[HttpEntity], eqTo(Map.empty), eqTo(Map.empty))(same(client), same(context)))
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), any[HttpEntity])(same(client), same(context)))
       .thenReturn(
         new ApacheHttpResponse(
           1L,
           new BasicHttpResponse(
             new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_201, REASON_PHRASE_CREATED)))
 
-    val expected = HttpResponse(Created, REASON_PHRASE_CREATED, EmptyBody)
+    val expected = HttpResponse(
+      status = Created,
+      reason = REASON_PHRASE_CREATED,
+      body = Empty)
 
     // when
-    val actual: HttpResponse[EmptyBody.type] = apacheHttpRestHelper execute request
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
 
     // then
     actual should be(expected)
 
     verify(apacheHttpOperations)
       .executePost(
-        eqTo(stringToUrl(URL_STRING)), any[HttpEntity], eqTo(Map.empty), eqTo(Map.empty))(same(client), same(context))
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), any[HttpEntity])(same(client), same(context))
 
+  }
+
+  it should "execute HTTP DELETE request" in new TestNativeClientAndContext {
+    // given
+    val request = HttpRequest(
+      url = URL_STRING,
+      method = Delete,
+      body = Empty)
+
+    when(apacheHttpClient.get)
+      .thenReturn(client)
+
+    when(apacheHttpClient.context)
+      .thenReturn(context)
+
+    when(apacheHttpOperations
+      .executeDelete(
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), eqTo(None))(same(client), same(context)))
+      .thenReturn(
+        new ApacheHttpResponse(
+          1L,
+          new BasicHttpResponse(
+            new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION),
+            STATUS_CODE_204,
+            REASON_PHRASE_NO_CONTENT)))
+
+    val expected = HttpResponse(
+      status = NoContent,
+      reason = REASON_PHRASE_NO_CONTENT,
+      body = Empty)
+
+    // when
+    val actual: HttpResponse[Empty.type] = apacheHttpRestHelper execute request
+
+    // then
+    actual should be(expected)
+
+    verify(apacheHttpOperations)
+      .executeDelete(
+        eqTo(stringToUrl(URL_STRING)), eqTo(Map.empty), eqTo(Map.empty), eqTo(None))(same(client), same(context))
   }
 
   "storeCookie" should "store Cookie" in new TestNativeClientAndContext {

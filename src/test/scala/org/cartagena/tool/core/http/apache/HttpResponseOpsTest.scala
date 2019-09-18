@@ -5,7 +5,7 @@ import org.apache.http.message.{BasicHeaderElement, BasicHttpResponse}
 import org.apache.http.{HttpResponse, ProtocolVersion, HeaderElement => ApacheHeaderElement}
 import org.cartagena.tool.core.http.apache.ApacheHttpResponse.HttpResponseOps
 import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
-import org.cartagena.tool.core.http.{EmptyBody, HeaderElement, JsonString, Text}
+import org.cartagena.tool.core.http.{Empty, HeaderElement, JsonString, Text}
 import org.mockito.Mockito.{spy, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
@@ -76,12 +76,12 @@ class HttpResponseOpsTest extends FlatSpec with Matchers with MockitoSugar with 
     actual should be(JsonString(SOME_JSON_STRING))
   }
 
-  it should "return EmptyBody Http body" in {
+  it should "return Empty Http body" in {
     // when
-    val actual = httpResponse.httpBody[EmptyBody.type]
+    val actual = httpResponse.httpBody[Empty.type]
 
     // then
-    actual should be(EmptyBody)
+    actual should be(Empty)
   }
 
 }
