@@ -8,12 +8,6 @@ import org.apache.http.HttpEntity
 
 package object apache {
 
-  implicit def headersToMap(headerElements: List[HeaderElement]): Map[String, String] =
-    nameValuePairsToMap(headerElements)
-
-  implicit def queryParamsToMap(queryParams: List[QueryParam]): Map[String, String] =
-    nameValuePairsToMap(queryParams)
-
   implicit def intToHttpStatus(code: Int): HttpStatus =
     HttpStatus(code)
 
@@ -24,7 +18,14 @@ package object apache {
     reader.lines().collect(Collectors.joining(System.lineSeparator()))
   }
 
-  implicit def toHttpEntity[T <: HttpBody](body: T): HttpEntity =
+  implicit def nameValuePairsToMap(nameValuePairs: List[NameValuePair]): Map[String, String] =
+    nameValuePairs.map {
+      case NameValuePair(name, value) =>
+        name -> value
+    }.toMap
+
+
+  implicit def httpBodyToHttpEntity[T <: HttpBody](body: T): HttpEntity =
     body match {
       case x: Text =>
         toEntity[Text](x)
@@ -34,7 +35,7 @@ package object apache {
         toEntity[Empty.type](x)
     }
 
-  implicit def toHttpEntityOption[T <: HttpBody](body: T): Option[HttpEntity] =
+  implicit def httpBodyToHttpEntityOption[T <: HttpBody](body: T): Option[HttpEntity] =
     body match {
       case Empty =>
         None
@@ -42,16 +43,11 @@ package object apache {
         Some(x)
     }
 
-  def toCookies(headerElements: List[HeaderElement], host: String, path: String): List[Cookie] =
-    headerElements.map {
-      case HeaderElement(name, value) =>
+  def toCookies(nameValuePairs: List[NameValuePair], host: String, path: String): List[Cookie] =
+    nameValuePairs.map {
+      case NameValuePair(name, value) =>
         Cookie(name, value, host, path)
     }
-
-  private def nameValuePairsToMap[T <: NameValuePair](pairs: List[T]): Map[String, String] =
-    pairs.map { pair =>
-      pair.name -> pair.value
-    }.toMap
 
   private def toEntity[T <: HttpBody : ApacheHttpBodyConverter](body: T): HttpEntity =
     implicitly[ApacheHttpBodyConverter[T]].toHttpEntity(body)

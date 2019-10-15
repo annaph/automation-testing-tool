@@ -79,6 +79,9 @@ class ApacheHttpRequestBuilder[S <: BuildStep, E <: EntityMark] private(private 
   def buildHttpPost()(implicit ev1: S =:= HasEntity, ev2: E =:= MustHaveEntity): ApacheHttpPost =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPost(_, _))
 
+  def buildHttpPut()(implicit ev1: S =:= HasEntity, ev2: E =:= MustHaveEntity): ApacheHttpPut =
+    ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpPut(_, _))
+
   def buildHttpDelete()(implicit ev1: S =:= HasMaybeEntity, ev2: E =:= MayHaveEntity): ApacheHttpDelete =
     ApacheHttpRequestBuilder.buildHttpRequest(id, url, headers, params, entity)(new ApacheHttpDelete(_, _))
 

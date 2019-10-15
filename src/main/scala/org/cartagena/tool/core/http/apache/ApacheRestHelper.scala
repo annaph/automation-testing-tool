@@ -63,6 +63,8 @@ object ApacheRestHelperImpl {
         executeHttpGet(request, apacheHttpOperations)
       case Post =>
         executeHttpPost(request, apacheHttpOperations)
+      case Put =>
+        executeHttpPut(request, apacheHttpOperations)
       case Delete =>
         executeHttpDelete(request, apacheHttpOperations)
     }
@@ -88,6 +90,15 @@ object ApacheRestHelperImpl {
     createHttpResponse(
       request.url.getHost,
       apacheHttpOperations executePost(request.url, request.headers, request.params, request.body))
+
+  private def executeHttpPut[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
+                                                           apacheHttpOperations: ApacheHttpOperations)
+                                                          (implicit mf: Manifest[U],
+                                                           client: HttpClient,
+                                                           context: HttpContext): HttpResponse[U] =
+    createHttpResponse(
+      request.url.getHost,
+      apacheHttpOperations executePut(request.url, request.headers, request.params, request.body))
 
   private def executeHttpDelete[T <: HttpBody, U <: HttpBody](request: HttpRequest[T],
                                                               apacheHttpOperations: ApacheHttpOperations)

@@ -12,14 +12,8 @@ class HttpMessageTest extends FlatSpec with Matchers {
     val request = HttpRequest(
       url = "http://www.google.com/",
       method = Post,
-      headers = List(
-        "header1" -> "header1_value",
-        "header2" -> "header2_value",
-        "header3" -> "header3_value"),
-      params = List(
-        "param1" -> "param1_value",
-        "param2" -> "param2_value",
-        "param3" -> "param3_value"),
+      headers = ("header1" -> "header1_value") + ("header2" -> "header2_value") + ("header3" -> "header3_value"),
+      params = ("param1" -> "param1_value") + ("param2" -> "param2_value") + ("param3" -> "param3_value"),
       body = jsonString)
 
     val expected = "=> HTTP request:\n" +
@@ -30,9 +24,9 @@ class HttpMessageTest extends FlatSpec with Matchers {
       "\t\t\theader2: header2_value\n" +
       "\t\t\theader3: header3_value\n" +
       "\tParameters:\n" +
-      "\t\t\tparam1 = param1_value\n" +
-      "\t\t\tparam2 = param2_value\n" +
-      "\t\t\tparam3 = param3_value\n" +
+      "\t\t\tparam1: param1_value\n" +
+      "\t\t\tparam2: param2_value\n" +
+      "\t\t\tparam3: param3_value\n" +
       "\tBody:\n" +
       "\t\t\t{\n" +
       "\t\t\t  \"field1\" : 1,\n" +

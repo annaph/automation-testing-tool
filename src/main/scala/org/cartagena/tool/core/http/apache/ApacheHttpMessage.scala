@@ -1,8 +1,9 @@
 package org.cartagena.tool.core.http.apache
 
 import java.net.URI
+import java.util.Objects
 
-import org.apache.http.client.methods.{HttpGet, HttpPost, HttpRequestBase}
+import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut, HttpRequestBase}
 import org.apache.http.{Header, HttpEntity, HttpResponse, HeaderElement => ApacheHeaderElement}
 import org.cartagena.tool.core.http._
 
@@ -39,7 +40,12 @@ class ApacheHttpPost(val id: Long, val uri: URI) extends HttpPost with ApacheHtt
 
 }
 
-class ApacheHttpPut
+class ApacheHttpPut(val id: Long, val uri: URI) extends HttpPut with ApacheHttpRequest {
+
+  override def getURI: URI =
+    uri
+
+}
 
 class ApacheHttpDelete(val id: Long, val uri: URI) extends HttpPost with ApacheHttpRequest {
 
@@ -53,14 +59,8 @@ class ApacheHttpDelete(val id: Long, val uri: URI) extends HttpPost with ApacheH
 
 class ApacheHttpResponse(val id: Long, val nativeResponse: HttpResponse) {
 
-  override def hashCode(): Int = {
-    val prime = 31
-    var result = 1
-
-    result = prime * result + id.hashCode()
-
-    result
-  }
+  override def hashCode(): Int =
+    Objects.hash(id.asInstanceOf[Object], nativeResponse.asInstanceOf[Object])
 
   override def equals(that: Any): Boolean = that match {
     case _: ApacheHttpResponse =>
@@ -86,10 +86,10 @@ object ApacheHttpResponse {
     def reasonPhrase: String =
       httpResponse.getStatusLine.getReasonPhrase
 
-    def cookieHeaderElements: List[HeaderElement] =
+    def cookieHeaderElements: List[NameValuePair] =
       Option(httpResponse.getFirstHeader(COOKIE_HEADER_NAME))
         .map(_.getElements)
-        .map(toHeaderElements)
+        .map(toNameValuePairs)
         .getOrElse(List.empty)
 
     def httpBody[T <: HttpBody](implicit mf: Manifest[T]): T =
@@ -102,9 +102,9 @@ object ApacheHttpResponse {
           httpBody[Empty.type](httpResponse.getEntity).asInstanceOf[T]
       }
 
-    private def toHeaderElements(apacheHeaderElements: Array[ApacheHeaderElement]): List[HeaderElement] =
+    private def toNameValuePairs(apacheHeaderElements: Array[ApacheHeaderElement]): List[NameValuePair] =
       apacheHeaderElements.map { header =>
-        HeaderElement(header.getName, header.getValue)
+        NameValuePair(header.getName, header.getValue)
       }.toList
 
     private def httpBody[T <: HttpBody : ApacheHttpBodyConverter](entity: HttpEntity): T =

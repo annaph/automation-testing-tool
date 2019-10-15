@@ -5,7 +5,7 @@ import org.apache.http.message.{BasicHeaderElement, BasicHttpResponse}
 import org.apache.http.{HttpResponse, ProtocolVersion, HeaderElement => ApacheHeaderElement}
 import org.cartagena.tool.core.http.apache.ApacheHttpResponse.HttpResponseOps
 import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
-import org.cartagena.tool.core.http.{Empty, HeaderElement, JsonString, Text}
+import org.cartagena.tool.core.http.{Empty, JsonString, NameValuePair, Text}
 import org.mockito.Mockito.{spy, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
@@ -35,14 +35,14 @@ class HttpResponseOpsTest extends FlatSpec with Matchers with MockitoSugar with 
     actual should be(REASON_PHRASE_OK)
   }
 
-  "cookies" should "return list of cookie header elements" in {
+  "cookieHeaderElements" should "return list of cookie header elements" in {
     // given
     val cookieHeader = spy(CookieHeader)
     val cookieHeaderElements = Array[ApacheHeaderElement](new BasicHeaderElement(COOKIE_NAME, COOKIE_VALUE))
 
     when(cookieHeader.getElements).thenReturn(cookieHeaderElements)
 
-    val expected = HeaderElement(COOKIE_NAME, COOKIE_VALUE) :: Nil
+    val expected = NameValuePair(COOKIE_NAME, COOKIE_VALUE) :: Nil
 
     // when
     httpResponse addHeader cookieHeader

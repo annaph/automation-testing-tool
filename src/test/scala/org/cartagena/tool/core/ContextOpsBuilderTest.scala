@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.reflect.runtime.universe.typeTag
 import scala.util.{Failure, Success}
 
-class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSugar {
+class ContextOpsBuilderTest extends FlatSpec with Matchers with MockitoSugar {
 
   "get" should "return an entry value associated with a given key" in {
     // given
@@ -21,7 +21,7 @@ class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSu
       .thenReturn(Success(value))
 
     // when
-    val actual = ContextOperationsBuilder[String]()
+    val actual = ContextOpsBuilder[String]()
       .withContext(context)
       .withKey(key)
       .get
@@ -43,7 +43,7 @@ class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSu
 
     intercept[Exception] {
       // when
-      ContextOperationsBuilder[String]()
+      ContextOpsBuilder[String]()
         .withContext(context)
         .withKey(key)
         .get
@@ -64,7 +64,7 @@ class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSu
       .thenReturn(Success(value))
 
     // when
-    val actual = ContextOperationsBuilder[String]()
+    val actual = ContextOpsBuilder[String]()
       .withContext(context)
       .withKey(key)
       .withValue(value)
@@ -87,7 +87,7 @@ class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSu
       .thenReturn(Success(value))
 
     // when
-    val actual = ContextOperationsBuilder[String]()
+    val actual = ContextOpsBuilder[String]()
       .withContext(context)
       .withKey(key)
       .withValue(value)
@@ -110,7 +110,7 @@ class ContextOperationsBuilderTest extends FlatSpec with Matchers with MockitoSu
       .thenReturn(Success(value))
 
     // when
-    val actual = ContextOperationsBuilder[String]()
+    val actual = ContextOpsBuilder[String]()
       .withContext(context)
       .withKey(key)
       .remove()

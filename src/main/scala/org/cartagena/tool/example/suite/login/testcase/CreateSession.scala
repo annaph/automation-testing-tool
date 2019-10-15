@@ -2,7 +2,7 @@ package org.cartagena.tool.example.suite.login.testcase
 
 import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.agent.{JsonAgent, RestAgent}
-import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.http.{HttpRequest, _}
 import org.cartagena.tool.core.model.{SerialTestStep, TestCase, ShapelessTestStep => TestStep}
 import org.cartagena.tool.example.suite.login.model.LoginDTO
 import org.cartagena.tool.example.suite.login.{LoginProfileAndContext, _}
@@ -37,12 +37,8 @@ case object ExecuteHttpPutRequest
     val request = HttpRequest(
       url = s"http://$host:$port/j_spring_security_check",
       method = Post,
-      headers = List(
-        "Accept" -> headerAccept,
-        "Content-Type" -> headerContentType),
-      params = List(
-        "username" -> username,
-        "password" -> password),
+      headers = ("Accept" -> headerAccept) + ("Content-Type" -> headerContentType),
+      params = ("username" -> username) + ("password" -> password),
       body = Empty)
 
     print(request)

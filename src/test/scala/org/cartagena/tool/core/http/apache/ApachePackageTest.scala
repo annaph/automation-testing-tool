@@ -11,44 +11,6 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ApachePackageTest extends FlatSpec with Matchers {
 
-  "headersToMap" should "convert list of HeaderElement objects into Map" in {
-    // given
-    val headerElements = List(
-      HeaderElement(NAME_1, VALUE_1),
-      HeaderElement(NAME_2, VALUE_2),
-      HeaderElement(NAME_3, VALUE_3))
-
-    val expected = Map(
-      NAME_1 -> VALUE_1,
-      NAME_2 -> VALUE_2,
-      NAME_3 -> VALUE_3)
-
-    // when
-    val actual = headersToMap(headerElements)
-
-    // then
-    actual should be(expected)
-  }
-
-  "queryParamsToMap" should "convert list of QueryParam objects into Map" in {
-    // given
-    val queryParams = List(
-      QueryParam(NAME_1, VALUE_1),
-      QueryParam(NAME_2, VALUE_2),
-      QueryParam(NAME_3, VALUE_3))
-
-    val expected = Map(
-      NAME_1 -> VALUE_1,
-      NAME_2 -> VALUE_2,
-      NAME_3 -> VALUE_3)
-
-    // when
-    val actual = queryParamsToMap(queryParams)
-
-    // then
-    actual should be(expected)
-  }
-
   "intToHttpStatus" should "convert Int to HttpStatus" in {
     // given
     val code = STATUS_CODE_200
@@ -71,12 +33,31 @@ class ApachePackageTest extends FlatSpec with Matchers {
     actual should be(SOME_TEXT)
   }
 
-  "toHttpEntity" should "convert Text Http body to Apache Http Entity" in {
+  "nameValuePairsToMap" should "convert list of NameValuePair objects into Map" in {
+    // given
+    val nameValuePairs = List(
+      NameValuePair(NAME_1, VALUE_1),
+      NameValuePair(NAME_2, VALUE_2),
+      NameValuePair(NAME_3, VALUE_3))
+
+    val expected = Map(
+      NAME_1 -> VALUE_1,
+      NAME_2 -> VALUE_2,
+      NAME_3 -> VALUE_3)
+
+    // when
+    val actual = nameValuePairsToMap(nameValuePairs)
+
+    // then
+    actual should be(expected)
+  }
+
+  "httpBodyToHttpEntity" should "convert Text Http body to Apache Http Entity" in {
     // given
     val body = Text(SOME_TEXT)
 
     //when
-    val actual = toHttpEntity(body)
+    val actual = httpBodyToHttpEntity(body)
 
     // then
     actual shouldBe a[StringEntity]
@@ -88,7 +69,7 @@ class ApachePackageTest extends FlatSpec with Matchers {
     val body = JsonString(SOME_JSON_STRING)
 
     // when
-    val actual = toHttpEntity(body)
+    val actual = httpBodyToHttpEntity(body)
 
     // then
     actual shouldBe a[StringEntity]
@@ -100,19 +81,19 @@ class ApachePackageTest extends FlatSpec with Matchers {
     val body = Empty
 
     // when
-    val actual = toHttpEntity(body)
+    val actual = httpBodyToHttpEntity(body)
 
     // then
     actual shouldBe a[StringEntity]
     inputStreamToString(actual.getContent).isEmpty should be(true)
   }
 
-  "toHttpEntityOption" should "convert Empty Http body to None HttpEntity" in {
+  "httpBodyToHttpEntityOption" should "convert Empty Http body to None HttpEntity" in {
     // given
     val body = Empty
 
     // when
-    val actual = toHttpEntityOption(body)
+    val actual = httpBodyToHttpEntityOption(body)
 
     // then
     actual should be(None)
@@ -123,7 +104,7 @@ class ApachePackageTest extends FlatSpec with Matchers {
     val body = Text(SOME_TEXT)
 
     // when
-    val actual = toHttpEntityOption(body)
+    val actual = httpBodyToHttpEntityOption(body)
 
     // then
     actual.isEmpty should be(false)
@@ -131,12 +112,12 @@ class ApachePackageTest extends FlatSpec with Matchers {
     inputStreamToString(actual.get.getContent) should be(SOME_TEXT)
   }
 
-  "toCookies" should "convert list of HeaderElement objects into List of Cookie objects" in {
+  "toCookies" should "convert list of NameValuePair objects into List of Cookie objects" in {
     // given
-    val headerElements = List(
-      HeaderElement(NAME_1, VALUE_1),
-      HeaderElement(NAME_2, VALUE_2),
-      HeaderElement(NAME_3, VALUE_3))
+    val nameValuePairs = List(
+      NameValuePair(NAME_1, VALUE_1),
+      NameValuePair(NAME_2, VALUE_2),
+      NameValuePair(NAME_3, VALUE_3))
 
     val expected = List(
       Cookie(NAME_1, VALUE_1, COOKIE_DOMAIN, COOKIE_PATH),
@@ -144,7 +125,7 @@ class ApachePackageTest extends FlatSpec with Matchers {
       Cookie(NAME_3, VALUE_3, COOKIE_DOMAIN, COOKIE_PATH))
 
     // when
-    val actual = toCookies(headerElements, COOKIE_DOMAIN, COOKIE_PATH)
+    val actual = toCookies(nameValuePairs, COOKIE_DOMAIN, COOKIE_PATH)
 
     // then
     actual should contain theSameElementsInOrderAs expected

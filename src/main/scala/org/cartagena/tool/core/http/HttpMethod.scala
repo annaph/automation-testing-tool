@@ -11,6 +11,8 @@ case object Get extends HttpMethod
 
 case object Post extends HttpMethod
 
+case object Put extends HttpMethod
+
 case object Delete extends HttpMethod
 
 object HttpMethod {
@@ -18,6 +20,8 @@ object HttpMethod {
   val HTTP_METHOD_GET = "GET"
 
   val HTTP_METHOD_POST = "POST"
+
+  val HTTP_METHOD_PUT = "PUT"
 
   val HTTP_METHOD_DELETE = "DELETE"
 
@@ -27,6 +31,8 @@ object HttpMethod {
         HTTP_METHOD_GET
       case Post =>
         HTTP_METHOD_POST
+      case Put =>
+        HTTP_METHOD_PUT
       case Delete =>
         HTTP_METHOD_DELETE
     }

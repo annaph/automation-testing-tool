@@ -1,6 +1,6 @@
 package org.cartagena.tool.core.http
 
-import org.cartagena.tool.core.http.HttpMethod.{HTTP_METHOD_DELETE, HTTP_METHOD_GET, HTTP_METHOD_POST}
+import org.cartagena.tool.core.http.HttpMethod.{HTTP_METHOD_DELETE, HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_PUT}
 import org.scalatest.{FlatSpec, Matchers}
 
 class HttpMethodTest extends FlatSpec with Matchers {
@@ -25,6 +25,17 @@ class HttpMethodTest extends FlatSpec with Matchers {
 
     // then
     actual should be(HTTP_METHOD_POST)
+  }
+
+  it should "prettify Put Http method type" in {
+    // given
+    val method = Put
+
+    // when
+    val actual = method.toPrettyString
+
+    // then
+    actual should be(HTTP_METHOD_PUT)
   }
 
   it should "prettify Delete Http method type" in {
