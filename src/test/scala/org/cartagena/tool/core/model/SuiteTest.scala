@@ -5,7 +5,7 @@ import org.cartagena.tool.core.model.StepTestUtil.{MyCleanupStep => CleanupStep,
 import org.cartagena.tool.core.model.SuiteTest._
 import org.scalatest.{FlatSpec, Matchers}
 
-class SuiteTest extends FlatSpec with Matchers {
+  class SuiteTest extends FlatSpec with Matchers {
 
   "run" should "run suite and return suite report with Passed status" in {
     // given

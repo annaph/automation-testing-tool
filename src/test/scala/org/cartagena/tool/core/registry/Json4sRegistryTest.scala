@@ -2,7 +2,7 @@ package org.cartagena.tool.core.registry
 
 import org.cartagena.tool.core.http.JsonHelper
 import org.cartagena.tool.core.http.json4s._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 trait Json4sRegistryTest
   extends Json4sClientComponent

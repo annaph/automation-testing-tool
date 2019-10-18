@@ -2,8 +2,8 @@ package org.cartagena.tool.core
 
 import org.cartagena.tool.core.model.Context
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.reflect.runtime.universe.typeTag
 import scala.util.{Failure, Success}

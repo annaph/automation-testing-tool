@@ -9,8 +9,8 @@ import org.cartagena.tool.core.PrettyPrintConstants.NEW_LINE
 import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.model._
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.collection.mutable
 import scala.reflect.runtime.universe.typeTag

@@ -2,7 +2,7 @@ package org.cartagena.tool.core.registry
 
 import org.cartagena.tool.core.http.RestHelper
 import org.cartagena.tool.core.http.apache.{ApacheHttpClient, ApacheHttpClientComponent, ApacheHttpOperations, ApacheHttpOperationsComponent, ApacheRestHelperComponent}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 trait ApacheRestRegistryTest
   extends ApacheHttpClientComponent

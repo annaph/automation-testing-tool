@@ -25,10 +25,10 @@ case object ExecuteHttpPutRequest
 
   override val name: String = "Execute HTTP PUT request"
 
-  private val host = profile getProperty("host", "")
-  private val port = profile getProperty("port", "")
-  private val username = profile getProperty("username", "")
-  private val password = profile getProperty("password", "")
+  private val host = profile getProperty "host" getOrElse ""
+  private val port = profile getProperty "port" getOrElse ""
+  private val username = profile getProperty "username" getOrElse ""
+  private val password = profile getProperty "password" getOrElse ""
 
   private val headerAccept = context </[String] HEADER_ACCEPT
   private val headerContentType = context </[String] HEADER_CONTENT_TYPE

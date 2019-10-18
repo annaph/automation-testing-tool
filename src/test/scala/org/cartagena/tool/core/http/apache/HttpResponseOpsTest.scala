@@ -7,8 +7,8 @@ import org.cartagena.tool.core.http.apache.ApacheHttpResponse.HttpResponseOps
 import org.cartagena.tool.core.http.apache.ApacheHttpTestUtil._
 import org.cartagena.tool.core.http.{Empty, JsonString, NameValuePair, Text}
 import org.mockito.Mockito.{spy, when}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import org.scalatestplus.mockito.MockitoSugar
 
 class HttpResponseOpsTest extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
 

@@ -96,7 +96,7 @@ class ApachePackageTest extends FlatSpec with Matchers {
     val actual = httpBodyToHttpEntityOption(body)
 
     // then
-    actual should be(None)
+    actual shouldBe empty
   }
 
   it should "convert non-Empty Http body to Some HttpEntity" in {

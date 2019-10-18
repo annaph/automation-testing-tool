@@ -17,7 +17,7 @@ class AppendProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process where all integers are processed only by the 1st process" in {
@@ -52,7 +52,7 @@ class AppendProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 2, 3)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to result in empty output stream when 1st process halts immediately and 2nd process " +
@@ -64,7 +64,7 @@ class AppendProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 2, 3)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to handle 'Err' signal happened in the 1st process" in {
