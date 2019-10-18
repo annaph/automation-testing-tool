@@ -25,7 +25,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to take zero integers and result to an empty output stream" in {
@@ -36,7 +36,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   "take" should "create process to take none integer and result to an empty output stream" in {
@@ -47,7 +47,7 @@ class TakeProcessTest extends FlatSpec with Matchers {
     val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to take all integers" in {

@@ -20,6 +20,9 @@ trait ApacheHttpOperations {
   def executePost(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
                  (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
 
+  def executePut(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
+                (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
+
   def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])
                    (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse
 
@@ -43,6 +46,10 @@ class ApacheHttpOperationsImpl extends ApacheHttpOperations {
   override def executePost(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
                           (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
     ApacheHttpOperationsImpl.executePost(url, headers, params, entity)
+
+  override def executePut(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
+                         (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    ApacheHttpOperationsImpl.executePut(url, headers, params, entity)
 
   override def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])
                             (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
@@ -83,6 +90,18 @@ object ApacheHttpOperationsImpl {
         .withParams(params)
         .withEntity(entity)
         .buildHttpPost()
+    }
+
+  private def executePut(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: HttpEntity)
+                        (implicit client: HttpClient, context: HttpContext): ApacheHttpResponse =
+    execute { id =>
+      ApacheHttpRequestBuilder[MustHaveEntity]()
+        .withId(id)
+        .withURL(url)
+        .withHeaders(headers)
+        .withParams(params)
+        .withEntity(entity)
+        .buildHttpPut()
     }
 
   private def executeDelete(url: URL, headers: NameValuePairs, params: NameValuePairs, entity: Option[HttpEntity])

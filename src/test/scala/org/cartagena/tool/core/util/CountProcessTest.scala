@@ -24,7 +24,7 @@ class CountProcessTest extends FlatSpec with Matchers {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
 }

@@ -14,40 +14,33 @@ trait Profile {
 
   def path: String
 
-  def getProperty(key: String, default: => String): String =
-    getProperty(key) getOrElse default
-
   def getProperty(key: String): Option[String] =
     _properties get key
 
-  def getAllProperties: Map[String, String] = _properties
-
-  def readPropertyFile(fileName: String): Map[String, String] =
-    Profile readPropertyFile (path + fileName)
+  def getAllProperties: Map[String, String] =
+    _properties
 
   protected def readProperties: Map[String, String]
 
+  protected def readPropertyFile(fileName: String): Map[String, String] =
+    Profile readPropertyFile (path + fileName + ".properties")
+
 }
 
-abstract class DefaultProfile extends Profile {
+trait DefaultProfile extends Profile {
 
-  override def name: String = "default-profile"
+  override def name: String = Profile.DEFAULT_PROFILE_NAME
 
-  override def readProperties: Map[String, String] =
-    Option(getClass.getResource(path + "default.properties")) match {
-      case Some(_) =>
-        readPropertyFile("default")
-      case None =>
-        Map.empty
-    }
+  override protected def readProperties: Map[String, String] =
+    readPropertyFile("default")
+
 }
 
-case object EmptyProfile extends Profile {
+trait EmptyProfile extends Profile {
 
-  override val name: String = "empty-profile"
+  override val name: String = Profile.EMPTY_PROFILE_NAME
 
-  override val path: String =
-    ""
+  override val path: String = ""
 
   override protected def readProperties: Map[String, String] =
     Map.empty
@@ -56,10 +49,14 @@ case object EmptyProfile extends Profile {
 
 object Profile {
 
+  val DEFAULT_PROFILE_NAME = "default-profile"
+
+  val EMPTY_PROFILE_NAME = "empty-profile"
+
   private def readPropertyFile(filePath: String): Map[String, String] = {
     Try {
       val props = new Properties()
-      props load this.getClass.getResourceAsStream(filePath + ".properties")
+      props load this.getClass.getResourceAsStream(filePath)
       props.asScala
     } match {
       case Success(properties) =>

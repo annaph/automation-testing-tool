@@ -13,7 +13,7 @@ class StepProfileAndContextTest extends FlatSpec with Matchers {
     val actual = step.profile
 
     // then
-    actual should be(EmptyProfile)
+    actual shouldBe a[EmptyProfile]
   }
 
   "context" should "return empty Context" in {

@@ -67,6 +67,30 @@ class ApacheHttpOperationsTest extends FlatSpec with Matchers with ApacheRestReg
     verify(client).execute(any[ApacheHttpPost], same(context))
   }
 
+  "executePut" should "execute HTTP PUT request" in new TestNativeClientAndContext {
+    // given
+    var id: Long = -1L
+    val response = new BasicHttpResponse(
+      new ProtocolVersion(PROTOCOL, PROTOCOL_VERSION, PROTOCOL_VERSION), STATUS_CODE_200, REASON_PHRASE_OK)
+
+    when(client.execute(any[ApacheHttpPut], same(context)))
+      .thenAnswer { invocation =>
+        val request = invocation getArgument(0, classOf[ApacheHttpPut])
+        id = request.id
+
+        response
+      }
+
+    // when
+    val actual: ApacheHttpResponse = apacheHttpOperations executePut(
+      URL_STRING, Map(HEADER), Map(PARAM), new StringEntity(BODY_CONTENT))
+
+    // then
+    actual should be(ApacheHttpResponse(id, response))
+
+    verify(client).execute(any[ApacheHttpPut], same(context))
+  }
+
   "executeDelete" should "execute HTTP DELETE request" in new TestNativeClientAndContext {
     // given
     var id: Long = -1L

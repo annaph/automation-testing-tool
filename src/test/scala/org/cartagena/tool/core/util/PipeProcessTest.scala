@@ -17,7 +17,7 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to result in empty output stream when 1st process results in empty stream" in {
@@ -28,7 +28,7 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 2, 3)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to result in empty output stream when 2nd process results in empty stream" in {
@@ -39,7 +39,7 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 2, 3)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to handle 'Err' signal happened in the 1st process" in {

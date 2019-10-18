@@ -24,7 +24,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
       val actual = process(Stream(1, 2, 3)).map(_.get)
 
       // then
-      actual should be(Stream.empty)
+      actual shouldBe empty
     }
 
     // then
@@ -48,7 +48,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
       val actual = process(Stream.empty).map(_.get)
 
       // then
-      actual should be(Stream.empty)
+      actual shouldBe empty
     }
 
     // then
@@ -68,7 +68,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
       val actual = process(Stream(1, 2, 3)).map(_.get)
 
       // then
-      actual should be(Stream.empty)
+      actual shouldBe empty
     }
 
     // then
@@ -122,7 +122,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
       val actual = process(Stream(1, 2, 3)).map(_.get)
 
       // then
-      actual should be(Stream.empty)
+      actual shouldBe empty
     }
 
     // then

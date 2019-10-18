@@ -48,6 +48,24 @@ class ApacheHttpRequestBuilderTest extends FlatSpec with Matchers {
     request should haveBody(BODY_CONTENT)
   }
 
+  "buildHttpPut" should "create HTTP PUT request" in {
+    // when
+    val request = ApacheHttpRequestBuilder[MustHaveEntity]()
+      .withId(REQUEST_ID)
+      .withURL(URL_STRING)
+      .withHeaders(Map(HEADER))
+      .withParams(Map(PARAM))
+      .withEntity(new StringEntity(BODY_CONTENT))
+      .buildHttpPut()
+
+    // then
+    request should haveId(REQUEST_ID)
+    request should haveURL(URL_STRING)
+    request should containHeaders(Map(HEADER))
+    request should containParams(Map(PARAM))
+    request should haveBody(BODY_CONTENT)
+  }
+
   "buildHttpDelete" should "create HTTP DELETE request" in {
     // when
     val request = ApacheHttpRequestBuilder[MayHaveEntity]()

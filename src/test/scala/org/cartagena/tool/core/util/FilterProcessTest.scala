@@ -41,7 +41,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to filter even integers and result to an empty output stream" in {
@@ -52,7 +52,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 3, 5)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to handle 'Err' signal" in {

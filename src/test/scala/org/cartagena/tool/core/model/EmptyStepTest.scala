@@ -25,7 +25,7 @@ class EmptyStepTest extends FlatSpec with Matchers {
     val actual = EmptyStep.toStream
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   "route" should "throw unsupported operation exception" in {

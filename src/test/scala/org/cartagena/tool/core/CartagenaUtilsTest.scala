@@ -4,13 +4,15 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
 
 import org.cartagena.tool.core.CartagenaUtils._
+import org.cartagena.tool.core.CartagenaUtilsTest._
 import org.cartagena.tool.core.PrettyPrintConstants.NEW_LINE
-import org.cartagena.tool.core.http.{HttpRequest, HttpResponse, JsonString, Text}
+import org.cartagena.tool.core.http._
 import org.cartagena.tool.core.model._
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.mockito.MockitoSugar
 
+import scala.collection.mutable
 import scala.reflect.runtime.universe.typeTag
 import scala.util.Success
 
@@ -25,6 +27,19 @@ class CartagenaUtilsTest extends FlatSpec with Matchers with MockitoSugar {
 
     // then
     actual.toString should be(str)
+  }
+
+  "nameValueTuplesToList" should "convert list of name/value tuples into List" in {
+    // given
+    val nameValuePairs = mutable.ListBuffer(name1 -> value1, name2 -> value2, name3 -> value3)
+
+    val expected = NameValuePair(name1, value1) :: NameValuePair(name2, value2) :: NameValuePair(name3, value3) :: Nil
+
+    // when
+    val actual = nameValueTuplesToList(nameValuePairs)
+
+    // then
+    actual should contain theSameElementsInOrderAs expected
   }
 
   "inputStreamToJsonString" should "convert InputStream to JsonString" in {
@@ -86,7 +101,29 @@ class CartagenaUtilsTest extends FlatSpec with Matchers with MockitoSugar {
     actual.right() should be(EmptyStep)
   }
 
-  "ContextOperations" should "return an entry value associated with a given key" in {
+  "NameValuePairOps" should "concat name/value pair" in {
+    // given
+    val expected = mutable.ListBuffer(name1 -> value1, name2 -> value2)
+
+    // when
+    val actual = (name1 -> value1) + (name2 -> value2)
+
+    // then
+    actual should contain theSameElementsInOrderAs expected
+  }
+
+  "NameValuePairsOps" should "concat name/value pair" in {
+    // given
+    val expected = mutable.ListBuffer(name1 -> value1, name2 -> value2, name3 -> value3)
+
+    // when
+    val actual = mutable.ListBuffer(name1 -> value1, name2 -> value2) + (name3 -> value3)
+
+    // then
+    actual should contain theSameElementsInOrderAs expected
+  }
+
+  "ContextOps" should "return an entry value associated with a given key" in {
     // given
     val key = "key"
     val value = "value"
@@ -253,5 +290,18 @@ class CartagenaUtilsTest extends FlatSpec with Matchers with MockitoSugar {
 
     verify(response).toPrettyString
   }
+
+}
+
+object CartagenaUtilsTest {
+
+  val name1 = "name1"
+  val value1 = "value1"
+
+  val name2 = "name2"
+  val value2 = "value2"
+
+  val name3 = "name3"
+  val value3 = "value3"
 
 }

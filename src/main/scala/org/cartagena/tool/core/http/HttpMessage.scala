@@ -9,11 +9,11 @@ sealed trait HttpMessage {
 
 }
 
-class HttpRequest[T <: HttpBody](val url: URL,
-                                 val method: HttpMethod,
-                                 val headers: List[HeaderElement] = List.empty,
-                                 val params: List[QueryParam] = List.empty,
-                                 val body: T) extends HttpMessage
+case class HttpRequest[T <: HttpBody](url: URL,
+                                      method: HttpMethod,
+                                      headers: List[NameValuePair] = List.empty,
+                                      params: List[NameValuePair] = List.empty,
+                                      body: T) extends HttpMessage
 
 case class HttpResponse[T <: HttpBody](status: HttpStatus,
                                        reason: String,
@@ -33,15 +33,13 @@ object HttpMessage {
     }
 
   private def httpRequestToPrettyString[T <: HttpBody](request: HttpRequest[T]): String = {
-    val headers = request.headers.map {
-      case HeaderElement(name, value) =>
+    val nameValuePairToStr: NameValuePair => String = {
+      case NameValuePair(name, value) =>
         s"$name: $value"
     }
 
-    val params = request.params.map {
-      case QueryParam(name, value) =>
-        s"$name = $value"
-    }
+    val headers = request.headers.map(nameValuePairToStr)
+    val params = request.params.map(nameValuePairToStr)
 
     val builder = StringBuilder.newBuilder
 
@@ -79,10 +77,12 @@ object HttpMessage {
   }
 
   private def httpResponseToPrettyString[T <: HttpBody](response: HttpResponse[T]): String = {
-    val cookies = response.cookies.map {
+    val cookieToStr: Cookie => String = {
       case Cookie(name, value, host, path) =>
         s"$name: $value, value: $value, host: $host, path: $path"
     }
+
+    val cookies = response.cookies.map(cookieToStr)
 
     val builder = StringBuilder.newBuilder
 
@@ -114,21 +114,5 @@ object HttpMessage {
 
     builder.toString()
   }
-
-}
-
-object HttpRequest {
-
-  def apply[T <: HttpBody](url: URL,
-                           method: HttpMethod,
-                           headers: List[(String, String)] = List.empty,
-                           params: List[(String, String)] = List.empty,
-                           body: T): HttpRequest[T] =
-    new HttpRequest(
-      url,
-      method,
-      headers.map(header => HeaderElement(header._1, header._2)),
-      params.map(param => QueryParam(param._1, param._2)),
-      body)
 
 }

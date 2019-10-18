@@ -2,7 +2,7 @@ package org.cartagena.tool.example.suite.login.testcase
 
 import org.cartagena.tool.core.CartagenaUtils._
 import org.cartagena.tool.core.agent.{JsonAgent, RestAgent}
-import org.cartagena.tool.core.http._
+import org.cartagena.tool.core.http.{HttpRequest, _}
 import org.cartagena.tool.core.model.{SerialTestStep, TestCase, ShapelessTestStep => TestStep}
 import org.cartagena.tool.example.suite.login.model.LoginDTO
 import org.cartagena.tool.example.suite.login.{LoginProfileAndContext, _}
@@ -25,10 +25,10 @@ case object ExecuteHttpPutRequest
 
   override val name: String = "Execute HTTP PUT request"
 
-  private val host = profile getProperty("host", "")
-  private val port = profile getProperty("port", "")
-  private val username = profile getProperty("username", "")
-  private val password = profile getProperty("password", "")
+  private val host = profile getProperty "host" getOrElse ""
+  private val port = profile getProperty "port" getOrElse ""
+  private val username = profile getProperty "username" getOrElse ""
+  private val password = profile getProperty "password" getOrElse ""
 
   private val headerAccept = context </[String] HEADER_ACCEPT
   private val headerContentType = context </[String] HEADER_CONTENT_TYPE
@@ -37,12 +37,8 @@ case object ExecuteHttpPutRequest
     val request = HttpRequest(
       url = s"http://$host:$port/j_spring_security_check",
       method = Post,
-      headers = List(
-        "Accept" -> headerAccept,
-        "Content-Type" -> headerContentType),
-      params = List(
-        "username" -> username,
-        "password" -> password),
+      headers = ("Accept" -> headerAccept) + ("Content-Type" -> headerContentType),
+      params = ("username" -> username) + ("password" -> password),
       body = Empty)
 
     print(request)

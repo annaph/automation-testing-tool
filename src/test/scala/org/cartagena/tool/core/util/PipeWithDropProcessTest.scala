@@ -13,7 +13,7 @@ class PipeWithDropProcessTest extends FlatSpec with Matchers {
     val actual = process(Stream(1, 2, 3)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   "lift |> drop" should "create process to increase each integer by 3 and then drop first two integers" in {

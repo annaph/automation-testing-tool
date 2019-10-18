@@ -23,7 +23,7 @@ object StepExtensions {
     self: Step =>
 
     def profile: Profile =
-      EmptyProfile
+      new EmptyProfile {}
 
     def context: Context =
       Context.empty

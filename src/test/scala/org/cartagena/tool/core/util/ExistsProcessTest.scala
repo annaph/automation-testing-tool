@@ -29,7 +29,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to try to find even integer when it does not exist" in {

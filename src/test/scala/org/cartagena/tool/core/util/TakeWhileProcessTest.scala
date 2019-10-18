@@ -29,7 +29,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to take none integer and result to an empty output stream" in {
@@ -40,7 +40,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(4, 1, 6)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to take all integers" in {

@@ -56,7 +56,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(11, 12, 13, 14, 15, 16, 17)).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to result in empty output stream when input stream is empty" in {
@@ -72,7 +72,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream.empty).map(_.get)
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to handle 'Err' signal happened while processing the first integer" in {
@@ -176,7 +176,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     val actual = process(Stream(1, 2, 3))
 
     // then
-    actual should be(Stream.empty)
+    actual shouldBe empty
   }
 
   it should "create process to handle 'Kill' signal happened after processing several integers" in {
