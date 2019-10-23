@@ -4,22 +4,24 @@ import org.cartagena.tool.core.model.Profile
 
 object LoginProfiles {
 
-  trait LocalHostProfile extends Profile {
+  trait LoginProfileLocation {
+
+    val path: String = "/org/cartagena/tool/example/suite/login/"
+
+  }
+
+  trait LocalHostProfile extends Profile with LoginProfileLocation {
 
     override val name: String = "localhost-profile"
-
-    override val path: String = "/org/cartagena/tool/example/suite/login/"
 
     abstract override def readProperties: Map[String, String] =
       super.readProperties ++ readPropertyFile("localhost")
 
   }
 
-  trait VagrantProfile extends Profile {
+  trait VagrantProfile extends Profile with LoginProfileLocation {
 
     override val name: String = "vagrant-profile"
-
-    override val path: String = "/org/cartagena/tool/example/suite/login/"
 
     abstract override def readProperties: Map[String, String] =
       super.readProperties ++ readPropertyFile("vagrant")
