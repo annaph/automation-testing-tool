@@ -8,10 +8,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "liftOne |> exists" should "create process to increase only first integer by 3 and then find even integer" in {
     // given
     val process = liftOne[Int, Int](_ + 3) |> exists(_ % 2 == 0)
-    val expected = Stream(true)
+    val expected = LazyList(true)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -20,10 +20,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "lift |> exists" should "create process to increase each integer by 3 and then find odd integer" in {
     // given
     val process = lift[Int, Int](_ + 3) |> exists(_ % 2 != 0)
-    val expected = Stream(false, true)
+    val expected = LazyList(false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -32,10 +32,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "filter |> exists" should "create process to filter even integers and then find integer equal to 6" in {
     // given
     val process = filter[Int](_ % 2 == 0) |> exists(_ == 6)
-    val expected = Stream(false, false, true)
+    val expected = LazyList(false, false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -44,10 +44,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "take |> exists" should "create process to take first three integers and then find even integer" in {
     // given
     val process = take[Int](3) |> exists(_ % 2 == 0)
-    val expected = Stream(false, true)
+    val expected = LazyList(false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -56,10 +56,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "drop |> exists" should "create process to drop first three integers and then find odd integer" in {
     // given
     val process = drop[Int](3) |> exists(_ % 2 != 0)
-    val expected = Stream(false, true)
+    val expected = LazyList(false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -69,10 +69,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
     "integer" in {
     // given
     val process = takeWhile[Int](_ < 4) |> exists(_ % 2 == 0)
-    val expected = Stream(false, true)
+    val expected = LazyList(false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -82,10 +82,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
     "integer " in {
     // given
     val process = dropWhile[Int](_ < 4) |> exists(_ % 2 != 0)
-    val expected = Stream(false, true)
+    val expected = LazyList(false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -95,10 +95,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
     "to 3" in {
     // given
     val process = count[Char] |> exists(_ == 3)
-    val expected = Stream(false, false, true)
+    val expected = LazyList(false, false, true)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     actual should contain theSameElementsInOrderAs expected
   }
@@ -106,10 +106,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "zipWithIndex |> exists" should "create process to zip each character with index and then find index equal to 2" in {
     // given
     val process = zipWithIndex[Char] |> exists(_._2 == 2)
-    val expected = Stream(false, false, true)
+    val expected = LazyList(false, false, true)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -118,10 +118,10 @@ class PipeWithExistsProcessTest extends FlatSpec with Matchers {
   "exists |> exists" should "create process to find even integer and then find output equal to true" in {
     // given
     val process = exists[Int](_ % 2 == 0) |> exists(o => o)
-    val expected = Stream(false, false, true)
+    val expected = LazyList(false, false, true)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

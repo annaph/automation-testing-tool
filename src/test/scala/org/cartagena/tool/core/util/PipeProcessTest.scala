@@ -9,34 +9,34 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
 
   case object MyPipeException extends Exception
 
-  "pipe" should "create process to result in empty output stream when input stream is empty" in {
+  "pipe" should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = lift[Int, Int](_ + 3) |> lift(_.toString)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to result in empty output stream when 1st process results in empty stream" in {
+  it should "create process to result in empty output lazy list when 1st process results in empty lazy list" in {
     // given
     val process = dropWhile[Int](_ => true) |> lift(_.toString)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to result in empty output stream when 2nd process results in empty stream" in {
+  it should "create process to result in empty output lazy list when 2nd process results in empty lazy list" in {
     // given
     val process = lift[Int, Int](_ + 3) |> dropWhile[Int](_ => true)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual shouldBe empty
@@ -50,7 +50,7 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
     } |> lift(_.toString)
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -76,7 +76,7 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -100,10 +100,10 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
       case 2 => throw Kill
       case x => x + 3
     } |> lift(_.toString)
-    val expected = Stream("4")
+    val expected = LazyList("4")
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -115,10 +115,10 @@ class PipeProcessTest extends FlatSpec with Matchers with Inside {
       case 5 => throw Kill
       case x => x.toString
     }
-    val expected = Stream("4")
+    val expected = LazyList("4")
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

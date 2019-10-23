@@ -2,7 +2,7 @@ package org.cartagena.tool.core.model
 
 import java.util.Properties
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 trait Profile {

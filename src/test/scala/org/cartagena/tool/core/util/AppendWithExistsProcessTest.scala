@@ -9,10 +9,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
     "even integer " in {
     // given
     val process = liftOne[Int, Boolean](_ => true) ++ exists(_ % 2 != 0)
-    val expected = Stream(true, false, true)
+    val expected = LazyList(true, false, true)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -21,10 +21,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
   "lift ++ exists" should "create process to convert each integer to 'true' and then append to do nothing" in {
     // given
     val process = lift[Int, Boolean](_ => true) ++ exists(_ => true)
-    val expected = Stream(true, true, true)
+    val expected = LazyList(true, true, true)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -33,10 +33,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
   "filter ++ exists" should "create process to filter 'true' values and then append to do nothing" in {
     // given
     val process = filter[Boolean](i => i) ++ exists(_ => false)
-    val expected = Stream(true, true, true)
+    val expected = LazyList(true, true, true)
 
     // when
-    val actual = process(Stream(false, true, false, true, false, true)).map(_.get)
+    val actual = process(LazyList(false, true, false, true, false, true)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -45,10 +45,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
   "take ++ exists" should "create process to take first three boolean values and then append to find 'true' value" in {
     // given
     val process = take[Boolean](3) ++ exists(i => i)
-    val expected = Stream(true, false, true, false, true)
+    val expected = LazyList(true, false, true, false, true)
 
     // when
-    val actual = process(Stream(true, false, true, false, true, true)).map(_.get)
+    val actual = process(LazyList(true, false, true, false, true, true)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -57,10 +57,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
   "drop ++ exists" should "create process to drop first three boolean values and then append to do nothing" in {
     // given
     val process = drop[Boolean](3) ++ exists(i => i)
-    val expected = Stream(false, true, true)
+    val expected = LazyList(false, true, true)
 
     // when
-    val actual = process(Stream(true, false, true, false, true, true)).map(_.get)
+    val actual = process(LazyList(true, false, true, false, true, true)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -70,10 +70,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
     "'true' value" in {
     // given
     val process = takeWhile[Boolean](i => i) ++ exists(i => i)
-    val expected = Stream(true, true, true, false, true)
+    val expected = LazyList(true, true, true, false, true)
 
     // when
-    val actual = process(Stream(true, true, true, false, true, true)).map(_.get)
+    val actual = process(LazyList(true, true, true, false, true, true)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -83,10 +83,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
     "nothing" in {
     // given
     val process = dropWhile[Boolean](i => i) ++ exists(i => i)
-    val expected = Stream(false, true, false)
+    val expected = LazyList(false, true, false)
 
     // when
-    val actual = process(Stream(true, true, true, false, true, false)).map(_.get)
+    val actual = process(LazyList(true, true, true, false, true, false)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -95,10 +95,10 @@ class AppendWithExistsProcessTest extends FlatSpec with Matchers {
   "exists ++ exists" should "create process to find even integer and then append to find next even integer" in {
     // given
     val process = exists[Int](_ % 2 == 0) ++ exists(_ % 2 == 0)
-    val expected = Stream(false, false, true, false, true)
+    val expected = LazyList(false, false, true, false, true)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5, 6, 7)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5, 6, 7)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

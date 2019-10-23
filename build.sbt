@@ -2,9 +2,9 @@ name := "cartagena-tool"
 
 organization := "org.cartagena.tool"
 
-version := "1.1.17-SNAPSHOT"
+version := "1.2.0-SNAPSHOT"
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.13.1"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -13,7 +13,7 @@ scalacOptions ++= Seq(
   "-language:reflectiveCalls")
 
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % "2.12.10",
+  "org.scala-lang" % "scala-reflect" % "2.13.1",
   "org.scalaz" %% "scalaz-core" % "7.2.28",
   "org.scalaz" %% "scalaz-effect" % "7.2.28",
   "org.apache.httpcomponents" % "httpclient" % "4.5.10",

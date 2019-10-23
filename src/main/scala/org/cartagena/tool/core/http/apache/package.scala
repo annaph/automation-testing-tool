@@ -2,9 +2,10 @@ package org.cartagena.tool.core.http
 
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.nio.charset.StandardCharsets
-import java.util.stream.Collectors
 
 import org.apache.http.HttpEntity
+
+import scala.jdk.StreamConverters._
 
 package object apache {
 
@@ -15,7 +16,7 @@ package object apache {
     val reader = new BufferedReader(
       new InputStreamReader(in, StandardCharsets.UTF_8.name()))
 
-    reader.lines().collect(Collectors.joining(System.lineSeparator()))
+    reader.lines().toScala(Iterator) mkString System.lineSeparator()
   }
 
   implicit def nameValuePairsToMap(nameValuePairs: List[NameValuePair]): Map[String, String] =
@@ -31,7 +32,7 @@ package object apache {
         toEntity[Text](x)
       case x: JsonString =>
         toEntity[JsonString](x)
-      case x@Empty =>
+      case x: Empty.type =>
         toEntity[Empty.type](x)
     }
 

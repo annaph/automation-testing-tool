@@ -12,10 +12,10 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
   "filter" should "create process to filter even integers" in {
     // given
     val process = filter[Int](_ % 2 == 0)
-    val expected = Stream(2, 4, 6)
+    val expected = LazyList(2, 4, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -24,32 +24,32 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
   it should "create process to filter all integers" in {
     // given
     val process = filter[Int](_ => true)
-    val expected = Stream(1, 2, 3, 4, 5, 6)
+    val expected = LazyList(1, 2, 3, 4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = filter[Int](_ % 2 == 0)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to filter even integers and result to an empty output stream" in {
+  it should "create process to filter even integers and result to an empty output lazy list" in {
     // given
     val process = filter[Int](_ % 2 == 0)
 
     // when
-    val actual = process(Stream(1, 3, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 5)).map(_.get)
 
     // then
     actual shouldBe empty
@@ -64,7 +64,7 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6))
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6))
 
     // then
     actual should have size 2
@@ -89,10 +89,10 @@ class FilterProcessTest extends FlatSpec with Matchers with Inside {
       case x if x % 2 == 0 => true
       case _ => false
     }
-    val expected = Stream(2, 4)
+    val expected = LazyList(2, 4)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

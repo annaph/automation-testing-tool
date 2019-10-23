@@ -12,21 +12,21 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
   "exists" should "create process to find even integer" in {
     // given
     val process = exists[Int](_ % 2 == 0)
-    val expected = Stream(false, false, true)
+    val expected = LazyList(false, false, true)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = exists[Int](_ % 2 == 0)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
@@ -35,10 +35,10 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
   it should "create process to try to find even integer when it does not exist" in {
     // given
     val process = exists[Int](_ % 2 == 0)
-    val expected = Stream(false, false, false)
+    val expected = LazyList(false, false, false)
 
     // when
-    val actual = process(Stream(1, 3, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -52,7 +52,7 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 3, 4, 5))
+    val actual = process(LazyList(1, 3, 4, 5))
 
     // then
     actual should have size 2
@@ -76,10 +76,10 @@ class ExistsProcessTest extends FlatSpec with Matchers with Inside {
       case 3 => throw Kill
       case x => x % 2 == 0
     }
-    val expected = Stream(false)
+    val expected = LazyList(false)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

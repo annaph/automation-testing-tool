@@ -16,7 +16,7 @@ class LiftProcessTest extends FlatSpec with Matchers with Inside {
 
     // when
     Console.withOut(output) {
-      process(Stream(1, 2, 3)).toList
+      process(LazyList(1, 2, 3)).toList
     }
     val outputString = output.toString
 
@@ -29,21 +29,21 @@ class LiftProcessTest extends FlatSpec with Matchers with Inside {
   "lift" should "create process to increase each integer by 3" in {
     // given
     val process = lift[Int, Int](_ + 3)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = lift[Int, Int](_ + 3)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
@@ -54,7 +54,7 @@ class LiftProcessTest extends FlatSpec with Matchers with Inside {
     val process = lift[String, Int](_.toInt)
 
     // when
-    val actual = process(Stream("1", "b", "3"))
+    val actual = process(LazyList("1", "b", "3"))
 
     // then
     actual should have size 2
@@ -78,10 +78,10 @@ class LiftProcessTest extends FlatSpec with Matchers with Inside {
       case "b" => throw Kill
       case ch => ch
     }
-    val expected = Stream("a")
+    val expected = LazyList("a")
 
     // when
-    val actual = process(Stream("a", "b", "c")).map(_.get)
+    val actual = process(LazyList("a", "b", "c")).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

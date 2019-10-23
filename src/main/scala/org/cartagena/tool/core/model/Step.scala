@@ -79,18 +79,18 @@ object Step {
         emit[Step with StepShape, StepExecution](stepExecution) ++ lift(_.ignore)
     }
 
-    executionProcess(step.toStream).toList
+    executionProcess(step.toLazyList).toList
       .filter(_.isSuccess)
       .map(_.get)
       .foldLeft[StepExecution](PassedStepExecution(step.name)) {
-      case (acc, stepExecution) =>
-        stepExecution match {
-          case _: PassedStepExecution =>
-            PassedStepExecution(step.name, acc.children :+ stepExecution)
-          case _: NonPassedStepExecution =>
-            FailedStepExecution(step.name, SerialStepFailed, acc.children :+ stepExecution)
-        }
-    }
+        case (acc, stepExecution) =>
+          stepExecution match {
+            case _: PassedStepExecution =>
+              PassedStepExecution(step.name, acc.children :+ stepExecution)
+            case _: NonPassedStepExecution =>
+              FailedStepExecution(step.name, SerialStepFailed, acc.children :+ stepExecution)
+          }
+      }
   }
 
   private[model] def ignoreStep(step: Step): StepExecution =

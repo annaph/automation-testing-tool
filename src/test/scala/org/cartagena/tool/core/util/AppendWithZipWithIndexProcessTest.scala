@@ -9,10 +9,10 @@ class AppendWithZipWithIndexProcessTest extends FlatSpec with Matchers {
     "characters with index" in {
     // given
     val process = liftOne[Char, (Char, Int)](_ -> 1) ++ zipWithIndex
-    val expected = Stream('a' -> 1, 'b' -> 0, 'c' -> 1)
+    val expected = LazyList('a' -> 1, 'b' -> 0, 'c' -> 1)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -21,10 +21,10 @@ class AppendWithZipWithIndexProcessTest extends FlatSpec with Matchers {
   "lift ++ zipWithIndex" should "create process to zip each integer with '0' and then append to do nothing" in {
     // given
     val process = lift[Int, (Int, Int)](i => i -> 0) ++ zipWithIndex
-    val expected = Stream(1 -> 0, 2 -> 0, 3 -> 0)
+    val expected = LazyList(1 -> 0, 2 -> 0, 3 -> 0)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -34,10 +34,10 @@ class AppendWithZipWithIndexProcessTest extends FlatSpec with Matchers {
     "nothing" in {
     // given
     val process = zipWithIndex[Char] ++ zipWithIndex
-    val expected = Stream('a' -> 0, 'b' -> 1, 'c' -> 2)
+    val expected = LazyList('a' -> 0, 'b' -> 1, 'c' -> 2)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

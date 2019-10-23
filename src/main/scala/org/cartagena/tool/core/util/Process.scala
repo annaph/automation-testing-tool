@@ -4,7 +4,7 @@ import scala.util.{Failure, Success, Try}
 
 sealed trait Process[I, O] {
 
-  def apply(s: Stream[I]): Stream[Try[O]] =
+  def apply(s: LazyList[I]): LazyList[Try[O]] =
     Process.apply(this, s)
 
   def unit(o: O): Process[I, O] =
@@ -50,7 +50,7 @@ case object Kill extends Exception
 
 object Process {
 
-  def apply[I, O](p: Process[I, O], s: Stream[I]): Stream[Try[O]] = p match {
+  def apply[I, O](p: Process[I, O], s: LazyList[I]): LazyList[Try[O]] = p match {
     case Await(recv) => s match {
       case h #:: t =>
         `try`(recv(Some(h)))(t)
@@ -63,12 +63,12 @@ object Process {
       case x #:: xs =>
         t(i #:: x #:: xs)
       case _ =>
-        t(i #:: Stream.empty)
+        t(i #:: LazyList.empty)
     }
     case Halt(End | Kill) =>
-      Stream.empty
+      LazyList.empty
     case Halt(err) =>
-      Failure(err) #:: Stream.empty
+      Failure(err) #:: LazyList.empty
   }
 
   def unit[I, O](o: O): Process[I, O] =

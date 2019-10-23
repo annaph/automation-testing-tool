@@ -29,8 +29,8 @@ object StepDimensions {
     private[model] def ignore: StepExecution =
       ignoreStep(this)
 
-    private[model] def toStream: Stream[Step with StepShape] =
-      this #:: Stream.empty
+    private[model] def toLazyList: LazyList[Step with StepShape] =
+      this #:: LazyList.empty
 
   }
 
@@ -62,8 +62,8 @@ object StepDimensions {
     override private[model] def execute(): StepExecution =
       executeSerialStep(this)
 
-    override private[model] def toStream: Stream[Step with StepShape] =
-      left.toStream ++: right.apply().toStream
+    override private[model] def toLazyList: LazyList[Step with StepShape] =
+      left.toLazyList ++: right.apply().toLazyList
 
   }
 

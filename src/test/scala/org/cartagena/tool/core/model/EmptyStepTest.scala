@@ -20,9 +20,9 @@ class EmptyStepTest extends FlatSpec with Matchers {
     actual should be(IgnoredStepExecution(EmptyStep.name))
   }
 
-  "toStream" should "return empty" in {
+  "toLazyList" should "return empty" in {
     // when
-    val actual = EmptyStep.toStream
+    val actual = EmptyStep.toLazyList
 
     // then
     actual shouldBe empty

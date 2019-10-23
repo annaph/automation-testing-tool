@@ -10,21 +10,21 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
   "liftOne" should "create process to increase only first integer by 3" in {
     // given
     val process = liftOne[Int, Int](_ + 3)
-    val expected = Stream(4)
+    val expected = LazyList(4)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = liftOne[Int, Int](_ + 3)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
@@ -35,7 +35,7 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
     val process = liftOne[String, Int](_.toInt)
 
     // when
-    val actual = process(Stream("a", "b", "c"))
+    val actual = process(LazyList("a", "b", "c"))
 
     // then
     actual should have size 1
@@ -55,7 +55,7 @@ class LiftOneProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream("a", "b", "c"))
+    val actual = process(LazyList("a", "b", "c"))
 
     // then
     actual shouldBe empty

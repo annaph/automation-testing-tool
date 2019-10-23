@@ -17,10 +17,10 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
       case err =>
         halt(err)
     }
-    val expected = Stream(1, 2, 3, 4, 5, 6, 7)
+    val expected = LazyList(1, 2, 3, 4, 5, 6, 7)
 
     // when
-    val actual = process(Stream(11, 12, 13, 14, 15, 16, 17)).map(_.get)
+    val actual = process(LazyList(11, 12, 13, 14, 15, 16, 17)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -34,10 +34,10 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
       case err =>
         halt(err)
     }
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(11, 12, 13, 14, 15, 16, 17)).map(_.get)
+    val actual = process(LazyList(11, 12, 13, 14, 15, 16, 17)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -53,13 +53,13 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(11, 12, 13, 14, 15, 16, 17)).map(_.get)
+    val actual = process(LazyList(11, 12, 13, 14, 15, 16, 17)).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = take[Int](3) onHalt {
       case End =>
@@ -69,7 +69,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
@@ -86,7 +86,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 1
@@ -109,7 +109,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -138,7 +138,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 3
@@ -173,7 +173,7 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual shouldBe empty
@@ -188,10 +188,10 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
       case Kill => count[Int]
       case _ => halt(new Exception)
     }
-    val expected = Stream(4)
+    val expected = LazyList(4)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -206,10 +206,10 @@ class OnHaltProcessTest extends FlatSpec with Matchers with Inside {
       case Kill => count[Int]
       case _ => halt(new Exception)
     }
-    val expected = Stream(4, 5)
+    val expected = LazyList(4, 5)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

@@ -32,7 +32,7 @@ case object EmptyStep extends Step
   override private[model] def ignore: StepExecution =
     ignoreStep(this)
 
-  override private[model] def toStream: Stream[Step with StepShape] =
-    Stream.empty
+  override private[model] def toLazyList: LazyList[Step with StepShape] =
+    LazyList.empty
 
 }

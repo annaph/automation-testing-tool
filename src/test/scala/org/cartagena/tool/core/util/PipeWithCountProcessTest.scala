@@ -9,10 +9,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "processed integers" in {
     // given
     val process = liftOne[Int, Int](_ + 3) |> count
-    val expected = Stream(1)
+    val expected = LazyList(1)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -22,10 +22,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "integers" in {
     // given
     val process = lift[Int, Int](_ + 3) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -34,10 +34,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
   "filter |> count" should "create process to filter even integers and then count the number of processed integers" in {
     // given
     val process = filter[Int](_ % 2 == 0) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -47,10 +47,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "integers" in {
     // given
     val process = take[Int](3) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -60,10 +60,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "integers" in {
     // given
     val process = drop[Int](3) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -73,10 +73,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "number of processed integers" in {
     // given
     val process = takeWhile[Int](_ < 4) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -86,10 +86,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "number of processed integers" in {
     // given
     val process = dropWhile[Int](_ < 4) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -98,10 +98,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
   "count |> count" should "create process to count the number of processed characters and then count the counters" in {
     // given
     val process = count[Char] |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     actual should contain theSameElementsInOrderAs expected
   }
@@ -110,10 +110,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
     "outputs" in {
     // given
     val process = zipWithIndex[Char] |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -122,10 +122,10 @@ class PipeWithCountProcessTest extends FlatSpec with Matchers {
   "exists |> count" should "create process to find even integer and then count the number of outputs" in {
     // given
     val process = exists[Int](_ % 2 == 0) |> count
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

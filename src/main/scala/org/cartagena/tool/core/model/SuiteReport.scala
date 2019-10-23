@@ -31,7 +31,7 @@ object SuiteReport {
   import org.cartagena.tool.core.PrettyPrintConstants._
 
   private def toPrettyString(suiteReport: SuiteReport): String = {
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
 
     def printStepReport(prefixTabs: String = s"$TAB $TAB", middleTabs: String = s"$TAB $TAB"): StepReport => Unit =
       stepReport => {

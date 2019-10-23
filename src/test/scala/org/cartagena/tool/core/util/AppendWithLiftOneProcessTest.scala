@@ -9,10 +9,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
     "second integer by 2" in {
     // given
     val process = liftOne[Int, Int](_ + 1) ++ liftOne(_ + 2)
-    val expected = Stream(2, 4)
+    val expected = LazyList(2, 4)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -21,10 +21,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
   "lift ++ liftOne" should "create process to increase each integer by 3 and then append to do nothing" in {
     // given
     val process = lift[Int, Int](_ + 3) ++ liftOne(_ + 1)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -33,10 +33,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
   "filter ++ liftOne" should "create process to filter even integers and then append to do nothing" in {
     // given
     val process = filter[Int](_ % 2 == 0) ++ liftOne(_ + 1)
-    val expected = Stream(2, 4, 6)
+    val expected = LazyList(2, 4, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -46,10 +46,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
     "integer by 3" in {
     // given
     val process = take[Int](3) ++ liftOne(_ + 3)
-    val expected = Stream(1, 2, 3, 7)
+    val expected = LazyList(1, 2, 3, 7)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -58,10 +58,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
   "drop ++ liftOne" should "create process to drop first three integers and then append to do nothing" in {
     // given
     val process = drop[Int](3) ++ liftOne(_ + 1)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -71,10 +71,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
     "increase only fourth integer by 3" in {
     // given
     val process = takeWhile[Int](_ < 4) ++ liftOne(_ + 3)
-    val expected = Stream(1, 2, 3, 7)
+    val expected = LazyList(1, 2, 3, 7)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -84,10 +84,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
     "do nothing" in {
     // given
     val process = dropWhile[Int](_ < 4) ++ liftOne(_ + 1)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -97,10 +97,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
     "nothing" in {
     // given
     val process = count[Char] ++ liftOne(_ + 1)
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     actual should contain theSameElementsInOrderAs expected
   }
@@ -108,10 +108,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
   "zipWithIndex ++ liftOne" should "create process to zip each character with index and then append to do nothing" in {
     // given
     val process = zipWithIndex[Char] ++ liftOne(_ -> 0)
-    val expected = Stream('a' -> 0, 'b' -> 1, 'c' -> 2)
+    val expected = LazyList('a' -> 0, 'b' -> 1, 'c' -> 2)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -120,10 +120,10 @@ class AppendWithLiftOneProcessTest extends FlatSpec with Matchers {
   "exists ++ liftOne" should "create process to find even integer and then append to emit one 'true' value" in {
     // given
     val process = exists[Int](_ % 2 == 0) ++ liftOne(_ => true)
-    val expected = Stream(false, false, true, true)
+    val expected = LazyList(false, false, true, true)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

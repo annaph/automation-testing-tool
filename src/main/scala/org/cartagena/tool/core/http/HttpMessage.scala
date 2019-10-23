@@ -41,7 +41,7 @@ object HttpMessage {
     val headers = request.headers.map(nameValuePairToStr)
     val params = request.params.map(nameValuePairToStr)
 
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
 
     builder ++= s"=> HTTP request:"
 
@@ -84,7 +84,7 @@ object HttpMessage {
 
     val cookies = response.cookies.map(cookieToStr)
 
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
 
     builder ++= s"=> HTTP response:"
 

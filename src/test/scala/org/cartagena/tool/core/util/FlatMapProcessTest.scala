@@ -12,32 +12,32 @@ class FlatMapProcessTest extends FlatSpec with Matchers with Inside {
   "flatMap" should "create process that converts processed integers into characters" in {
     // given
     val process = lift[Int, Int](_ + 3) flatMap[String] (i => emit(i.toString))
-    val expected = Stream("4", "5", "6")
+    val expected = LazyList("4", "5", "6")
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = lift[Int, Int](_ + 3) flatMap[String] (i => emit(i.toString))
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to result to an empty output stream" in {
+  it should "create process to result to an empty output lazy list" in {
     // given
     val process = filter[Int](_ % 2 == 0) flatMap[Int] (emit(_))
 
     // when
-    val actual = process(Stream(1, 3, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 5)).map(_.get)
 
     // then
     actual shouldBe empty
@@ -51,7 +51,7 @@ class FlatMapProcessTest extends FlatSpec with Matchers with Inside {
     }.flatMap[String](i => emit(i.toString))
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -77,7 +77,7 @@ class FlatMapProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -101,10 +101,10 @@ class FlatMapProcessTest extends FlatSpec with Matchers with Inside {
       case 2 => throw Kill
       case x => x + 3
     }.flatMap[String](i => emit(i.toString))
-    val expected = Stream("4")
+    val expected = LazyList("4")
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -116,10 +116,10 @@ class FlatMapProcessTest extends FlatSpec with Matchers with Inside {
       case 5 => throw Kill
       case x => emit(x.toString)
     }
-    val expected = Stream("4")
+    val expected = LazyList("4")
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

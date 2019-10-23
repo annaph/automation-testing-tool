@@ -12,32 +12,32 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
   "takeWhile" should "create process to take integers while integer is smaller than 4" in {
     // given
     val process = takeWhile[Int](_ < 4)
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 1, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 1, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = takeWhile[Int](_ < 3)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
   }
 
-  it should "create process to take none integer and result to an empty output stream" in {
+  it should "create process to take none integer and result to an empty output lazy list" in {
     // given
     val process = takeWhile[Int](_ < 4)
 
     // when
-    val actual = process(Stream(4, 1, 6)).map(_.get)
+    val actual = process(LazyList(4, 1, 6)).map(_.get)
 
     // then
     actual shouldBe empty
@@ -46,10 +46,10 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
   it should "create process to take all integers" in {
     // given
     val process = takeWhile[Int](_ < 10)
-    val expected = Stream(1, 2, 3, 4, 1, 6)
+    val expected = LazyList(1, 2, 3, 4, 1, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 1, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 1, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -63,7 +63,7 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 2
@@ -87,10 +87,10 @@ class TakeWhileProcessTest extends FlatSpec with Matchers with Inside {
       case 2 => throw Kill
       case x => x < 4
     }
-    val expected = Stream(1)
+    val expected = LazyList(1)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

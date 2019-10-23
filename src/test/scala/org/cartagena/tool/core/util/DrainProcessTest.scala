@@ -21,7 +21,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     // when
     val output = new ByteArrayOutputStream()
     Console.withOut(output) {
-      val actual = process(Stream(1, 2, 3)).map(_.get)
+      val actual = process(LazyList(1, 2, 3)).map(_.get)
 
       // then
       actual shouldBe empty
@@ -35,7 +35,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     outputString should include regex """Number: 3"""
   }
 
-  it should "create process that does not emit any integer when input stream is empty" in {
+  it should "create process that does not emit any integer when input lazy list is empty" in {
     // given
     val process = lift[Int, Int] { i =>
       println(s"Number: $i")
@@ -45,7 +45,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     // when
     val output = new ByteArrayOutputStream()
     Console.withOut(output) {
-      val actual = process(Stream.empty).map(_.get)
+      val actual = process(LazyList.empty).map(_.get)
 
       // then
       actual shouldBe empty
@@ -55,7 +55,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     output.toString should have length 0
   }
 
-  it should "create process that does not emit any integer when original process results to an empty stream" in {
+  it should "create process that does not emit any integer when original process results to an empty lazy list" in {
     // given
     val process = filter[Int] { i =>
       println(s"Number: $i")
@@ -65,7 +65,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     // when
     val output = new ByteArrayOutputStream()
     Console.withOut(output) {
-      val actual = process(Stream(1, 2, 3)).map(_.get)
+      val actual = process(LazyList(1, 2, 3)).map(_.get)
 
       // then
       actual shouldBe empty
@@ -91,7 +91,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     // when
     val output = new ByteArrayOutputStream()
     Console.withOut(output) {
-      val actual = process(Stream(1, 2, 3))
+      val actual = process(LazyList(1, 2, 3))
 
       // then
       actual should have size 1
@@ -119,7 +119,7 @@ class DrainProcessTest extends FlatSpec with Matchers with Inside {
     // when
     val output = new ByteArrayOutputStream()
     Console.withOut(output) {
-      val actual = process(Stream(1, 2, 3)).map(_.get)
+      val actual = process(LazyList(1, 2, 3)).map(_.get)
 
       // then
       actual shouldBe empty

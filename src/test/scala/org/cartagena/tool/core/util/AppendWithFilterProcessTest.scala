@@ -9,10 +9,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
     "integers" in {
     // given
     val process = liftOne[Int, Int](_ + 1) ++ filter(_ % 2 == 0)
-    val expected = Stream(2, 2, 4)
+    val expected = LazyList(2, 2, 4)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -21,10 +21,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "lift ++ filter" should "create process to increase each integer by 3 and then append to do nothing" in {
     // given
     val process = lift[Int, Int](_ + 3) ++ filter(_ % 2 == 0)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -33,10 +33,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "filter ++ filter" should "create process to filter even integers and then append to do nothing" in {
     // given
     val process = filter[Int](_ % 2 == 0) ++ filter(_ % 2 != 0)
-    val expected = Stream(2, 4, 6)
+    val expected = LazyList(2, 4, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -45,10 +45,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "take ++ filter" should "create process to take first three integers and then append to to filter even integers" in {
     // given
     val process = take[Int](3) ++ filter(_ % 2 == 0)
-    val expected = Stream(1, 2, 3, 4, 6)
+    val expected = LazyList(1, 2, 3, 4, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -57,10 +57,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "drop ++ filter" should "create process to drop first three integers and then append to do nothing" in {
     // given
     val process = drop[Int](3) ++ filter(_ % 2 == 0)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -70,10 +70,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
     "filter even integers" in {
     // given
     val process = takeWhile[Int](_ < 4) ++ filter(_ % 2 == 0)
-    val expected = Stream(1, 2, 3, 4, 6)
+    val expected = LazyList(1, 2, 3, 4, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -83,10 +83,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
     "do nothing" in {
     // given
     val process = dropWhile[Int](_ < 4) ++ filter(_ % 2 == 0)
-    val expected = Stream(4, 5, 6)
+    val expected = LazyList(4, 5, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -95,10 +95,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "count ++ filter" should "create process to count the number of processed integers and then append to do nothing" in {
     // given
     val process = count[Int] ++ filter(_ => true)
-    val expected = Stream(1, 2, 3)
+    val expected = LazyList(1, 2, 3)
 
     // when
-    val actual = process(Stream(11, 12, 13)).map(_.get)
+    val actual = process(LazyList(11, 12, 13)).map(_.get)
 
     actual should contain theSameElementsInOrderAs expected
   }
@@ -106,10 +106,10 @@ class AppendWithFilterProcessTest extends FlatSpec with Matchers {
   "exists ++ liftOne" should "create process to find 'true' value and then append to filter 'true' values" in {
     // given
     val process = exists[Boolean](i => i) ++ filter(o => o)
-    val expected = Stream(false, false, true, true, true)
+    val expected = LazyList(false, false, true, true, true)
 
     // when
-    val actual = process(Stream(false, false, true, false, true, true)).map(_.get)
+    val actual = process(LazyList(false, false, true, false, true, true)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

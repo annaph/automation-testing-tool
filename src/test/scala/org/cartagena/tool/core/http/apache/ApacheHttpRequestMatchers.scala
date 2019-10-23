@@ -5,7 +5,7 @@ import java.net.URL
 import org.apache.http.client.utils.URIBuilder
 import org.scalatest.matchers.{MatchResult, Matcher}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 object ApacheHttpRequestMatchers {

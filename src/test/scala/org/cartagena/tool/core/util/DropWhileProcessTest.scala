@@ -12,21 +12,21 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
   "dropWhile" should "create process to drop integers while integer is smaller than 4" in {
     // given
     val process = dropWhile[Int](_ < 4)
-    val expected = Stream(4, 1, 6)
+    val expected = LazyList(4, 1, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 1, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 1, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to result in empty output stream when input stream is empty" in {
+  it should "create process to result in empty output lazy list when input lazy list is empty" in {
     // given
     val process = dropWhile[Int](_ < 4)
 
     // when
-    val actual = process(Stream.empty).map(_.get)
+    val actual = process(LazyList.empty).map(_.get)
 
     // then
     actual shouldBe empty
@@ -35,21 +35,21 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
   it should "create process to drop none integer" in {
     // given
     val process = dropWhile[Int](_ < 0)
-    val expected = Stream(1, 2, 3, 4, 1, 6)
+    val expected = LazyList(1, 2, 3, 4, 1, 6)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 1, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 1, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
   }
 
-  it should "create process to drop all integers and result to an empty output stream" in {
+  it should "create process to drop all integers and result to an empty output lazy list" in {
     // given
     val process = dropWhile[Int](_ < 4)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual shouldBe empty
@@ -63,7 +63,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3))
+    val actual = process(LazyList(1, 2, 3))
 
     // then
     actual should have size 1
@@ -83,7 +83,7 @@ class DropWhileProcessTest extends FlatSpec with Matchers with Inside {
     }
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual shouldBe empty

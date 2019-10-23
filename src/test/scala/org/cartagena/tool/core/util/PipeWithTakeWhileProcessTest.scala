@@ -8,10 +8,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
   "liftOne |> takeWhile" should "create process to increase only first integer by 3 and then take it" in {
     // given
     val process = liftOne[Int, Int](_ + 3) |> takeWhile(_ < 5)
-    val expected = Stream(4)
+    val expected = LazyList(4)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -21,10 +21,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "smaller than 6" in {
     // given
     val process = lift[Int, Int](_ + 3) |> takeWhile(_ < 6)
-    val expected = Stream(4, 5)
+    val expected = LazyList(4, 5)
 
     // when
-    val actual = process(Stream(1, 2, 3)).map(_.get)
+    val actual = process(LazyList(1, 2, 3)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -34,10 +34,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "smaller than 6" in {
     // given
     val process = filter[Int](_ % 2 == 0) |> takeWhile(_ < 6)
-    val expected = Stream(2, 4)
+    val expected = LazyList(2, 4)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -47,10 +47,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "smaller than 3" in {
     // given
     val process = take[Int](3) |> takeWhile(_ < 3)
-    val expected = Stream(1, 2)
+    val expected = LazyList(1, 2)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -60,10 +60,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "smaller than 6" in {
     // given
     val process = drop[Int](3) |> takeWhile(_ < 6)
-    val expected = Stream(4, 5)
+    val expected = LazyList(4, 5)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -73,10 +73,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "integers while integer is smaller then 3" in {
     // given
     val process = takeWhile[Int](_ < 4) |> takeWhile(_ < 3)
-    val expected = Stream(1, 2)
+    val expected = LazyList(1, 2)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -86,10 +86,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "integers while integer is smaller then 6" in {
     // given
     val process = dropWhile[Int](_ < 4) |> takeWhile(_ < 6)
-    val expected = Stream(4, 5)
+    val expected = LazyList(4, 5)
 
     // when
-    val actual = process(Stream(1, 2, 3, 4, 5, 6)).map(_.get)
+    val actual = process(LazyList(1, 2, 3, 4, 5, 6)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -99,10 +99,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "while counter is smaller then 3" in {
     // given
     val process = count[Char] |> takeWhile(_ < 3)
-    val expected = Stream(1, 2)
+    val expected = LazyList(1, 2)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     actual should contain theSameElementsInOrderAs expected
   }
@@ -111,10 +111,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
     "index is less then 2" in {
     // given
     val process = zipWithIndex[Char] |> takeWhile(_._2 < 2)
-    val expected = Stream('a' -> 0, 'b' -> 1)
+    val expected = LazyList('a' -> 0, 'b' -> 1)
 
     // when
-    val actual = process(Stream('a', 'b', 'c')).map(_.get)
+    val actual = process(LazyList('a', 'b', 'c')).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected
@@ -123,10 +123,10 @@ class PipeWithTakeWhileProcessTest extends FlatSpec with Matchers {
   "exists |> takeWhile" should "create process to find even integer and then take outputs while output is false" in {
     // given
     val process = exists[Int](_ % 2 == 0) |> takeWhile(o => !o)
-    val expected = Stream(false, false)
+    val expected = LazyList(false, false)
 
     // when
-    val actual = process(Stream(1, 3, 4, 5)).map(_.get)
+    val actual = process(LazyList(1, 3, 4, 5)).map(_.get)
 
     // then
     actual should contain theSameElementsInOrderAs expected

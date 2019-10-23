@@ -16,13 +16,13 @@ class StepShapeTest extends FlatSpec with Matchers {
     actual should be(IgnoredStepExecution(MyStepShape.name))
   }
 
-  "toStream" should "return Stream containing only one step" in {
+  "toLazyList" should "return lazy list containing only one step" in {
     // given
     val step = MyStepShape
-    val expected = Stream(step)
+    val expected = LazyList(step)
 
     // when
-    val actual = step.toStream
+    val actual = step.toLazyList
 
     // then
     actual should contain theSameElementsInOrderAs expected
