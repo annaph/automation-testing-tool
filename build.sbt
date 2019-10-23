@@ -2,7 +2,7 @@ name := "cartagena-tool"
 
 organization := "org.cartagena.tool"
 
-version := "1.2.0-SNAPSHOT"
+version := "1.1.0"
 
 scalaVersion := "2.13.1"
 
